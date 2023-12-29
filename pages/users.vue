@@ -153,7 +153,7 @@ export default {
             this.dialog = true
         },
         async save() {
-            if (this.editedIndex > -1) {
+            if (this.editedIndex === -1) {
                 const NewUser = await $fetch('/api/users', {
                     method: 'POST',
                     body: JSON.stringify(this.editedUser)
