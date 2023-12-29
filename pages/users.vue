@@ -22,7 +22,7 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedUser.nome" label="Nome"></v-text-field>
+                                            <v-text-field v-model="editedUser.name" label="Nome"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
                                             <v-text-field v-model="editedUser.email" label="E-mail"></v-text-field>
@@ -99,7 +99,7 @@ export default {
             snackbar: false,
             users: [],
             headers: [
-                { title: 'Nome', value: 'nome' },
+                { title: 'Nome', value: 'name' },
                 { title: 'Email', value: 'email' },
                 { title: 'Login', value: 'login' },
                 { title: 'Permisao', value: 'role' },
@@ -108,7 +108,7 @@ export default {
             ],
             editedUser: {
                 id: null,
-                nome: '',
+                name: '',
                 email: '',
                 login: '',
                 password: '',
@@ -117,7 +117,7 @@ export default {
             },
             defaultItem: {
                 id: null,
-                nome: '',
+                name: '',
                 email: '',
                 login: '',
                 password: '',
