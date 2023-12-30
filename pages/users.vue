@@ -78,8 +78,8 @@
         </v-data-table>
 
         <!-- Snackbar -->
-        <v-snackbar v-model="snackbar" color="success" :timeout="3000">
-            {{ snackbarText }}
+        <v-snackbar v-model="snackbar.open" color="success" :timeout="3000">
+            {{ snackbar.mensage }}
             <template v-slot:actions>
                 <v-btn color="white" text @click="snackbar = false" append-icon>
                     <v-icon>mdi-close</v-icon>
@@ -95,8 +95,12 @@ export default {
         return {
             dialog: false,
             dialogDelete: false,
-            editedIndex: -1,
-            snackbar: false,
+            snackbar: [
+                {
+                    open: false,
+                    mensage: null
+                }
+            ],
             users: [],
             headers: [
                 { title: 'Nome', value: 'name' },
@@ -139,7 +143,7 @@ export default {
     },
     computed: {
         formTitle() {
-            return this.editedIndex === -1 ? 'Cadastro' : 'Atualizar'
+            return this.editedUser.id === null ? 'Cadastro' : 'Atualizar'
         },
     },
     methods: {
@@ -153,23 +157,23 @@ export default {
             this.dialog = true
         },
         async save() {
-            if (this.editedIndex === -1) {
-                const NewUser = await $fetch('/api/users', {
-                    method: 'POST',
-                    body: JSON.stringify(this.editedUser)
-                })
-                if (NewUser.lastInsertRowid) {
-                    this.snackbar = true
-                    this.snackbarText = 'Usuário cadastrado com sucesso!'
-                }
-            } else {
+            if (this.editedUser.id) {
                 const UpdUser = await $fetch(`/api/users/${this.editedUser.id}`, {
                     method: 'PUT',
                     body: JSON.stringify(this.editedUser)
                 })
                 if (UpdUser.changes) {
-                    this.snackbar = true
-                    this.snackbarText = 'Usuário atualizado com sucesso!'
+                    this.snackbar.open = true
+                    this.snackbar.mensage = 'Usuário atualizado com sucesso!'
+                }
+            } else {
+                const NewUser = await $fetch('/api/users', {
+                    method: 'POST',
+                    body: JSON.stringify(this.editedUser)
+                })
+                if (NewUser.changes) {
+                    this.snackbar.open = true
+                    this.snackbar.mensage = 'Usuário cadastrado com sucesso!'
                 }
             }
             this.loadUsers()
@@ -179,7 +183,6 @@ export default {
             this.dialog = false
             this.$nextTick(() => {
                 this.editedUser = Object.assign({}, this.defaultItem)
-                this.editedIndex = -1
             })
         },
     },
