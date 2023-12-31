@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "a4b2878b-0c0b-493c-bbbb-f8ad3aceb445",
+  "id": "b9fc7f17-546c-4d1b-b92a-b8ed21369c95",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "points": {
