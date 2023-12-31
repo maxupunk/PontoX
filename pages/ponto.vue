@@ -116,10 +116,7 @@ export default {
       if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
         this.faceMatcherJson = this.treineServeData.faceMatcherJson
       } else {
-        this.LabelTrained = await this.loadLabels()
-        const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained)
-        this.faceMatcherJson = await faceMatcher.toJSON();
-        this.saveFaceMatcher(this.faceMatcherJson)
+        await this.createNewTreine()
       }
     })
     await this.getVideoDevices()
@@ -157,6 +154,13 @@ export default {
         this.load.loading = false;
         localStorage.setItem('selectedDevice', this.selectedDevice);
       }
+    },
+
+    async createNewTreine() {
+      this.LabelTrained = await this.loadLabels()
+      const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained)
+      this.faceMatcherJson = await faceMatcher.toJSON();
+      this.saveFaceMatcher(this.faceMatcherJson)
     },
 
     loadModels() {
