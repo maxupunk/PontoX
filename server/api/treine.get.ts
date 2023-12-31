@@ -3,7 +3,6 @@ import path from 'path';
 
 export default defineEventHandler(async () => {
   try {
-    console.log(process.env.FACE_INPUT_SIZE)
     const filePath = path.join('public', 'faceMatcher.json')
     try {
       await fs.promises.access(filePath, fs.constants.F_OK);
