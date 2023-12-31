@@ -66,7 +66,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-btn :loading="load.loading || botaoLoading" size="x-large" @click="processVideo">
+    <v-btn :loading="load.loading" size="x-large" @click="processVideo">
       Bater o ponto
     </v-btn>
   </v-layout-item>
@@ -99,7 +99,6 @@ export default {
       modelsServer: [],
       options: null,
       intervalId: null,
-      botaoLoading: false
     };
   },
   async mounted() {
