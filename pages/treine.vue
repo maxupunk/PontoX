@@ -26,7 +26,7 @@
             </v-row>
             <v-row>
               <v-col cols="6">
-                Quantidade de pessoas
+                Quantidade de face(s)
               </v-col>
               <v-col cols="6">
                 {{ faceMatcherJson.labeledDescriptors.length }}
@@ -106,7 +106,7 @@ export default {
       this.load.mensage = 'buscanco dados treinados...'
       this.treineServeData = await $fetch('api/treine')
 
-      this.options = new faceapi.TinyFaceDetectorOptions(this.treineServeData.tinyFaceDetectorOptions)
+      this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
 
       if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
         this.faceMatcherJson = this.treineServeData.faceMatcherJson
@@ -142,7 +142,6 @@ export default {
     loadModels() {
       this.load.mensage = 'Carregando modelos...'
       return Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri('/weights'),
         faceapi.nets.faceLandmark68Net.loadFromUri('/weights'),
         faceapi.nets.faceRecognitionNet.loadFromUri('/weights'),
         faceapi.nets.faceExpressionNet.loadFromUri('/weights'),
