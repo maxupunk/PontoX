@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "b9fc7f17-546c-4d1b-b92a-b8ed21369c95",
+  "id": "05eb6a51-26b1-4917-9bd3-2889afdbadd7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "points": {
@@ -29,6 +29,20 @@
           "autoincrement": false,
           "default": "CURRENT_TIMESTAMP"
         },
+        "entry_expressio": {
+          "name": "entry_expressio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "entry_image": {
+          "name": "entry_image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "departure_date": {
           "name": "departure_date",
           "type": "text",
@@ -36,8 +50,15 @@
           "notNull": false,
           "autoincrement": false
         },
-        "image_info": {
-          "name": "image_info",
+        "departure_expressio": {
+          "name": "departure_expressio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "departure_image": {
+          "name": "departure_image",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

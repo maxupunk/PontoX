@@ -2,8 +2,11 @@ CREATE TABLE `points` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`user_id` integer,
 	`entry_date` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`entry_expressio` text,
+	`entry_image` text,
 	`departure_date` text,
-	`image_info` text,
+	`departure_expressio` text,
+	`departure_image` text,
 	`observation` text
 );
 --> statement-breakpoint

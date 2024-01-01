@@ -23,5 +23,6 @@ logs
 .env.*
 !.env.example
 
-public/labels/*
+public/imagens/*
 public/faceMatcher.json
+sqlite.db
