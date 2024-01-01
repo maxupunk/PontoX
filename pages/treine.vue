@@ -1,25 +1,72 @@
 <template>
   <v-container>
-    <v-btn :loading="load.loading" size="x-large" @click="loadLabels">
-      aprender
-    </v-btn>
-    <v-btn size="x-large" @click="verificar">
-      verificar
-    </v-btn>
-    labels: {{ LabelTrained }} <br>
-    models: {{ modelsServer }} <br>
-    faceMatcher: {{ faceMatcherJson }}
+    <div v-if="treineFileInfo">
+      <v-card>
+        <v-card-title>
+          <span class="text-h4">Já existe um treinamento</span>
+        </v-card-title>
+
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="6">
+                Data do ulitmo treino
+              </v-col>
+              <v-col cols="6">
+                {{ treineFileInfo.birthtime }}
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="6">
+                Tamanho
+              </v-col>
+              <v-col cols="6">
+                {{ treineFileInfo.size }}
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="6">
+                Quantidade de pessoas
+              </v-col>
+              <v-col cols="6">
+                {{ faceMatcherJson.labeledDescriptors.length }}
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="6">
+                Distancia Limite
+              </v-col>
+              <v-col cols="6">
+                {{ faceMatcherJson.distanceThreshold }}
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue-darken-1" variant="text" @click="createNewTreine">
+            Criar novo treinamento
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </div>
+
     <v-overlay v-model="load.loading" class="align-center justify-center">
-      <div class="text-center">
-        <v-progress-circular color="primary" indeterminate></v-progress-circular>
-      </div>
-      <div class="text-center">
-        {{ load.mensage }}
-      </div>
+      <v-card>
+        <v-card-text>
+          <div class="text-center">
+            <v-progress-circular color="primary" indeterminate></v-progress-circular>
+          </div>
+          <div class="text-center">
+            {{ load.mensage }}
+          </div>
+        </v-card-text>
+      </v-card>
     </v-overlay>
 
     <!-- Snackbar -->
-    <v-snackbar v-model="snackbar.open" color="success" :timeout="3000">
+    <v-snackbar v-model="snackbar.open" :color="snackbar.color" :timeout="3000">
       {{ snackbar.mensage }}
       <template v-slot:actions>
         <v-btn color="white" text @click="snackbar = false" append-icon>
@@ -38,44 +85,62 @@ export default {
     return {
       LabelTrained: [],
       faceMatcherJson: [],
+      treineServeData: [],
       dialog: false,
       snackbar: {
         open: false,
-        mensage: null
+        mensage: null,
+        color: 'success'
       },
       load: {
         loading: false,
         mensage: null
       },
       modelsServer: [],
-      options: null
+      options: null,
     };
   },
   async mounted() {
-    this.load.loading = true
-    this.options = new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: 0.7 })
-    this.load.mensage = '1 - Buscando dados do servidor...'
-    this.modelsServer = await $fetch('/api/models')
+    this.load.loading = true;
     await this.loadModels().then(async () => {
-      this.load.mensage = '2 - buscanco dados treinados...'
-      this.faceMatcherJson = await $fetch('api/treine')
-      if (!this.faceMatcherJson) {
-        try {
-          this.LabelTrained = await this.loadLabels()
-          console.log('Labels loaded', this.LabelTrained);
-        } catch (error) {
-          console.error('Error loading labels', error);
-        }
-        this.load.loading = false
-        // const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained, 1)
-        // this.faceMatcherJson = await faceMatcher.toJSON();
-        //this.saveFaceMatcher(this.faceMatcherJson)
+      this.load.mensage = 'buscanco dados treinados...'
+      this.treineServeData = await $fetch('api/treine')
+
+      this.options = new faceapi.TinyFaceDetectorOptions(this.treineServeData.tinyFaceDetectorOptions)
+
+      if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
+        this.faceMatcherJson = this.treineServeData.faceMatcherJson
       }
     })
+    this.load.loading = false;
+  },
+  computed: {
+    treineFileInfo() {
+      if (this.treineServeData.hasOwnProperty('fileStats')) {
+        return this.treineServeData.fileStats
+      } else {
+        return null
+      }
+    }
   },
   methods: {
+    async saveFaceMatcher(faceMatcherJson) {
+      $fetch(`/api/treine`, {
+        method: 'POST',
+        body: faceMatcherJson
+      })
+    },
+
+    async createNewTreine() {
+      this.LabelTrained = await this.loadLabels()
+      const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained)
+      this.faceMatcherJson = await faceMatcher.toJSON();
+      await this.saveFaceMatcher(this.faceMatcherJson)
+      this.load.loading = false;
+    },
+
     loadModels() {
-      this.load.mensage = '3 - Carregando modelos...'
+      this.load.mensage = 'Carregando modelos...'
       return Promise.all([
         faceapi.nets.tinyFaceDetector.loadFromUri('/weights'),
         faceapi.nets.faceLandmark68Net.loadFromUri('/weights'),
@@ -85,28 +150,14 @@ export default {
       ]);
     },
 
-    verificar() {
-      console.log(this.LabelTrained)
-      const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained, 0.8)
-      this.faceMatcherJson = faceMatcher.toJSON();
-      this.load.loading = false
-      console.log(this.faceMatcher)
-    },
-
-    async saveFaceMatcher(faceMatcherJson) {
-      $fetch(`/api/treine`, {
-        method: 'POST',
-        body: faceMatcherJson
-      })
-    },
     async loadLabels() {
       this.load.loading = true
-      this.load.mensage = '4 - Aprendendo com as fotos...'
+      this.load.mensage = 'Buscando os modelos no servidor...'
+      this.modelsServer = await $fetch('/api/models')
       return Promise.all(this.modelsServer.map(async label => {
         let LabeledFaceDescriptors = [];
-        this.load.mensage = '4 - Aprendendo com as fotos...' + label.label
         for (const file of label.files) {
-          this.load.mensage = '4 - Aprendendo com as fotos...' + label.label + ' - ' + file
+          this.load.mensage = 'Processando - ' + label.label + ' - ' + file
           const img = await faceapi.fetchImage(`/labels/${label.label}/${file}`);
           const detections = await faceapi.detectSingleFace(img, this.options).withFaceLandmarks().withFaceDescriptor();
           if (detections) {
@@ -115,7 +166,7 @@ export default {
         }
         return new faceapi.LabeledFaceDescriptors(label.label, LabeledFaceDescriptors);
       }))
-    },
+    }
   }
 }
 </script>
