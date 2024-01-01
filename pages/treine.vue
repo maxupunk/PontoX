@@ -157,7 +157,7 @@ export default {
         let LabeledFaceDescriptors = [];
         for (const file of label.files) {
           this.load.mensage = 'Processando - ' + label.label + ' - ' + file
-          const img = await faceapi.fetchImage(`/labels/${label.label}/${file}`);
+          const img = await faceapi.fetchImage(`/imagens/${label.label}/${file}`);
           const detections = await faceapi.detectSingleFace(img, this.options).withFaceLandmarks().withFaceDescriptor();
           if (detections) {
             LabeledFaceDescriptors.push(detections.descriptor);
