@@ -11,7 +11,7 @@
     </v-row>
     <v-row align="center" justify="center">
       <v-col cols="auto">
-        <video autoplay id="cam" width="100%" height="60%" muted></video>
+        <video autoplay id="cam" muted></video>
         <canvas id="canvas"></canvas>
       </v-col>
     </v-row>
@@ -48,8 +48,10 @@
               <v-col cols="12">
                 <v-text-field label="Nome do usuário" v-model="dataUser.user.name" readonly></v-text-field>
               </v-col>
+            </v-row>
+            <v-row>
               <v-col cols="12">
-                <v-text-field label="Email do usuário" v-model="dataUser.user.email" readonly></v-text-field>
+                <v-text-field label="Observação" v-model="observation" readonly></v-text-field>
               </v-col>
             </v-row>
             <v-row v-if="dataUser.point">
@@ -66,8 +68,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-btn :loading="load.loading" size="x-large" @click="processVideo">
-      Bater o ponto
+    <v-btn :loading="load.loading" :disabled="startDesable" size="x-large" @click="processVideo">
+      Registrar ponto
     </v-btn>
   </v-layout-item>
 </template>
@@ -81,7 +83,10 @@ export default {
       video: null,
       canvas: null,
       dataUser: [],
-      LabelTrained: [],
+      pointLocal: {
+        capturedImage: null,
+        expressioUser: null,
+      },
       faceMatcherJson: [],
       treineServeData: [],
       dialog: false,
@@ -96,9 +101,14 @@ export default {
       },
       videoDevices: [],
       selectedDevice: null,
+      resolutionDevice: {
+        width: 0,
+        height: 0
+      },
       modelsServer: [],
       options: null,
-      intervalId: null,
+      faceMatcher: null,
+      startDesable: false
     };
   },
   async mounted() {
@@ -110,13 +120,16 @@ export default {
       this.load.mensage = 'buscanco dados treinados...'
       this.treineServeData = await $fetch('api/treine')
 
-      this.options = new faceapi.TinyFaceDetectorOptions(this.treineServeData.tinyFaceDetectorOptions)
+      this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
 
       if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
         this.faceMatcherJson = this.treineServeData.faceMatcherJson
       } else {
-        await this.createNewTreine()
+        this.snackbar.open = true
+        this.snackbar.mensage = 'Não existe nem um dado treinado!'
+        this.startDesable = true
       }
+      this.faceMatcher = faceapi.FaceMatcher.fromJSON(this.faceMatcherJson);
     })
     await this.getVideoDevices()
   },
@@ -124,19 +137,9 @@ export default {
     titulo() {
       return this.dataUser.point ? 'Confirmação de saída' : 'Confirmação de entrada'
     },
-    canvasSize() {
-      return {
-        width: this.video.width,
-        height: this.video.height
-      }
+    observation() {
+      return this.dataUser.point ? this.dataUser.point.observation : null
     }
-  },
-  watch: {
-    'load.loading': function (newVal, oldVal) {
-      if (!newVal) {
-        clearInterval(this.intervalId);
-      }
-    },
   },
   methods: {
     async getVideoDevices() {
@@ -149,23 +152,18 @@ export default {
       this.load.mensage = 'Carregando câmera...'
       if (this.selectedDevice) {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: this.selectedDevice } });
+        let stream_settings = stream.getVideoTracks()[0].getSettings();
+        this.resolutionDevice.width = stream_settings.width;
+        this.resolutionDevice.height = stream_settings.height;
         this.video.srcObject = stream;
         this.load.loading = false;
         localStorage.setItem('selectedDevice', this.selectedDevice);
       }
     },
 
-    async createNewTreine() {
-      this.LabelTrained = await this.loadLabels()
-      const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained)
-      this.faceMatcherJson = await faceMatcher.toJSON();
-      this.saveFaceMatcher(this.faceMatcherJson)
-    },
-
     loadModels() {
       this.load.mensage = 'Carregando modelos...'
       return Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri('/weights'),
         faceapi.nets.faceLandmark68Net.loadFromUri('/weights'),
         faceapi.nets.faceRecognitionNet.loadFromUri('/weights'),
         faceapi.nets.faceExpressionNet.loadFromUri('/weights'),
@@ -179,85 +177,64 @@ export default {
       this.dialog = true
     },
 
-    async saveFaceMatcher(faceMatcherJson) {
-      $fetch(`/api/treine`, {
-        method: 'POST',
-        body: faceMatcherJson
-      })
-    },
-
     async confirmPonto() {
       const data = {
-        "user_id": this.dataUser.user.id,
+        "userId": this.dataUser.user.id,
+        "expressio": this.pointLocal.expressioUser,
+        "capturedImage": this.pointLocal.capturedImage,
+        "observation": this.observation
       }
       const PointSave = await $fetch(`/api/point`, {
         method: 'POST',
         body: data
       })
       if (PointSave) {
+        this.snackbar.open = true
+        this.snackbar.mensage = 'Ponto registrado com sucesso!'
         this.dialog = false
       }
     },
 
-    async loadLabels() {
-      this.load.loading = true
-      this.load.mensage = 'Buscando os modelos no servidor...'
-      this.modelsServer = await $fetch('/api/models')
-      return Promise.all(this.modelsServer.map(async label => {
-        let LabeledFaceDescriptors = [];
-        for (const file of label.files) {
-          this.load.mensage = 'Aprendendo com a imagem...' + label.label + ' - ' + file
-          const img = await faceapi.fetchImage(`/labels/${label.label}/${file}`);
-          const detections = await faceapi.detectSingleFace(img, this.options).withFaceLandmarks().withFaceDescriptor();
-          if (detections) {
-            LabeledFaceDescriptors.push(detections.descriptor);
-          }
-        }
-        return new faceapi.LabeledFaceDescriptors(label.label, LabeledFaceDescriptors);
-      }))
-    },
-
     async processVideo() {
       this.load.loading = true;
-      this.load.mensage = 'buscando humano na camera...'
+      this.load.mensage = 'buscando rosto na camera...'
       this.snackbar.color = 'success'
-      this.intervalId = setInterval(async () => {
-        const detections = await faceapi
-          .detectAllFaces(cam, this.options)
-          .withFaceLandmarks()
-          .withFaceExpressions()
-          .withFaceDescriptors()
+      this.canvas.width = this.video.videoWidth;
+      this.canvas.height = this.video.videoHeight;
 
+      const singleResult = await faceapi
+        .detectSingleFace(cam, this.options)
+        .withFaceLandmarks()
+        .withFaceExpressions()
+        .withFaceDescriptor()
 
-        if (detections.length) {
-          this.load.mensage = 'Tentado reconhecer!'
+      if (singleResult) {
+        this.load.mensage = 'Tentado reconhecer!'
+        const bestMatch = this.faceMatcher.findBestMatch(singleResult.descriptor)
+        if (bestMatch.label !== 'unknown') {
+          const expressions = singleResult.expressions
+          this.pointLocal.expressioUser = Object.keys(expressions).reduce((a, b) => expressions[a] > expressions[b] ? a : b);
 
-          const faceMatcher = faceapi.FaceMatcher.fromJSON(this.faceMatcherJson);
+          // Capture the current frame from the video
+          const ctx = this.canvas.getContext('2d');
+          ctx.drawImage(this.video, 0, 0, this.resolutionDevice.width, this.resolutionDevice.height);
+          // Convert the canvas image to a data URL
+          this.pointLocal.capturedImage = this.canvas.toDataURL('image/png');
+          // Clear the canvas
+          this.canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
 
-          const results = detections.map((d) => {
-            return faceMatcher.findBestMatch(d.descriptor)
-          })
-
-          detections.forEach(result => {
-            const { expressions } = result
-            console.log(expressions)
-          })
-
-          results.forEach(async (result) => {
-            const { label, distance } = result
-            if (label !== 'unknown' && distance < 0.4) {
-              clearInterval(this.intervalId)
-              await this.getDateUser(label)
-              this.load.loading = false;
-            } else {
-              this.snackbar.open = true
-              this.snackbar.mensage = 'Não estou reconhecendo... Chegue mais perto e/ou de frente para camera!'
-              this.snackbar.color = 'warning'
-            }
-          })
+          await this.getDateUser(bestMatch.label)
+        } else {
+          this.snackbar.open = true
+          this.snackbar.mensage = 'Não estou reconhecendo... Chegue mais perto e/ou de frente para camera!'
+          this.snackbar.color = 'warning'
         }
-
-      }, 1000);
+      } else {
+        this.snackbar.open = true
+        this.snackbar.mensage = 'Não encontrei rosto da imagem!'
+        this.snackbar.color = 'warning'
+      }
+      this.load.loading = false;
     },
   }
 }
@@ -271,8 +248,7 @@ export default {
   left: 0;
   right: 0;
   border-color: black;
-  max-width: 80%;
-  max-height: 560px;
+  max-width: 90%;
 }
 
 #canvas {
@@ -282,7 +258,5 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  max-width: 80%;
-  max-height: 560px;
 }
 </style>
