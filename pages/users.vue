@@ -1,7 +1,14 @@
 <template>
     <v-container>
+        <v-overlay v-model="load.loading" class="align-center justify-center">
+            <div class="text-center">
+                <v-progress-circular color="primary" indeterminate></v-progress-circular>
+            </div>
+            <div class="text-center" style="color: white;">
+                {{ load.mensage }}
+            </div>
+        </v-overlay>
         <v-data-table :items="users" :headers="headers">
-
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-toolbar-title>Usuarios</v-toolbar-title>
@@ -55,17 +62,6 @@
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
-                    <v-dialog v-model="dialogDelete" max-width="500px">
-                        <v-card>
-                            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancel</v-btn>
-                                <v-btn color="blue-darken-1" variant="text" @click="deleteItemConfirm">OK</v-btn>
-                                <v-spacer></v-spacer>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
                 </v-toolbar>
             </template>
 
@@ -94,13 +90,14 @@ export default {
     data() {
         return {
             dialog: false,
-            dialogDelete: false,
-            snackbar: [
-                {
-                    open: false,
-                    mensage: null
-                }
-            ],
+            snackbar: {
+                open: false,
+                mensage: null
+            },
+            load: {
+                loading: false,
+                mensage: null
+            },
             users: [],
             headers: [
                 { title: 'Nome', value: 'name' },
@@ -130,15 +127,12 @@ export default {
             },
         };
     },
-    async created() {
+    mounted() {
         this.loadUsers()
     },
     watch: {
         dialog(val) {
             val || this.close()
-        },
-        dialogDelete(val) {
-            val || this.closeDelete()
         },
     },
     computed: {
@@ -148,16 +142,24 @@ export default {
     },
     methods: {
         async loadUsers() {
+            this.load.loading = true
+            this.load.mensage = 'Buscando dados...'
             const response = await $fetch('/api/users')
             this.users = response.users;
+            this.load.loading = false
         },
         async editItem(item) {
+            this.load.loading = true
+            this.load.mensage = 'Buscando usuario...'
             const response = await $fetch(`/api/users/${item.id}`)
             this.editedUser = response.user;
             this.dialog = true
+            this.load.loading = false
         },
         async save() {
+            this.load.loading = true            
             if (this.editedUser.id) {
+                this.load.mensage = 'Atualizando usuario...'
                 const UpdUser = await $fetch(`/api/users/${this.editedUser.id}`, {
                     method: 'PUT',
                     body: JSON.stringify(this.editedUser)
@@ -167,6 +169,7 @@ export default {
                     this.snackbar.mensage = 'Usuário atualizado com sucesso!'
                 }
             } else {
+                this.load.mensage = 'Cadastrando usuario...'
                 const NewUser = await $fetch('/api/users', {
                     method: 'POST',
                     body: JSON.stringify(this.editedUser)
