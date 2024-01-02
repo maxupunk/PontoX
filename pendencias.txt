@@ -1,0 +1,3 @@
+- add imagem no cadastro de pessoa
+- formatar data e hora para pt-br
+- relatorio pegando a hora de cada funcinario por data
