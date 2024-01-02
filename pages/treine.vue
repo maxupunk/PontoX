@@ -1,6 +1,7 @@
 <template>
   <v-container>
     <div v-if="treineFileInfo">
+      <v-alert color="info" variant="outlined" v-if="isDifferent">Recomendado o retreinamento, existe algun(s) cadastro sem reconhecimento</v-alert>
       <v-card>
         <v-card-title>
           <span class="text-h4">Já existe um treinamento</span>
@@ -24,17 +25,15 @@
                 {{ treineFileInfo.size }}
               </v-col>
             </v-row>
-            <v-row>
-              <v-col cols="6">
-                Quantidade de face(s)
-              </v-col>
-              <v-col cols="6">
-                {{ faceMatcherJson.labeledDescriptors.length }}
+            <v-row v-if="faceMatcherJson.hasOwnProperty('labeledDescriptors')">
+              <v-col cols="12">
+                {{ faceMatcherJson.labeledDescriptors.length }} face(s) reconhecida(s) de {{ allUsers.users.length }}
+                cadastrada(s) no banco de dados
               </v-col>
             </v-row>
             <v-row>
               <v-col cols="6">
-                Distancia Limite
+                Distancia Limite (precisão)
               </v-col>
               <v-col cols="6">
                 {{ faceMatcherJson.distanceThreshold }}
@@ -86,6 +85,7 @@ export default {
       LabelTrained: [],
       faceMatcherJson: [],
       treineServeData: [],
+      allUsers: [],
       dialog: false,
       snackbar: {
         open: false,
@@ -98,6 +98,7 @@ export default {
       },
       modelsServer: [],
       options: null,
+      distanceThreshold: 0.6,
     };
   },
   async mounted() {
@@ -105,8 +106,10 @@ export default {
     await this.loadModels().then(async () => {
       this.load.mensage = 'buscanco dados treinados...'
       this.treineServeData = await $fetch('api/treine')
+      this.allUsers = await $fetch('/api/users')
 
       this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
+      this.distanceThreshold = this.treineServeData.distanceThreshold
 
       if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
         this.faceMatcherJson = this.treineServeData.faceMatcherJson
@@ -121,6 +124,13 @@ export default {
       } else {
         return null
       }
+    },
+    isDifferent() {
+      if (this.faceMatcherJson.hasOwnProperty('labeledDescriptors')) {
+        return this.faceMatcherJson.labeledDescriptors.length < this.allUsers.users.length;
+      } else {
+        return true
+      }
     }
   },
   methods: {
@@ -133,7 +143,7 @@ export default {
 
     async createNewTreine() {
       this.LabelTrained = await this.loadLabels()
-      const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained)
+      const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained, this.distanceThreshold)
       this.faceMatcherJson = await faceMatcher.toJSON();
       await this.saveFaceMatcher(this.faceMatcherJson)
       this.load.loading = false;
