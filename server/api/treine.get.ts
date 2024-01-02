@@ -6,6 +6,7 @@ export default defineEventHandler(async () => {
     const filePath = path.join('public', 'faceMatcher.json')
     const FACE_MIN_CONFIDENCE = process.env.FACE_MIN_CONFIDENCE || 512;
     const FACE_MAX_RESULTS = process.env.FACE_MAX_RESULTS || 0.8;
+    const FACE_DISTANCE_THRESHOLD = process.env.FACE_DISTANCE_THRESHOLD || 0.6;
     try {
       await fs.promises.access(filePath, fs.constants.F_OK);
       const conteFile = JSON.parse(await fs.promises.readFile(filePath, 'utf8'));
@@ -16,6 +17,7 @@ export default defineEventHandler(async () => {
           minConfidence: +FACE_MIN_CONFIDENCE,
           maxResults: +FACE_MAX_RESULTS
         },
+        distanceThreshold: +FACE_DISTANCE_THRESHOLD,
         fileStats: FileStats
       }
     } catch (err) {
@@ -23,7 +25,8 @@ export default defineEventHandler(async () => {
         Mobilenetv1Options: {
           minConfidence: +FACE_MIN_CONFIDENCE,
           maxResults: +FACE_MAX_RESULTS
-        }
+        },
+        distanceThreshold: +FACE_DISTANCE_THRESHOLD,
       }
     }
   } catch (e: any) {
