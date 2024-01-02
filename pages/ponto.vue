@@ -203,7 +203,7 @@ export default {
       this.canvas.height = this.video.videoHeight;
 
       const singleResult = await faceapi
-        .detectSingleFace(cam, this.options)
+        .detectSingleFace(this.video, this.options)
         .withFaceLandmarks()
         .withFaceExpressions()
         .withFaceDescriptor()
