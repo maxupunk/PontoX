@@ -105,7 +105,7 @@ export default {
     this.load.loading = true;
     await this.loadModels().then(async () => {
       this.load.mensage = 'buscanco dados treinados...'
-      this.treineServeData = await $fetch('api/treine')
+      this.treineServeData = await $fetch('/api/treine')
       this.allUsers = await $fetch('/api/users')
 
       this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
