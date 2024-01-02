@@ -173,8 +173,14 @@ export default {
 
     async getDateUser(id) {
       const response = await $fetch(`/api/users/${id}`)
-      this.dataUser = response;
-      this.dialog = true
+      if (response.hasOwnProperty('user')) {
+        this.dataUser = response;
+        this.dialog = true
+      } else {
+        this.snackbar.open = true
+        this.snackbar.mensage = 'Não encontrei esse usuario no banco, talvez você tenha que retreinar!'
+        this.snackbar.color = 'warning'
+      }
     },
 
     async confirmPonto() {
@@ -222,7 +228,7 @@ export default {
           this.pointLocal.capturedImage = this.canvas.toDataURL('image/png');
           // Clear the canvas
           this.canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
-
+          //
           await this.getDateUser(bestMatch.label)
         } else {
           this.snackbar.open = true
