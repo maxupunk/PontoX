@@ -1,8 +1,7 @@
 import { points } from "../../models/points";
 import { db } from "../sqlite-service";
 import { eq, and, isNull } from "drizzle-orm";
-import * as fs from 'fs';
-import * as path from 'path';
+import { saveUserImage } from '../../utils/imageUtils';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -18,22 +17,9 @@ export default defineEventHandler(async (event) => {
       )
       .get()
 
-    // cria a pasta do usuário caso não exista      
-    const dirPath = path.join('public', 'imagens', `${body.userId}`);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
+    const nameImage = saveUserImage(body.userId, body.capturedImage)
 
-    // Remova o prefixo da string de dados
-    let ImagenBase64Data = body.capturedImage.replace(/^data:image\/\w+;base64,/, "");
-    // Converta a string de dados em um buffer
-    let imageBase64 = Buffer.from(ImagenBase64Data, 'base64');
-    // salva a imagem
-    const nameImage = date.toISOString().replace(/[:.]/g, '.') + '.jpg';
-    const filePath = path.join(dirPath, nameImage);
-    fs.writeFileSync(filePath, imageBase64);
-
-    const data: any  = {
+    const data: any = {
       userId: body.userId,
       observation: body.observation,
     }
