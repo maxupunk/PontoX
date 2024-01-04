@@ -6,8 +6,7 @@
       <v-app-bar-title>PontoX</v-app-bar-title>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer">
-      <v-list-item link prepend-icon="mdi-home" title="Home" to="/"></v-list-item>
-      <v-list-item link prepend-icon="mdi-eye-check" title="Ponto" to="/ponto"></v-list-item>
+      <v-list-item link prepend-icon="mdi-eye-check" title="Ponto" to="/"></v-list-item>
       <v-list-item link prepend-icon="mdi-school" title="Treinamento" to="/treine"></v-list-item>
       <v-list-item link prepend-icon="mdi-account-group" title="Usuarios" to="/users"></v-list-item>
       <v-list-item link prepend-icon="mdi-information-outline" title="Sobre" to="/about"></v-list-item>
