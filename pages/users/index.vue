@@ -29,7 +29,7 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedUser.name" label="Nome"></v-text-field>
+                                            <v-text-field v-model="editedUser.name" label="Nome" required></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
                                             <v-text-field v-model="editedUser.email" label="E-mail"></v-text-field>
@@ -42,7 +42,7 @@
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
                                             <v-select v-model="editedUser.role" label="Perfil"
-                                                :items="['funcionario', 'admin']" />
+                                                :items="['funcionario', 'admin']" required />
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
                                             <v-switch v-model="editedUser.status" label="Ativo" color="primary" />
