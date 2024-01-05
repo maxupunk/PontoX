@@ -11,16 +11,23 @@ export default defineEventHandler(async (event) => {
             .where(eq(users.id, userId))
             .get()
 
-        userQuery.password = null;
+        const userDate = {
+            id: userQuery?.id,
+            name: userQuery?.name,
+            email: userQuery?.email,
+            login: userQuery?.login,
+            role: userQuery?.role,
+            status: userQuery?.status,
+        }
 
-        const pointQuery = db.select()
+        let pointQuery = db.select()
             .from(points)
             .where(
                 and(eq(points.userId, userId), isNull(points.departureDate))
             )
             .get()
 
-        return { user: userQuery, point: pointQuery };
+        return { user: userDate, point: pointQuery };
     } catch (e: any) {
         throw createError({
             statusCode: 400,
