@@ -36,6 +36,7 @@ export default {
         dialog: false,
         resolve: null,
         reject: null,
+        token: null,
         snackbar: {
             open: false,
             mensage: ''
@@ -47,6 +48,10 @@ export default {
     }),
     methods: {
         open() {
+            if (this.token) {
+                return Promise.resolve(this.token)
+            }
+            
             this.dialog = true
             return new Promise((resolve, reject) => {
                 this.resolve = resolve
@@ -65,6 +70,7 @@ export default {
                 }
                 return
             }
+            this.token = login.token
             this.resolve(login.token)
             this.dialog = false
         },
