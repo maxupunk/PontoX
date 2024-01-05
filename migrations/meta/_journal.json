@@ -8,6 +8,13 @@
       "when": 1704141362466,
       "tag": "0000_dark_paladin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1704466563182,
+      "tag": "0001_hard_drax",
+      "breakpoints": true
     }
   ]
 }
