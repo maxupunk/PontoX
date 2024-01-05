@@ -1,7 +1,8 @@
 <template>
   <v-container>
     <div v-if="treineFileInfo">
-      <v-alert color="info" variant="outlined" v-if="isDifferent">Recomendado o retreinamento, existe algun(s) cadastro sem reconhecimento</v-alert>
+      <v-alert color="info" variant="outlined" v-if="isDifferent">Recomendado o retreinamento, existe algun(s) cadastro
+        sem reconhecimento</v-alert>
       <v-card>
         <v-card-title>
           <span class="text-h4">Já existe um treinamento</span>
@@ -74,10 +75,12 @@
       </template>
     </v-snackbar>
   </v-container>
+  <AdminPassowrd ref="adminPassowrd"></AdminPassowrd>
 </template>
 
 <script>
 import * as faceapi from 'face-api.js';
+import AdminPassowrd from '~/components/AdminPassowrd.vue';
 
 export default {
   data() {
@@ -86,6 +89,7 @@ export default {
       faceMatcherJson: [],
       treineServeData: [],
       allUsers: [],
+      token: null,
       dialog: false,
       snackbar: {
         open: false,
@@ -100,6 +104,9 @@ export default {
       options: null,
       distanceThreshold: 0.6,
     };
+  },
+  components: {
+    AdminPassowrd
   },
   async mounted() {
     this.load.loading = true;
@@ -134,14 +141,26 @@ export default {
     }
   },
   methods: {
+    async openAdminPassowrd() {
+      return await this.$refs.adminPassowrd.open().then((token) => {
+        if (token) {
+          this.token = token
+        }
+      })
+    },
+
     async saveFaceMatcher(faceMatcherJson) {
       $fetch(`/api/treine`, {
         method: 'POST',
+        headers: {
+          Authorization: this.token
+        },
         body: faceMatcherJson
       })
     },
 
     async createNewTreine() {
+      await this.openAdminPassowrd()
       this.LabelTrained = await this.loadLabels()
       const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained, this.distanceThreshold)
       this.faceMatcherJson = await faceMatcher.toJSON();

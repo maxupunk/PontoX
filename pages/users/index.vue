@@ -83,9 +83,12 @@
             </template>
         </v-snackbar>
     </v-container>
+    <AdminPassowrd ref="adminPassowrd"></AdminPassowrd>
 </template>
   
 <script>
+import AdminPassowrd from '~/components/AdminPassowrd.vue';
+
 export default {
     data() {
         return {
@@ -99,6 +102,7 @@ export default {
                 mensage: null
             },
             users: [],
+            token: null,
             headers: [
                 { title: 'ID', value: 'id' },
                 { title: 'Nome', value: 'name' },
@@ -128,6 +132,9 @@ export default {
             },
         };
     },
+    components: {
+        AdminPassowrd
+    },
     mounted() {
         this.loadUsers()
     },
@@ -142,12 +149,18 @@ export default {
         },
     },
     methods: {
+        async openAdminPassowrd() {
+            return await this.$refs.adminPassowrd.open().then((token) => {
+                if (token) {
+                    this.token = token
+                }
+            })
+        },
         async loadUsers() {
             this.load.loading = true
             this.load.mensage = 'Buscando dados...'
             const response = await $fetch('/api/users')
             this.users = response.users;
-
             this.load.loading = false
         },
         async editItem(item) {
@@ -159,11 +172,15 @@ export default {
             this.load.loading = false
         },
         async save() {
+            await this.openAdminPassowrd()
             this.load.loading = true
             if (this.editedUser.id) {
                 this.load.mensage = 'Atualizando usuario...'
                 const UpdUser = await $fetch(`/api/users/${this.editedUser.id}`, {
                     method: 'PUT',
+                    headers: {
+                        Authorization: this.token
+                    },
                     body: JSON.stringify(this.editedUser)
                 })
                 if (UpdUser.changes) {
@@ -174,6 +191,9 @@ export default {
                 this.load.mensage = 'Cadastrando usuario...'
                 const NewUser = await $fetch('/api/users', {
                     method: 'POST',
+                    headers: {
+                        Authorization: this.token
+                    },
                     body: JSON.stringify(this.editedUser)
                 })
                 if (NewUser.changes) {
