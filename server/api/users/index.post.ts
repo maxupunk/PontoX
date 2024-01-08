@@ -1,5 +1,5 @@
-import { users } from "../../models/users";
-import { db } from "../sqlite-service";
+import { users } from "../../../models/users";
+import { db } from "../../sqlite-service";
 import bcrypt from 'bcrypt';
 
 export default defineEventHandler(async (event) => {
