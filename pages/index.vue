@@ -51,7 +51,7 @@
             </v-row>
             <v-row>
               <v-col cols="12">
-                <v-text-field label="Observação" v-model="observation" readonly></v-text-field>
+                <v-text-field label="Observação" v-model="observation"></v-text-field>
               </v-col>
             </v-row>
             <v-row v-if="dataUser.point">
@@ -83,6 +83,7 @@ export default {
       video: null,
       canvas: null,
       dataUser: [],
+      observation: null,
       pointLocal: {
         capturedImage: null,
         expressioUser: null,
@@ -137,9 +138,6 @@ export default {
     titulo() {
       return this.dataUser.point ? 'Confirmação de saída' : 'Confirmação de entrada'
     },
-    observation() {
-      return this.dataUser.point ? this.dataUser.point.observation : null
-    }
   },
   methods: {
     async getVideoDevices() {
@@ -174,6 +172,7 @@ export default {
     async getDateUser(id) {
       const response = await $fetch(`/api/users/${id}`)
       if (response.hasOwnProperty('user')) {
+        this.observation = response.point ? response.point.observation : null;
         this.dataUser = response;
         this.dialog = true
       } else {
