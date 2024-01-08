@@ -190,7 +190,7 @@ export default {
         "capturedImage": this.pointLocal.capturedImage,
         "observation": this.observation
       }
-      const PointSave = await $fetch(`/api/point`, {
+      const PointSave = await $fetch(`/api/points`, {
         method: 'POST',
         body: data
       })
