@@ -190,7 +190,7 @@ export default {
         "observation": this.observation
       }
       const PointSave = await $fetch(`/api/points`, {
-        method: 'POST',
+        method: 'PATCH',
         body: data
       })
       if (PointSave) {
