@@ -3,7 +3,10 @@ import { db } from "../sqlite-service";
 import { eq } from "drizzle-orm";
 
 export default defineEventHandler((event) => {
-  if (event.method !== 'GET' && event.path !== '/api/login') {
+
+  const pathWhitelist = ['/api/login', '/api/points'];
+
+  if (event.method !== 'GET' && !pathWhitelist.includes(event.path)) {
     let authorization = event.headers.get('authorization');
     if (authorization) {
       const userQuery = db.select()
