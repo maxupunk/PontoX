@@ -16,7 +16,7 @@
                     <v-spacer></v-spacer>
                     <v-dialog v-model="dialog" max-width="800px">
                         <template v-slot:activator="{ props }">
-                            <v-btn color="primary" dark class="mb-2" v-bind="props">
+                            <v-btn color="primary" v-bind="props">
                                 Novo usuario
                             </v-btn>
                         </template>
