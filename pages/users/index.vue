@@ -42,7 +42,7 @@
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
                                             <v-select v-model="editedUser.role" label="Perfil"
-                                                :items="['funcionario', 'admin']" required />
+                                                :items="['colaborador', 'admin']" required />
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
                                             <v-switch v-model="editedUser.status" label="Ativo" color="primary" />
