@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 
 export default defineEventHandler((event) => {
 
-  const pathWhitelist = ['/api/login', '/api/points'];
+  const pathWhitelist = ['/api/login', '/api/points', '/api/relatorios/resumo'];
 
   if (event.method !== 'GET' && !pathWhitelist.includes(event.path)) {
     let authorization = event.headers.get('authorization');
