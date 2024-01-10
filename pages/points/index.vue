@@ -33,8 +33,13 @@
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">
-                                            <img :src="`imagens/${editedPoint.userId}/${editedPoint.entryImage}`"
-                                                @error="setDefaultImage" width="100%">
+                                            <span v-if="editedPoint.entryImage">
+                                                <img :src="`imagens/${editedPoint.userId}/${editedPoint.entryImage}`"
+                                                    @error="setDefaultImage" width="100%">
+                                            </span>
+                                            <span v-else>
+                                                <img src="/imageFailed.jpg" width="100%">
+                                            </span>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
                                             <v-container>
@@ -55,8 +60,13 @@
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">
-                                            <img :src="`imagens/${editedPoint.userId}/${editedPoint.departureImage}`"
-                                                @error="setDefaultImage" width="100%">
+                                            <span v-if="editedPoint.entryImage">
+                                                <img :src="`imagens/${editedPoint.userId}/${editedPoint.departureImage}`"
+                                                    @error="setDefaultImage" width="100%">
+                                            </span>
+                                            <span v-else>
+                                                <img src="/imageFailed.jpg" width="100%">
+                                            </span>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
                                             <v-container>
