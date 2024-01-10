@@ -4,7 +4,7 @@ import path from 'path';
 export default defineEventHandler(async () => {
   try {
     const filePath = path.join('public', 'faceMatcher.json')
-    const FACE_MIN_CONFIDENCE = process.env.FACE_MIN_CONFIDENCE || 512;
+    const FACE_MIN_CONFIDENCE = process.env.FACE_MIN_CONFIDENCE || 0.9;
     const FACE_MAX_RESULTS = process.env.FACE_MAX_RESULTS || 0.8;
     const FACE_DISTANCE_THRESHOLD = process.env.FACE_DISTANCE_THRESHOLD || 0.6;
     try {
