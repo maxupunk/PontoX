@@ -117,6 +117,14 @@ export default {
     this.canvas = document.getElementById('canvas')
 
     this.load.loading = true;
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function (stream) {
+
+      })
+      .catch(function (err) {
+        /* handle the error */
+      });
+
     await this.loadModels().then(async () => {
       this.load.mensage = 'buscanco dados treinados...'
       this.treineServeData = await $fetch('/api/treine')
@@ -149,13 +157,19 @@ export default {
     async startVideo() {
       this.load.mensage = 'Carregando câmera...'
       if (this.selectedDevice) {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: this.selectedDevice } });
-        let stream_settings = stream.getVideoTracks()[0].getSettings();
-        this.resolutionDevice.width = stream_settings.width;
-        this.resolutionDevice.height = stream_settings.height;
-        this.video.srcObject = stream;
-        this.load.loading = false;
-        localStorage.setItem('selectedDevice', this.selectedDevice);
+        var thet = this;
+        navigator.mediaDevices.getUserMedia({ video: { deviceId: this.selectedDevice } })
+          .then(function (stream) {
+            let stream_settings = stream.getVideoTracks()[0].getSettings();
+            thet.resolutionDevice.width = stream_settings.width;
+            thet.resolutionDevice.height = stream_settings.height;
+            thet.video.srcObject = stream;
+            thet.load.loading = false;
+            localStorage.setItem('selectedDevice', thet.selectedDevice);
+          })
+          .catch(function (err) {
+            alert('Ouve um erro ao carregar a camera! \n' + err)
+          });
       }
     },
 
