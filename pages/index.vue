@@ -15,29 +15,15 @@
         <canvas id="canvas"></canvas>
       </v-col>
     </v-row>
-  </v-container>
-
-  <v-layout-item class="text-center pointer-events-none" model-value position="bottom" size="100">
-    <v-overlay v-model="load.loading" class="align-center justify-center">
-      <div class="text-center">
-        <v-progress-circular color="primary" indeterminate></v-progress-circular>
-      </div>
-      <div class="text-center" style="color: white;">
-        {{ load.mensage }}
-      </div>
-    </v-overlay>
-
-    <!-- Snackbar -->
-    <v-snackbar v-model="snackbar.open" :color="snackbar.color" :timeout="3000">
-      {{ snackbar.mensage }}
-      <template v-slot:actions>
-        <v-btn color="white" text @click="snackbar = false" append-icon>
-          <v-icon>mdi-close</v-icon>
+    <v-row align="center" justify="center">
+      <v-col cols="auto">
+        <v-btn :loading="load.loading" :disabled="startDesable" size="x-large" @click="processVideo">
+          Registrar ponto
         </v-btn>
-      </template>
-    </v-snackbar>
+      </v-col>
+    </v-row>
 
-    <v-dialog v-model="dialog" persistent max-width="600px">
+    <v-dialog v-model="dialog" persistent max-width="600px" :fullscreen="$vuetify.display.xs">
       <v-card>
         <v-card-title>
           <span class="headline">{{ titulo }}</span>
@@ -45,17 +31,17 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12">
+              <v-col cols="12" sm="6" md="6">
                 <v-text-field label="Nome do usuário" v-model="dataUser.user.name" readonly></v-text-field>
               </v-col>
             </v-row>
             <v-row>
-              <v-col cols="12">
+              <v-col cols="12" sm="6" md="6">
                 <v-text-field label="Observação" v-model="observation"></v-text-field>
               </v-col>
             </v-row>
             <v-row v-if="dataUser.point">
-              <v-col cols="12">
+              <v-col cols="12" sm="6" md="6">
                 <v-text-field label="Entrada" v-model="dataUser.point.entryDate" readonly></v-text-field>
               </v-col>
             </v-row>
@@ -68,10 +54,25 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-btn :loading="load.loading" :disabled="startDesable" size="x-large" @click="processVideo">
-      Registrar ponto
-    </v-btn>
-  </v-layout-item>
+  </v-container>
+
+  <!-- Snackbar -->
+  <v-snackbar v-model="snackbar.open" :color="snackbar.color" :timeout="3000">
+    {{ snackbar.mensage }}
+    <template v-slot:actions>
+      <v-btn color="white" text @click="snackbar = false" append-icon>
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </template>
+  </v-snackbar>
+  <v-overlay v-model="load.loading" class="align-center justify-center">
+    <div class="text-center">
+      <v-progress-circular color="primary" indeterminate></v-progress-circular>
+    </div>
+    <div class="text-center" style="color: white;">
+      {{ load.mensage }}
+    </div>
+  </v-overlay>
 </template>
 
 <script>
@@ -271,11 +272,6 @@ export default {
 }
 
 #canvas {
-  position: absolute;
-  margin: auto;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  display: none;
 }
 </style>
