@@ -7,7 +7,7 @@ export function saveUserImage(userId: Number, capturedImage: string) {
         const dirPath = path.join('public', 'imagens', `${userId}`)
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true })
-            fs.chmodSync(dirPath, '774')
+            fs.chmodSync(dirPath, '664')
         }
 
         // Remove data prefix from the string
@@ -21,7 +21,7 @@ export function saveUserImage(userId: Number, capturedImage: string) {
         const nameImage = date.toISOString().replace(/[:.]/g, '.') + '.jpg'
         const filePath = path.join(dirPath, nameImage);
         fs.writeFileSync(filePath, imageBase64);
-        fs.chmodSync(filePath, '774');
+        fs.chmodSync(filePath, '664');
         return nameImage;
     } else {
         return capturedImage;
