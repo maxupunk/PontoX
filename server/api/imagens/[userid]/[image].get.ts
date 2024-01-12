@@ -7,7 +7,7 @@ export default defineEventHandler(async (event: any) => {
         const userId: number = event.context.params?.userid;
         const image: any = event.context.params?.image;
         if (userId || image) {
-            const dirPath = path.join('public', 'imagens', `${userId}`);
+            const dirPath = path.join('storage', 'imagens', `${userId}`);
             const filePath = path.join(dirPath, image);
             const imageData = fs.readFileSync(filePath);
             const blob = await fetch(`data:image/jpeg;base64,${imageData.toString('base64')}`).then(res => res.blob());

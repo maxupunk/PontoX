@@ -3,7 +3,7 @@ import path from 'path';
 
 export default defineEventHandler(async () => {
   try {
-    const folderpath = path.join('public', 'imagens')
+    const folderpath = path.join('storage', 'imagens')
     const imageUrls = getImageUrls(folderpath)
     return imageUrls
   } catch (e: any) {

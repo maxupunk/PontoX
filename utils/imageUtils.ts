@@ -4,7 +4,7 @@ import path from 'path';
 export function saveUserImage(userId: Number, capturedImage: string) {
     // Create user's directory if it doesn't exist
     if (/^data:image\/[a-zA-Z]*;base64,/.test(capturedImage)) {
-        const dirPath = path.join('public', 'imagens', `${userId}`)
+        const dirPath = path.join('storage', 'imagens', `${userId}`)
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true })
             fs.chmodSync(dirPath, '664')

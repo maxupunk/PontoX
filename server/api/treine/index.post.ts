@@ -5,7 +5,8 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     const jsonString = JSON.stringify(body, null, 2);
-    fs.writeFile('public/faceMatcher.json', jsonString, err => {
+    const filePath = path.join('storage', 'faceMatcher.json')
+    fs.writeFile(filePath, jsonString, err => {
       if (err) {
         console.log('Erro ao escrever arquivo: ', err);
       } else {
