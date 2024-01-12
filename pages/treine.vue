@@ -1,56 +1,55 @@
 <template>
   <v-container>
-    <div v-if="treineFileInfo">
-      <v-alert color="info" variant="outlined" v-if="isDifferent">Recomendado o retreinamento, existe algun(s) cadastro
-        sem reconhecimento</v-alert>
-      <v-card>
-        <v-card-title>
-          <span class="text-h4">Já existe um treinamento</span>
-        </v-card-title>
+    <v-alert color="info" variant="outlined" v-if="isDifferent">Recomendado o retreinamento, existe algun(s) cadastro
+      sem reconhecimento</v-alert>
+    <v-card>
+      <v-card-title>
+        <span class="text-h4" v-if="treineFileInfo">Já existe um treinamento</span>
+        <span class="text-h4" v-else>Não existe treinamento</span>
+      </v-card-title>
 
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="6">
-                Data do ulitmo treino
-              </v-col>
-              <v-col cols="6">
-                {{ treineFileInfo.birthtime }}
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="6">
-                Tamanho
-              </v-col>
-              <v-col cols="6">
-                {{ treineFileInfo.size }}
-              </v-col>
-            </v-row>
-            <v-row v-if="faceMatcherJson.hasOwnProperty('labeledDescriptors')">
-              <v-col cols="12">
-                {{ faceMatcherJson.labeledDescriptors.length }} face(s) reconhecida(s) de {{ allUsers.users.length }}
-                cadastrada(s) no banco de dados
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="6">
-                Distancia Limite (precisão)
-              </v-col>
-              <v-col cols="6">
-                {{ faceMatcherJson.distanceThreshold }}
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
+      <v-card-text>
+        <v-container v-if="treineFileInfo">
+          <v-row>
+            <v-col cols="6">
+              Data do ulitmo treino
+            </v-col>
+            <v-col cols="6">
+              {{ treineFileInfo.birthtime }}
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="6">
+              Tamanho
+            </v-col>
+            <v-col cols="6">
+              {{ treineFileInfo.size }}
+            </v-col>
+          </v-row>
+          <v-row v-if="faceMatcherJson.hasOwnProperty('labeledDescriptors')">
+            <v-col cols="12">
+              {{ faceMatcherJson.labeledDescriptors.length }} face(s) reconhecida(s) de {{ allUsers.users.length }}
+              cadastrada(s) no banco de dados
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="6">
+              Distancia Limite (precisão)
+            </v-col>
+            <v-col cols="6">
+              {{ faceMatcherJson.distanceThreshold }}
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card-text>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue-darken-1" variant="text" @click="createNewTreine">
-            Criar novo treinamento
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </div>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue-darken-1" variant="text" @click="createNewTreine">
+          Criar novo treinamento
+        </v-btn>
+      </v-card-actions>
+    </v-card>
 
     <v-overlay v-model="load.loading" class="align-center justify-center">
       <v-card>
