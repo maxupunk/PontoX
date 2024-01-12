@@ -5,12 +5,7 @@ import { eq, between, sql } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
   try {
-    let body2 = await readBody(event)
-    console.log(body2)
-    let body = {
-      entryDateStart: '2021-10-01',
-      entryDateEnd: '2024-10-31'
-    }
+    let body = await readBody(event)
     const ResumoQuery = db.select({
       id: users.id,
       name: users.name,
