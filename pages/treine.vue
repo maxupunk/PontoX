@@ -110,16 +110,9 @@ export default {
   async mounted() {
     this.load.loading = true;
     await this.loadModels().then(async () => {
-      this.load.mensage = 'buscanco dados treinados...'
-      this.treineServeData = await $fetch('/api/treine')
+      this.loadTreine()
+      this.load.mensage = 'buscanco usuarios...'
       this.allUsers = await $fetch('/api/users')
-
-      this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
-      this.distanceThreshold = this.treineServeData.distanceThreshold
-
-      if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
-        this.faceMatcherJson = this.treineServeData.faceMatcherJson
-      }
     })
     this.load.loading = false;
   },
@@ -140,6 +133,20 @@ export default {
     }
   },
   methods: {
+    loadTreine() {
+      this.load.loading = true;
+      this.load.mensage = 'buscanco dados treinados...'
+      $fetch('/api/treine').then((treine) => {
+        this.treineServeData = treine
+        this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
+        this.distanceThreshold = this.treineServeData.distanceThreshold
+
+        if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
+          this.faceMatcherJson = this.treineServeData.faceMatcherJson
+        }
+        this.load.loading = false;
+      })
+    },
     async openAdminPassowrd() {
       return await this.$refs.adminPassowrd.open().then((token) => {
         if (token) {
@@ -164,6 +171,7 @@ export default {
       const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained, this.distanceThreshold)
       this.faceMatcherJson = await faceMatcher.toJSON();
       await this.saveFaceMatcher(this.faceMatcherJson)
+      this.loadTreine()
       this.load.loading = false;
     },
 
