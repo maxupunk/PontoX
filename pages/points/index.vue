@@ -34,7 +34,7 @@
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">
                                             <span v-if="editedPoint.entryImage">
-                                                <img :src="`imagens/${editedPoint.userId}/${editedPoint.entryImage}`"
+                                                <img :src="`/api/imagens/${editedPoint.userId}/${editedPoint.entryImage}`"
                                                     @error="setDefaultImage" width="100%">
                                             </span>
                                             <span v-else>
@@ -61,7 +61,7 @@
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">
                                             <span v-if="editedPoint.entryImage">
-                                                <img :src="`imagens/${editedPoint.userId}/${editedPoint.departureImage}`"
+                                                <img :src="`/api/imagens/${editedPoint.userId}/${editedPoint.departureImage}`"
                                                     @error="setDefaultImage" width="100%">
                                             </span>
                                             <span v-else>
