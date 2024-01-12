@@ -8,9 +8,10 @@ export default defineEventHandler(async (event) => {
   console.log('Log request: ' + getRequestURL(event))
   if (event.method !== 'GET') {
     const authorization = event.headers.get('authorization');
+    const token = users.token as any;
     const userQuery = db.select()
       .from(users)
-      .where(eq(users.token, authorization))
+      .where(eq(token, authorization))
       .get()
 
     const body = await readBody(event)
@@ -28,7 +29,7 @@ export default defineEventHandler(async (event) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
-    const dateString = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()} `;
+    const dateString = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
     const filename = path.resolve(dir, `${dateString}.log`);
     // Write the data to a file
     fs.appendFileSync(filename, dataString);
