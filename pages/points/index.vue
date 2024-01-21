@@ -60,7 +60,7 @@
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">
-                                            <span v-if="editedPoint.entryImage">
+                                            <span v-if="editedPoint.departureImage">
                                                 <img :src="`/api/imagens/${editedPoint.userId}/${editedPoint.departureImage}`"
                                                     @error="setDefaultImage" width="100%">
                                             </span>
