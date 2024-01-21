@@ -33,6 +33,7 @@
     "drizzle-orm": "^0.29.1",
     "face-api.js": "^0.22.2",
     "maska": "^2.1.10",
+    "path-to-regexp": "^6.2.1",
     "pinia": "^2.1.7"
   }
 }
