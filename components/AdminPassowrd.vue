@@ -2,10 +2,9 @@
     <v-dialog v-model="dialog" max-width="420" persistent>
         <form @submit.prevent="doLogin">
             <v-card>
-                <v-toolbar dark color="warning" dense flat>
+                <v-toolbar dark color="primary" dense flat>
                     <v-toolbar-title>Senha de administradores</v-toolbar-title>
                 </v-toolbar>
-                <v-card-subtitle>Permitir gravação de dados no sistema.</v-card-subtitle>
                 <v-card-text>
                     <v-text-field v-model="user.login" label="Login" type="text" autocomplete="login"
                         required></v-text-field>
@@ -16,7 +15,7 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary darken-1" text type="submit">Confirmar</v-btn>
+                    <v-btn block color="primary" type="submit">Confirmar</v-btn>
                     <v-spacer></v-spacer>
                 </v-card-actions>
             </v-card>
