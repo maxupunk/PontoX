@@ -30,6 +30,8 @@ function getImageUrls(dirPath: string): { label: string, files: string[] }[] {
 
       if (existingLabelIndex > -1) {
         data[existingLabelIndex].files.push(item);
+        // Limit to the last 20 images
+        data[existingLabelIndex].files = data[existingLabelIndex].files.slice(-20);
       } else {
         data.push({ label: label, files: [item] });
       }
