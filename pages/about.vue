@@ -7,20 +7,15 @@
           <v-card-text>
             <v-row>
               <v-col cols="12">
-                Sistema de gerenciamento de ponto de funcionários.<br>
-                Criado por Maxuel Aguiar
+                <p>Sistema de gerenciamento de ponto de funcionários.</p>
+                <p>Desenvolvido por Maxuel Aguiar.</p>
+                <p><a href="https://www.linkedin.com/in/maxuel-aguiar/" target="_blank">LinkedIn</a></p>
+                <p>WhatsApp: (88) 9 9221-4180</p>
+                <p>Email: maxupunk@yahoo.com.br</p>
               </v-col>
               <v-col cols="12">
                 Tecnologias utilizadas:
-                <v-list dense>
-                  <v-list-item-group color="primary">
-                    <v-list-item v-for="(item, i) in technologies" :key="i">
-                      <v-list-item-content>
-                        <v-list-item-title>{{ item }}</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list-item-group>
-                </v-list>
+                <v-list :items="technologies"></v-list>
               </v-col>
             </v-row>
           </v-card-text>
