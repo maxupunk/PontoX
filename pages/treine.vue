@@ -74,12 +74,10 @@
       </template>
     </v-snackbar>
   </v-container>
-  <AdminPassowrd ref="adminPassowrd"></AdminPassowrd>
 </template>
 
 <script>
 import * as faceapi from 'face-api.js';
-import AdminPassowrd from '~/components/AdminPassowrd.vue';
 
 export default {
   data() {
@@ -103,9 +101,6 @@ export default {
       options: null,
       distanceThreshold: 0.6,
     };
-  },
-  components: {
-    AdminPassowrd
   },
   async mounted() {
     this.load.loading = true;
@@ -147,13 +142,6 @@ export default {
         this.load.loading = false;
       })
     },
-    async openAdminPassowrd() {
-      return await this.$refs.adminPassowrd.open().then((token) => {
-        if (token) {
-          this.token = token
-        }
-      })
-    },
 
     async saveFaceMatcher(faceMatcherJson) {
       $fetch(`/api/treine`, {
@@ -166,7 +154,6 @@ export default {
     },
 
     async createNewTreine() {
-      await this.openAdminPassowrd()
       this.LabelTrained = await this.loadLabels()
       const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained, this.distanceThreshold)
       this.faceMatcherJson = await faceMatcher.toJSON();

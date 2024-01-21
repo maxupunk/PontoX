@@ -83,12 +83,9 @@
             </template>
         </v-snackbar>
     </v-container>
-    <AdminPassowrd ref="adminPassowrd"></AdminPassowrd>
 </template>
   
 <script>
-import AdminPassowrd from '~/components/AdminPassowrd.vue';
-
 export default {
     data() {
         return {
@@ -132,9 +129,6 @@ export default {
             },
         };
     },
-    components: {
-        AdminPassowrd
-    },
     mounted() {
         this.loadUsers()
     },
@@ -149,13 +143,6 @@ export default {
         },
     },
     methods: {
-        async openAdminPassowrd() {
-            return await this.$refs.adminPassowrd.open().then((token) => {
-                if (token) {
-                    this.token = token
-                }
-            })
-        },
         async loadUsers() {
             this.load.loading = true
             this.load.mensage = 'Buscando dados...'
@@ -172,7 +159,6 @@ export default {
             this.load.loading = false
         },
         async save() {
-            await this.openAdminPassowrd()
             this.load.loading = true
             if (this.editedUser.id) {
                 this.load.mensage = 'Atualizando usuario...'

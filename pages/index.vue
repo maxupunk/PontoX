@@ -117,14 +117,8 @@ export default {
     this.video = document.getElementById('cam')
     this.canvas = document.getElementById('canvas')
 
-    this.load.loading = true;
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(function (stream) {
-
-      })
-      .catch(function (err) {
-        /* handle the error */
-      });
+    this.load.loading = true
+    // navigator.mediaDevices.getUserMedia({ video: true })
 
     await this.loadModels().then(async () => {
       this.load.mensage = 'buscanco dados treinados...'
@@ -139,7 +133,7 @@ export default {
         this.snackbar.mensage = 'Não existe nem um dado treinado!'
         this.startDesable = true
       }
-      this.faceMatcher = faceapi.FaceMatcher.fromJSON(this.faceMatcherJson);
+      this.faceMatcher = faceapi.FaceMatcher.fromJSON(this.faceMatcherJson)
     })
     await this.getVideoDevices()
   },

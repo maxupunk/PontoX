@@ -1,11 +1,14 @@
 <template>
   <v-app id="inspire">
-    <v-app-bar>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
 
+    <AdminPassowrd ref="adminPassowrd" v-if="token === null"></AdminPassowrd>
+
+    <v-app-bar v-if="token !== null">
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-app-bar-title>PontoX</v-app-bar-title>
     </v-app-bar>
-    <v-navigation-drawer v-model="drawer">
+
+    <v-navigation-drawer v-model="drawer" v-if="token !== null">
       <v-list>
         <v-list-subheader>Pontos</v-list-subheader>
         <v-list-item link prepend-icon="mdi-eye-check" title="Ponto" to="/"></v-list-item>
@@ -20,7 +23,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-main>
+    <v-main v-if="token !== null">
       <NuxtPage />
     </v-main>
 
@@ -36,11 +39,31 @@
   </v-app>
 </template>
 <script>
+import AdminPassowrd from '~/components/AdminPassowrd.vue';
+import { useAuthStore } from '@/stores/auth.ts'
+
 export default {
   data() {
     return {
       drawer: null,
+      tokenLocal: null,
+      authStore: null
     }
+  },
+  components: {
+    AdminPassowrd
+  },
+  computed: {
+    token() {
+      if (this.authStore && this.authStore.getToken) {
+        return this.authStore.getToken
+      } else {
+        return null
+      }
+    }
+  },
+  async mounted() {
+    this.authStore = useAuthStore()
   },
 }
 </script>

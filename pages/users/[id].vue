@@ -53,12 +53,10 @@
       </template>
     </v-snackbar>
   </v-container>
-  <AdminPassowrd ref="adminPassowrd"></AdminPassowrd>
 </template>
 
 <script>
 import * as faceapi from 'face-api.js';
-import AdminPassowrd from '~/components/AdminPassowrd.vue';
 
 export default {
   data() {
@@ -104,13 +102,6 @@ export default {
     this.load.loading = false
   },
   methods: {
-    async openAdminPassowrd() {
-      return await this.$refs.adminPassowrd.open().then((token) => {
-        if (token) {
-          this.token = token
-        }
-      })
-    },
     async getVideoDevices() {
       const devices = await navigator.mediaDevices.enumerateDevices();
       this.videoDevices = devices.filter(device => device.kind === 'videoinput');
@@ -171,7 +162,6 @@ export default {
     },
 
     async processVideo() {
-      await this.openAdminPassowrd()
       this.load.loading = true;
       this.load.mensage = 'buscando rosto na camera...'
       this.snackbar.color = 'success'

@@ -1,15 +1,18 @@
 <template>
-    <v-dialog v-model="dialog" max-width="320">
-        <form @submit.prevent="agree">
+    <v-dialog v-model="dialog" max-width="420" persistent>
+        <form @submit.prevent="doLogin">
             <v-card>
                 <v-toolbar dark color="warning" dense flat>
                     <v-toolbar-title>Senha de administradores</v-toolbar-title>
                 </v-toolbar>
                 <v-card-subtitle>Permitir gravação de dados no sistema.</v-card-subtitle>
                 <v-card-text>
-                    <v-text-field v-model="user.login" label="Login" type="text" autocomplete="login" required></v-text-field>
-                    <v-text-field v-model="user.password" label="Senha" type="password"
-                        autocomplete="new-password" required></v-text-field>
+                    <v-text-field v-model="user.login" label="Login" type="text" autocomplete="login"
+                        required></v-text-field>
+                    <v-text-field v-model="user.password" label="Senha" type="password" autocomplete="new-password"
+                        required></v-text-field>
+                    <v-checkbox label="permanecer logado?" v-model="user.remember"></v-checkbox>
+                    {{ authStore.getToken }}
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
@@ -31,8 +34,11 @@
 </template>
   
 <script>
+import { useAuthStore } from '@/stores/auth.ts'
+
 export default {
     data: () => ({
+        authStore: null,
         dialog: false,
         resolve: null,
         reject: null,
@@ -43,22 +49,23 @@ export default {
         },
         user: {
             login: '',
-            password: ''
+            password: '',
+            permanente: false
         }
     }),
+    mounted() {
+        this.authStore = useAuthStore()
+        this.open()
+    },
     methods: {
         open() {
-            if (this.token) {
-                return Promise.resolve(this.token)
+            if (this.authStore.getToken) {
+                this.dialog = false
+            } else {
+                this.dialog = true
             }
-            
-            this.dialog = true
-            return new Promise((resolve, reject) => {
-                this.resolve = resolve
-                this.reject = reject
-            })
         },
-        async agree() {
+        async doLogin() {
             const login = await $fetch('/api/login', {
                 method: 'POST',
                 body: JSON.stringify(this.user)
@@ -71,11 +78,9 @@ export default {
                 return
             }
             this.token = login.token
-            this.resolve(login.token)
-            this.dialog = false
+            this.authStore.setToken(login.token, this.user.remember)
         },
         cancel() {
-            this.resolve(false)
             this.dialog = false
         }
     }

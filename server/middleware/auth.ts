@@ -4,9 +4,9 @@ import { eq } from "drizzle-orm";
 
 export default defineEventHandler((event) => {
 
-  const pathWhitelist = ['/api/login', '/api/points', '/api/relatorios/resumo'];
+  const pathWhitelist = ['/api/login', '/', '/api/treine'];
 
-  if (event.method !== 'GET' && !pathWhitelist.includes(event.path)) {
+  if (!pathWhitelist.includes(event.path)) {
     let authorization = event.headers.get('authorization');
     if (authorization) {
       const userQuery = db.select()
@@ -15,14 +15,14 @@ export default defineEventHandler((event) => {
         .get()
 
       if (!userQuery) {
-        return 'Unauthorized'
+        throw createError({
+          statusCode: 401,
+          statusMessage: 'Unauthorized',
+        })
       }
 
     } else {
-      throw createError({
-        statusCode: 401,
-        message: 'Unauthorized',
-      });
+      sendRedirect(event, '/', 301)
     }
   }
 })
