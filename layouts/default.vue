@@ -5,7 +5,6 @@
 
     <v-app-bar v-if="token !== null">
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-app-bar-title>PontoX</v-app-bar-title>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" v-if="token !== null">
@@ -21,6 +20,11 @@
         <v-list-subheader>Outros</v-list-subheader>
         <v-list-item link prepend-icon="mdi-information-outline" title="Sobre" to="/about"></v-list-item>
       </v-list>
+      <template v-slot:append>
+        <v-btn block color="warning" @click="logout()">
+          Logout
+        </v-btn>
+      </template>
     </v-navigation-drawer>
 
     <v-main v-if="token !== null">
@@ -65,5 +69,10 @@ export default {
   async mounted() {
     this.authStore = useAuthStore()
   },
+  methods: {
+    async logout() {
+      await this.authStore.logout()
+    }
+  }
 }
 </script>

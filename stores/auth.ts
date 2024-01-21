@@ -20,5 +20,9 @@ export const useAuthStore = defineStore('auth', {
       }
       this.token = token
     },
+    logout() {
+      localStorage.removeItem('pontox-token')
+      this.token = ''
+    },
   },
 })
