@@ -5,7 +5,7 @@ import { db } from "../sqlite-service";
 import { eq } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
-  if (event.method !== 'GET') {
+  if (event.method !== 'GET' && event.method !== 'POST') {
     const authorization = event.headers.get('authorization');
     const token = users.token as any;
     const userQuery = db.select()
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
     let logbody = ''
     const body = await readBody(event)
-    if (event.path !== '/api/login') {
+    if (event.path == '/api/login') {
       logbody = `Logged - ${body.login}`
     } else {
       logbody = `${event.method} - ${event.path} - usar: ${userQuery?.name}\n${JSON.stringify(body)}`
