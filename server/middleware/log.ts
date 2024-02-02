@@ -5,7 +5,7 @@ import { db } from "../sqlite-service";
 import { eq } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
-  if (event.method !== 'GET' && event.method !== 'POST') {
+  if (event.method !== 'GET') {
     const authorization = event.headers.get('authorization');
     const token = users.token as any;
     const userQuery = db.select()
@@ -17,6 +17,12 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     if (event.path == '/api/login') {
       logbody = `Logged - ${body.login}`
+    } else if (event.path == '/api/points') {
+      const pointUserQuery = db.select()
+        .from(users)
+        .where(eq(users.id, body.userId))
+        .get()
+      logbody = `* Ponto - ${userQuery?.name} -> ${pointUserQuery?.name}`
     } else {
       logbody = `${event.method} - ${event.path} - usar: ${userQuery?.name}\n${JSON.stringify(body)}`
     }
