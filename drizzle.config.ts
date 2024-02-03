@@ -5,6 +5,6 @@ export default {
   out: "./migrate",
   driver: "better-sqlite",
   dbCredentials: {
-    url: "./sqlite.db",
+    url: process.env.DATABASE_URL || "./sqlite.db",
   },
 } satisfies Config;
