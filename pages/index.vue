@@ -118,7 +118,8 @@ export default {
     this.canvas = document.getElementById('canvas')
 
     this.load.loading = true
-    // navigator.mediaDevices.getUserMedia({ video: true })
+    // pedir permissão para usar a camera
+    navigator.mediaDevices.getUserMedia({ video: true })
 
     await this.loadModels().then(async () => {
       this.load.mensage = 'buscanco dados treinados...'
