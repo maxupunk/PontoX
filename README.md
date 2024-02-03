@@ -19,7 +19,7 @@ O sistema foi desenvolvido principalmente para fins de estudo e pesquisa. Ele ex
 - Processamento de imagem
 - Desenvolvimento web
 
-Este projeto é um excelente recurso para quem está aprendendo sobre reconhecimento facial e processamento de imagem, ou para quem está interessado em desenvolver suas próprias soluções de segurança.
+Este projeto é um excelente recurso para quem está aprendendo sobre reconhecimento facial e processamento de imagem, ou para quem está interessado em desenvolver suas próprias soluções de sisteam de ponto.
 
 # Nuxt 3 Minimal Starter
 
