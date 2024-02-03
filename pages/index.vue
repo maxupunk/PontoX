@@ -50,7 +50,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" dark @click="confirmPonto">Confirmar</v-btn>
-          <v-btn color="blue darken-1" text @click="dialog = false">Cacenlar</v-btn>
+          <v-btn color="blue darken-1" text @click="dialog = false">Cancelar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
