@@ -22,6 +22,7 @@ export default defineEventHandler(async () => {
       }
     } catch (err) {
       return {
+        faceMatcherJson: {},
         Mobilenetv1Options: {
           minConfidence: +FACE_MIN_CONFIDENCE,
           maxResults: +FACE_MAX_RESULTS
