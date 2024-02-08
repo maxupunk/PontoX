@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
 
     if (!pointQuery) {
       data.entryExpressio = body.expressio
+      data.entryDate = formattedDate
       data.entryImage = nameImage
     } else {
       data.departureExpressio = body.expressio
