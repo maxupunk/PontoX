@@ -1,7 +1,7 @@
 import { users } from "../../../models/users";
 import { points } from "../../../models/points";
 import { db } from "../../sqlite-service";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export default defineEventHandler(async () => {
   try {
@@ -12,6 +12,7 @@ export default defineEventHandler(async () => {
       departureDate: points.departureDate,
     }).from(points)
       .leftJoin(users, eq(users.id, points.userId))
+      .orderBy(desc(points.id))
       .all();
     return { points: pontsResp }
   } catch (e: any) {
