@@ -11,7 +11,6 @@
                     <v-text-field v-model="user.password" label="Senha" type="password" autocomplete="new-password"
                         required></v-text-field>
                     <v-checkbox label="permanecer logado?" v-model="user.remember"></v-checkbox>
-                    {{ authStore.getToken }}
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
@@ -38,7 +37,7 @@ import { useAuthStore } from '@/stores/auth.ts'
 export default {
     data: () => ({
         authStore: null,
-        dialog: false,
+        dialog: true,
         resolve: null,
         reject: null,
         token: null,
@@ -59,9 +58,7 @@ export default {
     methods: {
         open() {
             if (this.authStore.getToken) {
-                this.dialog = false
-            } else {
-                this.dialog = true
+                this.$router.push('/');
             }
         },
         async doLogin() {
@@ -78,6 +75,7 @@ export default {
             }
             this.token = login.token
             this.authStore.setToken(login.token, this.user.remember)
+            this.$router.push('/');
         },
         cancel() {
             this.dialog = false

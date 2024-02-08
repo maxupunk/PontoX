@@ -1,13 +1,10 @@
 <template>
   <v-app id="inspire">
-
-    <AdminPassowrd ref="adminPassowrd" v-if="token === null"></AdminPassowrd>
-
-    <v-app-bar v-if="token !== null">
+    <v-app-bar>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
     </v-app-bar>
 
-    <v-navigation-drawer v-model="drawer" v-if="token !== null">
+    <v-navigation-drawer v-model="drawer">
       <v-list>
         <v-list-subheader>Pontos</v-list-subheader>
         <v-list-item link prepend-icon="mdi-eye-check" title="Ponto" to="/"></v-list-item>
@@ -27,7 +24,7 @@
       </template>
     </v-navigation-drawer>
 
-    <v-main v-if="token !== null">
+    <v-main>
       <NuxtPage />
     </v-main>
 
@@ -43,19 +40,14 @@
   </v-app>
 </template>
 <script>
-import AdminPassowrd from '~/components/AdminPassowrd.vue';
 import { useAuthStore } from '@/stores/auth.ts'
 
 export default {
   data() {
     return {
-      drawer: null,
-      tokenLocal: null,
+      drawer: false,
       authStore: null
     }
-  },
-  components: {
-    AdminPassowrd
   },
   computed: {
     token() {
@@ -72,6 +64,7 @@ export default {
   methods: {
     async logout() {
       await this.authStore.logout()
+      this.$router.push('/login')
     }
   }
 }
