@@ -27,7 +27,7 @@ export default defineEventHandler((event) => {
       }
 
     } else {
-      sendRedirect(event, '/login', 301)
+      return sendRedirect(event, '/login')
     }
   }
 })
