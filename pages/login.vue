@@ -37,7 +37,7 @@ import { useAuthStore } from '@/stores/auth.ts'
 export default {
     data: () => ({
         authStore: null,
-        dialog: false,
+        dialog: true,
         resolve: null,
         reject: null,
         token: null,
