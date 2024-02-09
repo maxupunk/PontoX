@@ -142,7 +142,7 @@ export default {
       })
       .catch(function (err) {
         self.snackbar.open = true
-        self.snackbar.mensage = 'Não encontrei esse usuario no banco, talvez você tenha que retreinar!'
+        self.snackbar.mensage = 'Nem uma camera foi encontrada!'
         self.snackbar.color = 'warning'
       });
     this.load.loading = false
