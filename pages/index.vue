@@ -15,7 +15,7 @@
         <canvas id="canvas"></canvas>
       </v-col>
     </v-row>
-    <v-row align="center" justify="center">
+    <v-row align="center" justify="center" v-if="isCamera">
       <v-col cols="auto">
         <v-btn :loading="load.loading" :disabled="startDesable" size="x-large" @click="processVideo">
           Registrar ponto
@@ -119,29 +119,41 @@ export default {
 
     this.load.loading = true
     // pedir permissão para usar a camera
-    navigator.mediaDevices.getUserMedia({ video: true })
+    const self = this
+    await navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function (stream) {
+        console.log('Webcam disponível');
+        self.getVideoDevices()
+        self.loadModels().then(async () => {
+          self.load.mensage = 'buscanco dados treinados...'
+          self.treineServeData = await $fetch('/api/treine')
 
-    await this.loadModels().then(async () => {
-      this.load.mensage = 'buscanco dados treinados...'
-      this.treineServeData = await $fetch('/api/treine')
+          self.options = new faceapi.SsdMobilenetv1Options(self.treineServeData.Mobilenetv1Options)
 
-      this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
-
-      if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
-        this.faceMatcherJson = this.treineServeData.faceMatcherJson
-      } else {
-        this.snackbar.open = true
-        this.snackbar.mensage = 'Não existe nem um dado treinado!'
-        this.startDesable = true
-      }
-      this.faceMatcher = faceapi.FaceMatcher.fromJSON(this.faceMatcherJson)
-    })
-    await this.getVideoDevices()
+          if (self.treineServeData.hasOwnProperty('faceMatcherJson')) {
+            self.faceMatcherJson = self.treineServeData.faceMatcherJson
+          } else {
+            self.snackbar.open = true
+            self.snackbar.mensage = 'Não existe nem um dado treinado!'
+            self.startDesable = true
+          }
+          self.faceMatcher = faceapi.FaceMatcher.fromJSON(self.faceMatcherJson)
+        })
+      })
+      .catch(function (err) {
+        self.snackbar.open = true
+        self.snackbar.mensage = 'Não encontrei esse usuario no banco, talvez você tenha que retreinar!'
+        self.snackbar.color = 'warning'
+      });
+    this.load.loading = false
   },
   computed: {
     titulo() {
       return this.dataUser.point ? 'Confirmação de saída' : 'Confirmação de entrada'
     },
+    isCamera() {
+      return this.videoDevices.length > 0
+    }
   },
   methods: {
     async getVideoDevices() {
