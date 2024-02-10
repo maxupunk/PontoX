@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { pathToRegexp } from 'path-to-regexp';
 
 export default defineEventHandler((event) => {
-  const pathWhitelist = ['/api/login', '/login', '/api/treine', '/api/imagens/:label/:file'];
+  const pathWhitelist = ['/api/login', '/', '/login', '/api/treine', '/api/imagens/:label/:file'];
   // Transforma cada caminho da lista de permissões em uma expressão regular
   const regexWhitelist = pathWhitelist.map(path => pathToRegexp(path));
 
