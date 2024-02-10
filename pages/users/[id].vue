@@ -101,6 +101,13 @@ export default {
     await this.getVideoDevices()
     this.load.loading = false
   },
+  unmounted() {
+    if (this.video.srcObject) {
+      this.video.srcObject.getTracks().forEach(function (track) {
+        track.stop();
+      });
+    }
+  },
   methods: {
     async getVideoDevices() {
       const devices = await navigator.mediaDevices.enumerateDevices();
