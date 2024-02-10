@@ -138,12 +138,12 @@ export default {
 
         if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
           this.faceMatcherJson = this.treineServeData.faceMatcherJson
+          this.faceMatcher = faceapi.FaceMatcher.fromJSON(this.faceMatcherJson)
         } else {
           this.snackbar.open = true
           this.snackbar.mensage = 'Não existe nem um dado treinado!'
           this.startDesable = true
         }
-        this.faceMatcher = faceapi.FaceMatcher.fromJSON(this.faceMatcherJson)
       })
     } else {
       this.snackbar.open = true
