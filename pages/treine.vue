@@ -144,7 +144,7 @@ export default {
     },
 
     async saveFaceMatcher(faceMatcherJson) {
-      $fetch(`/api/treine`, {
+      await $fetch(`/api/treine`, {
         method: 'POST',
         headers: {
           Authorization: this.token
