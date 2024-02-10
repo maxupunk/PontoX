@@ -15,7 +15,7 @@
         <canvas id="canvas"></canvas>
       </v-col>
     </v-row>
-    <v-row align="center" justify="center" v-if="isCamera">
+    <v-row align="center" justify="center" v-if="hasCamera">
       <v-col cols="auto">
         <v-btn :loading="load.loading" :disabled="startDesable" size="x-large" @click="processVideo">
           Registrar ponto
@@ -102,11 +102,11 @@ export default {
         mensage: null
       },
       videoDevices: [],
-      selectedDevice: null,
       resolutionDevice: {
         width: 0,
         height: 0
       },
+      selectedDevice: null,
       modelsServer: [],
       options: null,
       faceMatcher: null,
@@ -118,67 +118,61 @@ export default {
     this.canvas = document.getElementById('canvas')
 
     this.load.loading = true
-    // pedir permissão para usar a camera
-    const self = this
-    await navigator.mediaDevices.getUserMedia({ video: true })
-      .then(function (stream) {
-        console.log('Webcam disponível');
-        self.getVideoDevices()
-        self.loadModels().then(async () => {
-          self.load.mensage = 'buscanco dados treinados...'
-          self.treineServeData = await $fetch('/api/treine')
+    await this.getVideoDevices()
 
-          self.options = new faceapi.SsdMobilenetv1Options(self.treineServeData.Mobilenetv1Options)
+    if (this.videoDevices.length > 0) {
+      await this.startVideo()
+      await this.loadModels().then(async () => {
+        this.load.mensage = 'buscanco dados treinados...'
+        this.treineServeData = await $fetch('/api/treine')
 
-          if (self.treineServeData.hasOwnProperty('faceMatcherJson')) {
-            self.faceMatcherJson = self.treineServeData.faceMatcherJson
-          } else {
-            self.snackbar.open = true
-            self.snackbar.mensage = 'Não existe nem um dado treinado!'
-            self.startDesable = true
-          }
-          self.faceMatcher = faceapi.FaceMatcher.fromJSON(self.faceMatcherJson)
-        })
+        this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
+
+        if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
+          this.faceMatcherJson = this.treineServeData.faceMatcherJson
+        } else {
+          this.snackbar.open = true
+          this.snackbar.mensage = 'Não existe nem um dado treinado!'
+          this.startDesable = true
+        }
+        this.faceMatcher = faceapi.FaceMatcher.fromJSON(this.faceMatcherJson)
       })
-      .catch(function (err) {
-        self.snackbar.open = true
-        self.snackbar.mensage = 'Nem uma camera foi encontrada!'
-        self.snackbar.color = 'warning'
-      });
+    } else {
+      this.snackbar.open = true
+      this.snackbar.mensage = 'Nem uma camera foi encontrada!'
+      this.snackbar.color = 'warning'
+    }
     this.load.loading = false
   },
   computed: {
     titulo() {
       return this.dataUser.point ? 'Confirmação de saída' : 'Confirmação de entrada'
     },
-    isCamera() {
+    hasCamera() {
       return this.videoDevices.length > 0
-    }
+    },
   },
   methods: {
     async getVideoDevices() {
       const devices = await navigator.mediaDevices.enumerateDevices();
       this.videoDevices = devices.filter(device => device.kind === 'videoinput');
-      this.selectedDevice = localStorage.getItem('selectedDevice') || (this.videoDevices.length > 0 ? this.videoDevices[0].deviceId : null);
-      this.startVideo();
+      this.selectedDevice = localStorage.getItem('selectedDevice') || (this.videoDevices.length > 0 ? this.videoDevices[0].deviceId : null)
     },
     async startVideo() {
       this.load.mensage = 'Carregando câmera...'
-      if (this.selectedDevice) {
-        var thet = this;
-        navigator.mediaDevices.getUserMedia({ video: { deviceId: this.selectedDevice } })
-          .then(function (stream) {
-            let stream_settings = stream.getVideoTracks()[0].getSettings();
-            thet.resolutionDevice.width = stream_settings.width;
-            thet.resolutionDevice.height = stream_settings.height;
-            thet.video.srcObject = stream;
-            thet.load.loading = false;
-            localStorage.setItem('selectedDevice', thet.selectedDevice);
-          })
-          .catch(function (err) {
-            alert('Ouve um erro ao carregar a camera! \n' + err)
-          });
-      }
+      const device = this.selectedDevice !== null ? { deviceId: this.selectedDevice } : true;
+      const self = this;
+      await navigator.mediaDevices.getUserMedia({ video: device })
+        .then(function (stream) {
+          let stream_settings = stream.getVideoTracks()[0].getSettings();
+          self.resolutionDevice.width = stream_settings.width;
+          self.resolutionDevice.height = stream_settings.height;
+          self.video.srcObject = stream;
+          localStorage.setItem('selectedDevice', self.selectedDevice);
+        })
+        .catch(function (err) {
+          alert('Ouve um erro ao carregar a camera! \n' + err)
+        });
     },
 
     loadModels() {
@@ -268,14 +262,14 @@ export default {
 </script>
 <style scoped>
 #cam {
-  position: absolute;
+  /* position: absolute; */
   margin: auto;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   border-color: black;
-  max-width: 90%;
+  max-width: 100%;
 }
 
 #canvas {
