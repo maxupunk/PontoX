@@ -17,7 +17,7 @@
         <v-list-subheader>Outros</v-list-subheader>
         <v-list-item link prepend-icon="mdi-information-outline" title="Sobre" to="/about"></v-list-item>
       </v-list>
-      <template v-slot:append>
+      <template v-slot:append v-if="isLoged">
         <v-btn block color="warning" @click="logout()">
           Logout
         </v-btn>
@@ -50,11 +50,11 @@ export default {
     }
   },
   computed: {
-    token() {
+    isLoged() {
       if (this.authStore && this.authStore.getToken) {
-        return this.authStore.getToken
+        return true
       } else {
-        return null
+        return false
       }
     }
   },
