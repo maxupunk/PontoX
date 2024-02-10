@@ -113,6 +113,14 @@ export default {
       startDesable: false
     };
   },
+  computed: {
+    titulo() {
+      return this.dataUser.point ? 'Confirmação de saída' : 'Confirmação de entrada'
+    },
+    hasCamera() {
+      return this.videoDevices.length > 0
+    },
+  },
   async mounted() {
     this.video = document.getElementById('cam')
     this.canvas = document.getElementById('canvas')
@@ -150,14 +158,6 @@ export default {
         track.stop();
       });
     }
-  },
-  computed: {
-    titulo() {
-      return this.dataUser.point ? 'Confirmação de saída' : 'Confirmação de entrada'
-    },
-    hasCamera() {
-      return this.videoDevices.length > 0
-    },
   },
   methods: {
     async getVideoDevices() {
