@@ -144,6 +144,13 @@ export default {
     }
     this.load.loading = false
   },
+  unmounted() {
+    if (this.video.srcObject) {
+      this.video.srcObject.getTracks().forEach(function (track) {
+        track.stop();
+      });
+    }
+  },
   computed: {
     titulo() {
       return this.dataUser.point ? 'Confirmação de saída' : 'Confirmação de entrada'
