@@ -13,7 +13,7 @@ export default defineNuxtPlugin((_nuxtApp: any) => {
       console.error(error)
     },
     onResponse({ response }) {
-      if (response.status == 401) {
+      if (response.status == 401 || response.status == 302) {
         authStore.setToken('', true)
         _nuxtApp.$router.push('/login')
       }
