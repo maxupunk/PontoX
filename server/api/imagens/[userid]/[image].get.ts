@@ -10,7 +10,7 @@ export default defineEventHandler(async (event: any) => {
             const dirPath = path.join('storage', 'imagens', `${userId}`);
             const filePath = path.join(dirPath, image);
             const imageData = fs.readFileSync(filePath);
-            const blob = await fetch(`data:image/jpeg;base64,${imageData.toString('base64')}`).then(res => res.blob());
+            const blob = await fetch(`data:image/jpeg;base64,${imageData.toString('base64')}`).then((res: any) => res.blob());
             return blob;
         } else {
             throw new Error('Usuário ou imagem não informados');
