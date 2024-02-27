@@ -94,10 +94,10 @@
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue-darken-1" variant="text" @click="close">
-                                    Cancel
+                                    Cancelar
                                 </v-btn>
                                 <v-btn color="blue-darken-1" variant="text" @click="save">
-                                    Save
+                                    Salvar
                                 </v-btn>
                             </v-card-actions>
                         </v-card>
