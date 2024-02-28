@@ -1,10 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 
-export function saveUserImage(userId: Number, capturedImage: string) {
+const storagePath = process.env.STORAGE_FOLDER ? process.env.STORAGE_FOLDER : 'storage'
+const folderImagens = 'imagens'
+
+export const folderpathImagens = path.join(storagePath, 'imagens')
+export const folderStorage = path.join(storagePath)
+export const folderBackup = path.join(process.env.BACKUP_FOLDER ? process.env.BACKUP_FOLDER : 'backups')
+
+export function saveUserImage(userId: Number, capturedImage: string): string {
     // Create user's directory if it doesn't exist
     if (/^data:image\/[a-zA-Z]*;base64,/.test(capturedImage)) {
-        const dirPath = path.join('storage', 'imagens', `${userId}`)
+        const dirPath = path.join(storagePath, folderImagens, `${userId}`)
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true })
             fs.chmodSync(dirPath, '664')

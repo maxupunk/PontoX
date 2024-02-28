@@ -15,6 +15,7 @@
         <v-list-subheader>Relatorios</v-list-subheader>
         <v-list-item link prepend-icon="mdi-account-group" title="Resumo" to="/relatorios/resumo"></v-list-item>
         <v-list-subheader>Outros</v-list-subheader>
+        <v-list-item link prepend-icon="mdi-backup-restore" title="Backups" to="/backups"></v-list-item>
         <v-list-item link prepend-icon="mdi-information-outline" title="Sobre" to="/about"></v-list-item>
       </v-list>
       <template v-slot:append v-if="isLoged">

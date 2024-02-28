@@ -26,3 +26,4 @@ logs
 storage/imagens/*
 storage/faceMatcher.json
 sqlite.db
+backup/*

@@ -1,11 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import { folderpathImagens } from '~/utils/utils';
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(() => {
   try {
-    const folderpath = path.join('storage', 'imagens')
-    const imageUrls = getImageUrls(folderpath)
-    return imageUrls
+    return imagesUrl();
   } catch (e: any) {
     throw createError({
       statusCode: 400,
@@ -14,7 +13,8 @@ export default defineEventHandler(async () => {
   }
 });
 
-function getImageUrls(dirPath: string): { label: string, files: string[] }[] {
+
+function imagesUrl(dirPath: string = folderpathImagens): { label: string, files: string[] }[] {
   let data: { label: string, files: string[] }[] = [];
 
   const items = fs.readdirSync(dirPath);
@@ -23,7 +23,7 @@ function getImageUrls(dirPath: string): { label: string, files: string[] }[] {
     const fullPath = path.join(dirPath, item);
 
     if (fs.statSync(fullPath).isDirectory()) {
-      data = data.concat(getImageUrls(fullPath));
+      data = data.concat(imagesUrl(fullPath));
     } else {
       const label = path.basename(dirPath);
       const existingLabelIndex = data.findIndex(d => d.label === label);
@@ -40,8 +40,3 @@ function getImageUrls(dirPath: string): { label: string, files: string[] }[] {
 
   return data;
 }
-
-// Uso da função
-// const imageUrls = getImageUrls('public/labels');
-
-

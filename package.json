@@ -25,6 +25,7 @@
   "dependencies": {
     "@mdi/font": "^7.3.67",
     "@pinia/nuxt": "^0.5.1",
+    "archiver": "^6.0.2",
     "bcrypt": "^5.1.1",
     "better-sqlite3": "^9.2.2",
     "crypto": "^1.0.1",

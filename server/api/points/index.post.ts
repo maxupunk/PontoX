@@ -1,6 +1,6 @@
 import { points } from "../../../models/points";
 import { db } from "../../sqlite-service";
-import { saveUserImage } from '../../../utils/imageUtils';
+import { saveUserImage } from '../../../utils/utils';
 
 export default defineEventHandler(async (event) => {
   try {

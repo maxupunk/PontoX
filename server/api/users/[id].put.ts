@@ -1,7 +1,7 @@
 import { users } from "../../../models/users";
 import { db } from "../../sqlite-service";
 import { eq } from "drizzle-orm";
-import { saveUserImage } from '../../../utils/imageUtils';
+import { saveUserImage } from '../../../utils/utils';
 import bcrypt from 'bcrypt'; 
 
 export default defineEventHandler(async (event) => {
