@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       totalMinutes: sql<number>`SUM((strftime('%s', ${points.departureDate}) - strftime('%s', ${points.entryDate})) / 60) as totalHoursWorked`,
     }).from(points)
       .leftJoin(users, eq(users.id, points.userId))
-      .where(between(points.entryDate, body.entryDateStart, body.entryDateEnd))
+      .where(between(points.entryDate, `${body.entryDateStart} 00:00:00`, `${body.entryDateEnd} 23:59:59`))
       .groupBy(users.id)
       .all();
 
