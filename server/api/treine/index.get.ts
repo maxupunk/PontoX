@@ -4,9 +4,9 @@ import path from 'path';
 export default defineEventHandler(async () => {
   try {
     const filePath = path.join('storage', 'faceMatcher.json')
-    const FACE_MIN_CONFIDENCE = process.env.FACE_MIN_CONFIDENCE || 0.9;
-    const FACE_MAX_RESULTS = process.env.FACE_MAX_RESULTS || 0.8;
-    const FACE_DISTANCE_THRESHOLD = process.env.FACE_DISTANCE_THRESHOLD || 0.4;
+    const FACE_MIN_CONFIDENCE = process.env.FACE_MIN_CONFIDENCE || 0.8;
+    const FACE_MAX_RESULTS = process.env.FACE_MAX_RESULTS || 1;
+    const FACE_DISTANCE_THRESHOLD = process.env.FACE_DISTANCE_THRESHOLD || 0.5;
     try {
       await fs.promises.access(filePath, fs.constants.F_OK);
       const conteFile = JSON.parse(await fs.promises.readFile(filePath, 'utf8'));
