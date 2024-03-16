@@ -14,93 +14,99 @@
                     <v-toolbar-title>Gerenciamento de pontos</v-toolbar-title>
                     <v-divider class="mx-4" inset vertical></v-divider>
                     <v-spacer></v-spacer>
-                    <v-dialog v-model="dialog" max-width="720px" :fullscreen="$vuetify.display.xs">
+                    <v-dialog v-model="dialog" persistent scrollable :fullscreen="$vuetify.display.xs || fullscreen">
                         <template v-slot:activator="{ props }">
-                            <v-btn color="primary" v-bind="props">
-                                Criar ponto
-                            </v-btn>
+                            <v-btn icon="mdi-timer-plus" v-bind="props"></v-btn>
                         </template>
-                        <v-card>
-                            <v-card-title>
-                                <span class="text-h4">{{ formTitle }}</span>
-                            </v-card-title>
-
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-select :items="users" item-value="id" item-title="name"
-                                            v-model="editedPoint.userId" label="Usuario"></v-select>
-                                    </v-row>
-                                    <v-row>
-                                        <v-col cols="12" sm="6" md="6">
-                                            <span v-if="editedPoint.entryImage">
-                                                <img :src="`/api/imagens/${editedPoint.userId}/${editedPoint.entryImage}`"
-                                                    @error="setDefaultImage" width="100%">
-                                            </span>
-                                            <span v-else>
-                                                <img src="/imageFailed.jpg" width="100%">
-                                            </span>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="6">
-                                            <v-container>
-                                                <v-row>
-                                                    <v-text-field v-model="editedPoint.entryDate" label="Entrada"
-                                                        v-maska:[mask]></v-text-field>
-                                                </v-row>
-                                                <v-row>
-                                                    <v-text-field v-model="editedPoint.entryImage" label="Imagem de entrada"
-                                                        readonly></v-text-field>
-                                                </v-row>
-                                                <v-row>
-                                                    <v-text-field v-model="editedPoint.entryExpressio" label="Expressão"
-                                                        readonly></v-text-field>
-                                                </v-row>
-                                            </v-container>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row>
-                                        <v-col cols="12" sm="6" md="6">
-                                            <span v-if="editedPoint.departureImage">
-                                                <img :src="`/api/imagens/${editedPoint.userId}/${editedPoint.departureImage}`"
-                                                    @error="setDefaultImage" width="100%">
-                                            </span>
-                                            <span v-else>
-                                                <img src="/imageFailed.jpg" width="100%">
-                                            </span>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="6">
-                                            <v-container>
-                                                <v-row>
-                                                    <v-text-field v-model="editedPoint.departureDate" label="Saida"
-                                                        v-maska:[mask]></v-text-field>
-                                                </v-row>
-                                                <v-row>
-                                                    <v-text-field v-model="editedPoint.departureImage"
-                                                        label="Imagem de saida" readonly></v-text-field>
-                                                </v-row>
-                                                <v-row>
-                                                    <v-text-field v-model="editedPoint.departureExpressio" label="Expressão"
-                                                        readonly></v-text-field>
-                                                </v-row>
-                                            </v-container>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row>
-                                        <v-text-field v-model="editedPoint.observation" label="Observação"></v-text-field>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
-
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="blue-darken-1" variant="text" @click="close">
-                                    Cancelar
-                                </v-btn>
-                                <v-btn color="blue-darken-1" variant="text" @click="save">
-                                    Salvar
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
+                        <template v-slot:default>
+                            <v-card>
+                                <v-toolbar :title="formTitle">
+                                    <v-spacer></v-spacer>
+                                    <v-btn icon @click="save">
+                                        <v-icon>mdi-content-save</v-icon>
+                                    </v-btn>
+                                    <v-btn icon @click="fullscreen = !fullscreen">
+                                        <v-icon v-if="!fullscreen">mdi-arrow-expand</v-icon>
+                                        <v-icon v-else>mdi-arrow-collapse</v-icon>
+                                    </v-btn>
+                                    <v-btn icon @click="close">
+                                        <v-icon>mdi-close</v-icon>
+                                    </v-btn>
+                                </v-toolbar>
+                                <v-card-text>
+                                    <v-container>
+                                        <v-row>
+                                            <v-select :items="users" item-value="id" item-title="name"
+                                                v-model="editedPoint.userId" label="Usuario"></v-select>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col cols="12" sm="6" md="6">
+                                                <span v-if="editedPoint.entryImage">
+                                                    <img :src="`/api/imagens/${editedPoint.userId}/${editedPoint.entryImage}`"
+                                                        @error="setDefaultImage" width="100%">
+                                                </span>
+                                                <span v-else>
+                                                    <img src="/imageFailed.jpg" width="100%">
+                                                </span>
+                                            </v-col>
+                                            <v-col cols="12" sm="6" md="6">
+                                                <v-container>
+                                                    <v-row>
+                                                        <v-text-field type="date" v-model="editedPoint.entryDate"
+                                                            label="Data entrada"></v-text-field>
+                                                        <v-spacer></v-spacer>
+                                                        <v-text-field v-model="editedPoint.entryTime"
+                                                            label="Hora entrada" v-maska:[maskTime]></v-text-field>
+                                                    </v-row>
+                                                    <v-row>
+                                                        <v-text-field v-model="editedPoint.entryImage"
+                                                            label="Imagem de entrada" readonly></v-text-field>
+                                                    </v-row>
+                                                    <v-row>
+                                                        <v-text-field v-model="editedPoint.entryExpressio"
+                                                            label="Expressão" readonly></v-text-field>
+                                                    </v-row>
+                                                </v-container>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col cols="12" sm="6" md="6">
+                                                <span v-if="editedPoint.departureImage">
+                                                    <img :src="`/api/imagens/${editedPoint.userId}/${editedPoint.departureImage}`"
+                                                        @error="setDefaultImage" width="100%">
+                                                </span>
+                                                <span v-else>
+                                                    <img src="/imageFailed.jpg" width="100%">
+                                                </span>
+                                            </v-col>
+                                            <v-col cols="12" sm="6" md="6">
+                                                <v-container>
+                                                    <v-row>
+                                                        <v-text-field type="date" v-model="editedPoint.departureDate"
+                                                            label="Data saida"></v-text-field>
+                                                        <v-spacer></v-spacer>
+                                                        <v-text-field v-model="editedPoint.departureTime"
+                                                            label="Hora saida" v-maska:[maskTime]></v-text-field>
+                                                    </v-row>
+                                                    <v-row>
+                                                        <v-text-field v-model="editedPoint.departureImage"
+                                                            label="Imagem de saida" readonly></v-text-field>
+                                                    </v-row>
+                                                    <v-row>
+                                                        <v-text-field v-model="editedPoint.departureExpressio"
+                                                            label="Expressão" readonly></v-text-field>
+                                                    </v-row>
+                                                </v-container>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-text-field v-model="editedPoint.observation"
+                                                label="Observação"></v-text-field>
+                                        </v-row>
+                                    </v-container>
+                                </v-card-text>
+                            </v-card>
+                        </template>
                     </v-dialog>
                 </v-toolbar>
             </template>
@@ -123,13 +129,14 @@
         </v-snackbar>
     </v-container>
 </template>
-  
+
 <script>
 
 export default {
     data() {
         return {
             dialog: false,
+            fullscreen: false,
             snackbar: {
                 open: false,
                 mensage: null
@@ -138,17 +145,23 @@ export default {
                 loading: false,
                 mensage: null
             },
-            mask:
+            maskDate:
             {
-                mask: "####-##-## ##:##"
+                mask: "####-##-##"
+            },
+            maskTime:
+            {
+                mask: "##:##:##"
             },
             points: [],
             token: null,
             headers: [
                 { text: 'ID', value: 'id' },
                 { text: 'Usuario', value: 'name' },
-                { text: 'Entrada', value: 'entryDate' },
-                { text: 'Saida', value: 'departureDate' },
+                { text: 'Entrada data', value: 'entryDate' },
+                { text: 'Entrada hora', value: 'entryTime' },
+                { text: 'Saida data', value: 'departureDate' },
+                { text: 'Saida hora', value: 'departureTime' },
                 { text: 'Ações', value: 'action', sortable: false },
             ],
             users: [],
@@ -156,8 +169,10 @@ export default {
                 id: null,
                 name: null,
                 entryDate: null,
+                entryTime: null,
                 entryImage: null,
                 departureDate: null,
+                departureTime: null,
                 departureImage: null,
                 observation: null,
             },
@@ -165,8 +180,10 @@ export default {
                 id: null,
                 name: null,
                 entryDate: null,
+                entryTime: null,
                 entryImage: null,
                 departureDate: null,
+                departureTime: null,
                 departureImage: null,
                 observation: null,
             },
