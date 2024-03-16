@@ -9,7 +9,9 @@ export default defineEventHandler(async () => {
       id: points.id,
       name: users.name,
       entryDate: points.entryDate,
+      entryTime: points.entryTime,
       departureDate: points.departureDate,
+      departureTime: points.departureTime,
     }).from(points)
       .leftJoin(users, eq(users.id, points.userId))
       .orderBy(desc(points.id))

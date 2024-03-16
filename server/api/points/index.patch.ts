@@ -8,7 +8,8 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
 
     const date = new Date();
-    const formattedDate = `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${("0" + date.getDate()).slice(-2)} ${("0" + date.getHours()).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}`;
+    const formattedDate = `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${("0" + date.getDate()).slice(-2)}`;
+    const formattedTime = `${("0" + date.getHours()).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}`;
 
     const pointQuery = db.select()
       .from(points)
@@ -27,10 +28,12 @@ export default defineEventHandler(async (event) => {
     if (!pointQuery) {
       data.entryExpressio = body.expressio
       data.entryDate = formattedDate
+      data.entryTime = formattedTime
       data.entryImage = nameImage
     } else {
       data.departureExpressio = body.expressio
       data.departureDate = formattedDate
+      data.departureTime = formattedTime
       data.departureImage = nameImage
     }
 

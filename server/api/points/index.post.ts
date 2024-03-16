@@ -19,8 +19,10 @@ export default defineEventHandler(async (event) => {
     const data: any = {
       userId: body.userId,
       entryDate: body.entryDate,
+      entryTime: body.entryTime,
       entryImage: body.entryImage,
       departureDate: body.departureDate,
+      departureTime: body.departureTime,
       departureImage: body.departureImage,
       observation: body.observation,
     }
