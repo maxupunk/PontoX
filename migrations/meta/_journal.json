@@ -15,6 +15,13 @@
       "when": 1704466563182,
       "tag": "0001_hard_drax",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1710097947007,
+      "tag": "0002_sticky_captain_america",
+      "breakpoints": true
     }
   ]
 }
