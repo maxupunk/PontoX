@@ -41,8 +41,11 @@
               </v-col>
             </v-row>
             <v-row v-if="dataUser.point">
-              <v-col cols="12">
-                <v-text-field label="Entrada" v-model="dataUser.point.entryDate" readonly></v-text-field>
+              <v-col cols="6">
+                <v-text-field label="Data da entrada" v-model="dataUser.point.entryDate" readonly></v-text-field>
+              </v-col>
+              <v-col cols="6">
+                <v-text-field label="Horario da entrada" v-model="dataUser.point.entryTime" readonly></v-text-field>
               </v-col>
             </v-row>
           </v-container>
