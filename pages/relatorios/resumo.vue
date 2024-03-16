@@ -30,9 +30,13 @@
                     </thead>
                     <tbody>
                         <tr v-for="item in users" :key="item.name">
-                            <td>{{ item.name }}</td>
                             <td>
-                                {{ item.hours }} hora(s) <span v-if="item.minuites"> / {{ item.minuites }} minuto(s) </span>
+                                <graficoUsuario :label="item.name" :id="item.id" :dateStart="entryDateStart"
+                                    :dateEnd="entryDateEnd"></graficoUsuario>
+                            </td>
+                            <td>
+                                {{ item.hours }} hora(s)
+                                <span v-if="item.minuites"> / {{ item.minuites }} minuto(s)</span>
                             </td>
                         </tr>
                     </tbody>
@@ -41,9 +45,9 @@
         </v-card>
     </v-container>
 </template>
-  
+
 <script>
-import _ from 'lodash';
+import graficoUsuario from '~/components/relatorios/graficoUsuario.vue';
 
 export default {
     data() {
@@ -55,6 +59,7 @@ export default {
             timer: null,
         };
     },
+    components: { graficoUsuario },
     watch: {
         entryDateStart() {
             this.debouncedFetchData();
