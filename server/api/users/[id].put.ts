@@ -1,15 +1,13 @@
-import { users } from "../../../models/users";
-import { db } from "../../sqlite-service";
-import { eq } from "drizzle-orm";
+import prisma from "../../prisma";
 import { saveUserImage } from '../../../utils/utils';
-import bcrypt from 'bcrypt'; 
+import bcrypt from 'bcrypt';
 
 export default defineEventHandler(async (event) => {
     try {
         const userId = Number(event.context.params?.id);
-        let body = await readBody(event)
+        let body = await readBody(event);
         if (body.capturedImage) {
-            return saveUserImage(userId, body.capturedImage)
+            return saveUserImage(userId, body.capturedImage);
         } else {
             if (body.id) delete body.id;
 
@@ -21,10 +19,10 @@ export default defineEventHandler(async (event) => {
                 delete body.password;
             }
 
-            return db.update(users)
-                .set(body)
-                .where(eq(users.id, userId))
-                .run()
+            return prisma.users.update({
+                where: { id: userId },
+                data: body,
+            });
         }
     } catch (e: any) {
         throw createError({

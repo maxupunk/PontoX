@@ -1,10 +1,9 @@
-import { users } from "../../../models/users";
-import { db } from "../../sqlite-service";
+import prisma from "../../prisma";
 
 export default defineEventHandler(async () => {
   try {
-    const usersResp = db.select().from(users).all();
-    return { "users" : usersResp}
+    const usersResp = await prisma.users.findMany();
+    return { "users": usersResp };
   } catch (e: any) {
     throw createError({
       statusCode: 400,

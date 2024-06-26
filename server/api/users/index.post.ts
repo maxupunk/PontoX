@@ -1,14 +1,15 @@
-import { users } from "../../../models/users";
-import { db } from "../../sqlite-service";
+import prisma from "../../prisma";
 import bcrypt from 'bcrypt';
 
 export default defineEventHandler(async (event) => {
   try {
-    let body = await readBody(event)
+    let body = await readBody(event);
     const password = body.password;
     const hashedPassword = await bcrypt.hash(password, 10);
     body.password = hashedPassword;
-    return db.insert(users).values(body).run();
+    return await prisma.users.create({
+      data: body,
+    });
   } catch (e: any) {
     throw createError({
       statusCode: 400,

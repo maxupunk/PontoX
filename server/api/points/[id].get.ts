@@ -1,31 +1,43 @@
-import { users } from "../../../models/users";
-import { points } from "../../../models/points";
-import { db } from "../../sqlite-service";
-import { eq } from "drizzle-orm";
+import prisma from "../../prisma";
 
 export default defineEventHandler(async (event) => {
     try {
         const pointId = Number(event.context.params?.id);
-        let pointsQuery = db.select({
-            id: points.id,
-            userId: points.userId,
-            name: users.name,
-            entryDate: points.entryDate,
-            entryTime: points.entryTime,
-            entryExpressio: points.entryExpressio,
-            entryImage: points.entryImage,
-            departureDate: points.departureDate,
-            departureTime: points.departureTime,
-            departureExpressio: points.departureExpressio,
-            departureImage: points.departureImage,
-            observation: points.observation,
-        })
-            .from(points)
-            .leftJoin(users, eq(users.id, points.userId))
-            .where(eq(points.id, pointId))
-            .get()
 
-        return { point: pointsQuery };
+        const pointQuery = await prisma.points.findUnique({
+            where: { id: pointId },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
+        });
+
+        if (!pointQuery) {
+            throw createError({
+                statusCode: 404,
+                statusMessage: "Point not found",
+            });
+        }
+
+        return {
+            point: {
+                id: pointQuery.id,
+                userId: pointQuery.userId,
+                name: pointQuery.user?.name,
+                entryDate: pointQuery.entryDate,
+                entryTime: pointQuery.entryTime,
+                entryExpressio: pointQuery.entryExpressio,
+                entryImage: pointQuery.entryImage,
+                departureDate: pointQuery.departureDate,
+                departureTime: pointQuery.departureTime,
+                departureExpressio: pointQuery.departureExpressio,
+                departureImage: pointQuery.departureImage,
+                observation: pointQuery.observation,
+            },
+        };
     } catch (e: any) {
         throw createError({
             statusCode: 400,

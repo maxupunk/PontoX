@@ -1,19 +1,18 @@
-import { points } from "../../../models/points";
-import { db } from "../../sqlite-service";
+import prisma from "../../prisma";
 import { saveUserImage } from '../../../utils/utils';
 
 export default defineEventHandler(async (event) => {
   try {
-    let body = await readBody(event)
+    let body = await readBody(event);
 
     if (body.entryImage) {
       // save file in public/imagens/userId if it is a base64 image
-      body.entryImage = saveUserImage(body.userId, body.entryImage)
+      body.entryImage = await saveUserImage(body.userId, body.entryImage);
     }
 
     if (body.departureImage) {
       // save file in public/imagens/userId if it is a base64 image
-      body.departureImage = saveUserImage(body.userId, body.departureImage)
+      body.departureImage = await saveUserImage(body.userId, body.departureImage);
     }
 
     const data: any = {
@@ -21,12 +20,17 @@ export default defineEventHandler(async (event) => {
       entryDate: body.entryDate,
       entryTime: body.entryTime,
       entryImage: body.entryImage,
+      entryExpressio: '',
       departureDate: body.departureDate,
       departureTime: body.departureTime,
       departureImage: body.departureImage,
+      departureExpressio: '',
       observation: body.observation,
-    }
-    return db.insert(points).values(data).run();
+    };
+
+    return await prisma.points.create({
+      data: data,
+    });
   } catch (e: any) {
     throw createError({
       statusCode: 400,
