@@ -1,41 +1,30 @@
-import { users } from "../../models/users";
-import { db } from "../sqlite-service";
-import { eq } from "drizzle-orm";
+import prisma from "../prisma";
 import bcrypt from 'bcrypt';
-import crypto from 'crypto';
+import { nanoid } from 'nanoid';
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: any) => {
   try {
-    let body = await readBody(event)
-    const userQuery = db.select()
-      .from(users)
-      .where(eq(users.login, body.login))
-      .get()
+    let body = await readBody(event);
+    const userQuery = await prisma.users.findFirst({
+      where: { login: body.login },
+    });
 
     if (userQuery) {
-      const passwordDB = (userQuery.password) ? userQuery.password : '';
-      try {
-        const result = await bcrypt.compare(body.password, passwordDB);
-        if (result) {
-          const data = {
-            token: crypto.randomBytes(24).toString('hex'),
-          }
-          db.update(users)
-            .set(data)
-            .where(eq(users.id, userQuery.id))
-            .run()
-          return data;
-        } else {
-          return false;
-        }
-      } catch (err) {
-        return err;
+      const passwordDB = userQuery.password ? userQuery.password : '';
+      const result = await bcrypt.compare(body.password, passwordDB);
+      if (result) {
+        const token = nanoid(36);
+        await prisma.users.update({
+          where: { id: userQuery.id },
+          data: { token },
+        });
+        return { token };
       }
     }
   } catch (e: any) {
     throw createError({
       statusCode: 400,
-      message: e.message,
+      statusMessage: e.message,
     });
   }
 });
