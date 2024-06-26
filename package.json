@@ -7,16 +7,13 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "generate:migrate": "drizzle-kit generate:sqlite --out migrations --schema models/*.ts",
-    "migrate": "drizzle-kit push:sqlite",
-    "db:manager": "drizzle-kit studio"
+    "seed": "node prisma/seed.ts"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
     "@types/bcrypt": "^5.0.2",
-    "@types/better-sqlite3": "^7.6.8",
-    "drizzle-kit": "^0.20.13",
     "nuxt": "^3.8.2",
+    "prisma": "^5.16.0",
     "vite-plugin-vuetify": "^2.0.1",
     "vue": "^3.3.12",
     "vue-router": "^4.2.5",
@@ -25,15 +22,14 @@
   "dependencies": {
     "@mdi/font": "^7.3.67",
     "@pinia/nuxt": "^0.5.1",
+    "@prisma/client": "^5.16.0",
     "apexcharts": "^3.47.0",
     "archiver": "^6.0.2",
     "bcrypt": "^5.1.1",
-    "better-sqlite3": "^9.2.2",
-    "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
-    "drizzle-orm": "^0.29.1",
     "face-api.js": "^0.22.2",
     "maska": "^2.1.10",
+    "nanoid": "^5.0.7",
     "path-to-regexp": "^6.2.1",
     "pinia": "^2.1.7",
     "vue3-apexcharts": "^1.5.2"
