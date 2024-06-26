@@ -30,8 +30,8 @@ function imagesUrl(dirPath: string = folderpathImagens): { label: string, files:
 
       if (existingLabelIndex > -1) {
         data[existingLabelIndex].files.push(item);
-        // Limit to the last 20 images
-        data[existingLabelIndex].files = data[existingLabelIndex].files.slice(-20);
+        // Limit to the last 6 images
+        data[existingLabelIndex].files = data[existingLabelIndex].files.slice(-6);
       } else {
         data.push({ label: label, files: [item] });
       }
