@@ -86,7 +86,6 @@ export default {
                     this.loadUserData()
                 } else {
                     this.user = {
-                        id: null,
                         name: '',
                         email: '',
                         login: '',
@@ -100,7 +99,7 @@ export default {
     },
     computed: {
         formTitle() {
-            return this.user.id === null ? 'Cadastro de usuario' : 'Atualizar usuario'
+            return this.user.id ? 'Editar Usuário' : 'Novo Usuário'
         },
     },
     methods: {
