@@ -1,27 +1,27 @@
 import fs from 'fs'
 import path from 'path'
-import { users } from "../../models/users";
-import { db } from "../sqlite-service";
-import { eq } from "drizzle-orm";
+import prisma from "../prisma";
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: any) => {
   if (event.method !== 'GET') {
     const authorization = event.headers.get('authorization');
-    const token = users.token as any;
-    const userQuery = db.select()
-      .from(users)
-      .where(eq(token, authorization))
-      .get()
+    const userQuery = await prisma.users.findFirst({
+      where: {
+        token: authorization,
+      },
+    });
 
     let logbody = ''
     const body = await readBody(event)
     if (event.path == '/api/login') {
       logbody = `Logged - ${body.login}`
     } else if (event.path == '/api/points') {
-      const pointUserQuery = db.select()
-        .from(users)
-        .where(eq(users.id, body.userId))
-        .get()
+      // Substituição da consulta Drizzle por Prisma para buscar informações do usuário baseado no userId
+      const pointUserQuery = await prisma.users.findUnique({
+        where: {
+          id: body.userId,
+        },
+      });
       logbody = `* Ponto - ${userQuery?.name} -> ${pointUserQuery?.name}`
     } else {
       logbody = `${event.method} - ${event.path} - usar: ${userQuery?.name}\n${JSON.stringify(body)}`
