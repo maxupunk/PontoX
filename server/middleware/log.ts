@@ -11,12 +11,24 @@ export default defineEventHandler(async (event: any) => {
       },
     });
 
-    let logbody = ''
+    
     const body = await readBody(event)
+    let logbody:string = ''
+    let content:string = '';
+
+
+    for (const key in body) {
+      if (body.hasOwnProperty(key)) {
+        const value = body[key];
+        if (!isBase64Image(value)) {
+          content += `\n\t ${key} - ${value}`
+        }
+      }
+    }
+    
     if (event.path == '/api/login') {
       logbody = `Logged - ${body.login}`
     } else if (event.path == '/api/points') {
-      // Substituição da consulta Drizzle por Prisma para buscar informações do usuário baseado no userId
       const pointUserQuery = await prisma.users.findUnique({
         where: {
           id: body.userId,
@@ -24,14 +36,14 @@ export default defineEventHandler(async (event: any) => {
       });
       logbody = `* Ponto - ${userQuery?.name} -> ${pointUserQuery?.name}`
     } else {
-      logbody = `${event.method} - ${event.path} - usar: ${userQuery?.name}\n${JSON.stringify(body)}`
+      logbody = `${event.method} - ${event.path} - user: ${userQuery?.name} \n { ${content} \n}`
     }
     const date = new Date();
     const hour = date.getHours().toString().padStart(2, '0');
     const minute = date.getMinutes().toString().padStart(2, '0');
     const second = date.getSeconds().toString().padStart(2, '0');
     // Convert data to JSON string
-    const dataString = `${hour}:${minute}:${second}\n${logbody}\n`;
+    const dataString = `${hour}:${minute}:${second} - ${logbody}\n`;
     // Create a directory path
     const dir = './logs';
     // Check if directory exists, if not create it
@@ -44,3 +56,8 @@ export default defineEventHandler(async (event: any) => {
     fs.appendFileSync(filename, dataString);
   }
 })
+
+function isBase64Image(str: string) {
+  const base64ImagePattern = /^data:image\/[a-zA-Z]+;base64,/;
+  return base64ImagePattern .test(str);
+}
