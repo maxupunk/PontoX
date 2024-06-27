@@ -53,8 +53,8 @@ export default {
     data() {
         return {
             loading: false,
-            entryDateStart: null,
-            entryDateEnd: null,
+            entryDateStart: '',
+            entryDateEnd: '',
             users: [],
             timer: null,
         };
