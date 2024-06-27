@@ -1,31 +1,42 @@
-import { points } from "../../../models/points";
-import { users } from "../../../models/users";
-import { db } from "../../sqlite-service";
-import { and, eq, between, sql } from "drizzle-orm";
+import prisma from "../../prisma";
 
-export default defineEventHandler(async (event:any) => {
+export default defineEventHandler(async (event: any) => {
   let body = await readBody(event)
-  const id:number = event.context.params?.id
-  if (!id) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'User id is required',
-    });
-  }
-  const ResumoQuery = db.select({
-    entryDate: points.entryDate,
-    totalMinutes: sql<number>`SUM((strftime('%s', ${points.departureTime}) - strftime('%s', ${points.entryTime})) / 60) as totalHoursWorked`,
-  }).from(points)
-    .leftJoin(users, eq(users.id, points.userId))
-    .where(and(between(points.entryDate, body.entryDateStart, body.entryDateEnd), eq(users.id, id)))
-    .groupBy(points.entryDate)
-    .all();
+  const id = event.context.params.id
+  const entryDateStart = body.entryDateStart ? body.entryDateStart : '';
+  const entryDateEnd = body.entryDateEnd ? body.entryDateEnd : new Date().toISOString().split('T')[0];
+  const user = await prisma.points.findMany({
+    select: {
+      entryDate: true,
+      entryTime: true,
+      departureDate: true,
+      departureTime: true,
+    },
+    where: {
+      userId: Number(id),
+      entryDate: {
+        gte: entryDateStart, // maior ou igual a dataInicial
+        lte: entryDateEnd,
+      },
+    },
+  });
 
-  const labels = ResumoQuery.map((item: any) => item.entryDate);
-  const data = ResumoQuery.map((item: any) => `${Math.floor(item.totalMinutes / 60)}.${item.totalMinutes % 60}`);
-  const result = {
-    labels: labels,
-    data: data
+  const labels: string[] = [];
+  const data: string[] = [];
+
+  user.forEach(({ entryDate, departureDate, departureTime, entryTime }) => {
+    const entryDateTime = new Date(`${entryDate}T${entryTime}`);
+    const departureDateTime = new Date(`${departureDate}T${departureTime}`);
+    const totalTimeMinutes = (departureDateTime.getTime() - entryDateTime.getTime()) / (1000 * 60); // Convert to minutes
+    const totalTime = `${Math.floor(totalTimeMinutes / 60)}.${totalTimeMinutes % 60}`
+
+    labels.push(entryDate);
+    data.push(totalTime);
+  });
+
+  return {
+    labels,
+    data
   };
-  return result;
+
 });

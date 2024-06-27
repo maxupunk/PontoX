@@ -1,31 +1,42 @@
-import { points } from "../../../models/points";
-import { users } from "../../../models/users";
-import { db } from "../../sqlite-service";
-import { eq, between, sql } from "drizzle-orm";
+import prisma from "../../prisma";
 
 export default defineEventHandler(async (event) => {
   try {
-    let body = await readBody(event)
-    const ResumoQuery = db.select({
-      id: users.id,
-      name: users.name,
-      totalMinutes: sql<number>`SUM((strftime('%s', ${points.departureTime}) - strftime('%s', ${points.entryTime})) / 60) as totalHoursWorked`,
-    }).from(points)
-      .leftJoin(users, eq(users.id, points.userId))
-      .where(between(points.entryDate, body.entryDateStart, body.entryDateEnd))
-      .groupBy(users.id)
-      .all();
+    const body = await readBody(event);
+    const entryDateStart = body.entryDateStart ? body.entryDateStart : '';
+    const entryDateEnd = body.entryDateEnd ? body.entryDateEnd : new Date().toISOString().split('T')[0];
+    const users = await prisma.users.findMany({
+      select: {
+        id: true,
+        name: true,
+        points: {
+          where: {
+            entryDate: {
+              gte: entryDateStart, // maior ou igual a dataInicial
+              lte: entryDateEnd,  // menor ou igual a dataFinal
+            },
+          },
+        },
+      },
+    });
 
-    let Resulmo = ResumoQuery.map((item: any) => {
+    const usersWithFormattedTime = users.map(user => {
+      const totalMinutesSum = user.points.reduce((acc, point) => {
+        const entryDateTime = new Date(`${point.entryDate}T${point.entryTime}`);
+        const departureDateTime = new Date(`${point.departureDate}T${point.departureTime}`);
+        const totalTimeMinutes = (departureDateTime.getTime() - entryDateTime.getTime()) / (1000 * 60); // Convert to minutes
+        return acc + totalTimeMinutes;
+      }, 0);
+
       return {
-        id: item.id,
-        name: item.name,
-        hours: Math.floor(item.totalMinutes / 60),
-        minuites: item.totalMinutes % 60
-      }
-    })
+        id: user.id,
+        name: user.name,
+        hours: Math.floor(totalMinutesSum / 60),
+        minuites: totalMinutesSum % 60
+      };
+    });
 
-    return Resulmo;
+    return usersWithFormattedTime;
   } catch (e: any) {
     throw createError({
       statusCode: 400,
