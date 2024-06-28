@@ -2,7 +2,7 @@ import prisma from "../../prisma";
 import { saveUserImage } from '../../../utils/utils';
 
 export default defineEventHandler(async (event) => {
-  try {
+  // try {
     const body = await readBody(event);
 
     const date = new Date();
@@ -12,13 +12,13 @@ export default defineEventHandler(async (event) => {
     const pointQuery = await prisma.points.findFirst({
       where: {
         userId: body.userId,
-        departureDate: undefined,
+        departureDate: null,
       },
     });
 
     const nameImage = saveUserImage(body.userId, body.capturedImage);
 
-    const data: any = {
+    const data:any = {
       userId: body.userId,
       observation: body.observation,
     };
@@ -29,26 +29,25 @@ export default defineEventHandler(async (event) => {
       data.entryTime = formattedTime;
       data.entryImage = nameImage;
 
-      await prisma.points.create({
+      return await prisma.points.create({
         data: data,
       });
     } else {
-      data.departureExpressio = body.expressio;
       data.departureDate = formattedDate;
       data.departureTime = formattedTime;
       data.departureImage = nameImage;
 
-      await prisma.points.update({
+      return await prisma.points.update({
         where: {
           id: pointQuery.id,
         },
         data: data,
       });
     }
-  } catch (e: any) {
+  /* } catch (e: any) {
     throw createError({
       statusCode: 400,
       statusMessage: e.message,
     });
-  }
+  } */
 });

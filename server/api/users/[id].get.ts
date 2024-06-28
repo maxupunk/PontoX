@@ -20,10 +20,9 @@ export default defineEventHandler(async (event) => {
         const pointQuery = await prisma.points.findFirst({
             where: {
                 userId: userId,
-                departureDate: undefined,
+                departureDate: null,
             },
         });
-
         return { user: userDate, point: pointQuery };
     } catch (e: any) {
         return {
