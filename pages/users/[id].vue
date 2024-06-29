@@ -2,15 +2,15 @@
   <v-container>
     <v-card>
       <v-card-title>
-        <v-row align="center" justify="center">
-          <v-col cols="auto">
+        <v-row>
+          <v-col cols="12" class="mx-auto text-center">
             Usuario: {{ dataUser.name }}
           </v-col>
         </v-row>
       </v-card-title>
       <v-card-text>
-        <v-row align="center" justify="center">
-          <v-col cols="auto" v-if="videoDevices.length > 1">
+        <v-row>
+          <v-col cols="12" v-if="videoDevices.length > 1">
             <select v-model="selectedDevice" @change="startVideo">
               <option v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId">
                 {{ device.label }}
@@ -18,10 +18,11 @@
             </select>
           </v-col>
         </v-row>
-        <v-row align="center" justify="center">
-          <v-col cols="auto">
+        <v-row>
+          <v-col cols="12" class="mx-auto text-center">
             <video autoplay id="camera" muted></video>
             <canvas id="canvas"></canvas>
+            <canvas id="canvasFace"></canvas>
           </v-col>
         </v-row>
       </v-card-text>
@@ -42,21 +43,12 @@
         {{ load.mensage }}
       </div>
     </v-overlay>
-
-    <!-- Snackbar -->
-    <v-snackbar v-model="snackbar.open" :color="snackbar.color" :timeout="3000">
-      {{ snackbar.mensage }}
-      <template v-slot:actions>
-        <v-btn color="white" text @click="snackbar = false" append-icon>
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
 <script>
 import * as faceapi from 'face-api.js';
+import { snackbarShow } from "~/composables/useUi"
 
 export default {
   data() {
@@ -64,14 +56,8 @@ export default {
       video: null,
       canvas: null,
       dataUser: [],
-      images: [],
-      token: null,
+      imageMarge: 50,
       capturedImage: null,
-      snackbar: {
-        open: false,
-        mensage: null,
-        color: 'success'
-      },
       load: {
         loading: false,
         mensage: null
@@ -91,6 +77,7 @@ export default {
   async mounted() {
     this.video = document.getElementById('camera')
     this.canvas = document.getElementById('canvas')
+    this.canvasface = document.getElementById('canvasFace');
 
     this.load.loading = true;
     this.load.mensage = 'buscando dados do usuario...'
@@ -140,9 +127,7 @@ export default {
       if (response.hasOwnProperty('user')) {
         this.dataUser = response.user;
       } else {
-        this.snackbar.open = true
-        this.snackbar.mensage = 'Não encontrei esse usuario no banco com o ID informado!'
-        this.snackbar.color = 'warning'
+        snackbarShow('Não encontrei esse usuario no banco com o ID informado!', 'warning')
       }
     },
 
@@ -154,44 +139,57 @@ export default {
       }
       const sendImage = await $fetch(`/api/users/${this.id}`, {
         method: 'PUT',
-        headers: {
-          Authorization: this.token
-        },
         body: data
       })
       if (sendImage) {
-        this.snackbar.open = true
-        this.snackbar.mensage = 'Imagem enviada com sucesso! Vamos treinar? indo para a pagina de treino...'
+        snackbarShow('Imagem enviada com sucesso! indo para a pagina de treino...', 'success')
         setTimeout(() => {
           this.$router.push('/treine');
         }, 2000)
       }
     },
 
+    getCutImage(box) {
+      const { x, y, width, height } = box;
+      const offset = 20;
+      return {
+        x: x - this.imageMarge,
+        y: y - (this.imageMarge + offset),
+        width: width + (2 * this.imageMarge),
+        height: height + (2 * (this.imageMarge))
+      }
+    },
+
     async processVideo() {
       this.load.loading = true;
       this.load.mensage = 'buscando rosto na camera...'
-      this.snackbar.color = 'success'
       this.canvas.width = this.video.videoWidth;
       this.canvas.height = this.video.videoHeight;
 
       const singleResult = await faceapi
         .detectSingleFace(this.video, this.options)
+        .withFaceLandmarks()
 
       if (singleResult) {
         // Capture the current frame from the video
         const ctx = this.canvas.getContext('2d');
+        // Desenhe o frame atual do vídeo no canvas
         ctx.drawImage(this.video, 0, 0, this.resolutionDevice.width, this.resolutionDevice.height);
+
+        // Create a new canvas element
+        const faceCtx = this.canvasface.getContext('2d');
+        const cut = this.getCutImage(singleResult.detection.box);
+        this.canvasface.width = cut.width;
+        this.canvasface.height = cut.height;
+        // Draw the face on the canvas
+        faceCtx.drawImage(this.canvas, cut.x, cut.y, cut.width, cut.height, 0, 0, cut.width, cut.height);
+
         // Convert the canvas image to a data URL
-        this.capturedImage = this.canvas.toDataURL('image/png')
-        // Clear the canvas
-        this.canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
-        //
+        this.capturedImage = this.canvasface.toDataURL('image/png')
+        // enviando a imagem para o servidor
         await this.sendImage()
       } else {
-        this.snackbar.open = true
-        this.snackbar.mensage = 'Não encontrei rosto na camera!'
-        this.snackbar.color = 'warning'
+        snackbarShow('Não encontrei rosto na camera!', 'warning')
       }
       this.load.loading = false;
     },
@@ -204,6 +202,10 @@ export default {
 }
 
 #canvas {
+  display: none;
+}
+
+#canvasFace {
   display: none;
 }
 </style>

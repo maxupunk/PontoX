@@ -1,7 +1,7 @@
 <template>
   <v-container>
-    <v-row align="center" justify="center">
-      <v-col cols="auto" v-if="videoDevices.length > 1">
+    <v-row>
+      <v-col cols="12" class="mx-auto text-center" v-if="videoDevices.length > 1">
         <select v-model="selectedDevice" @change="startVideo">
           <option v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId">
             {{ device.label }}
@@ -9,14 +9,15 @@
         </select>
       </v-col>
     </v-row>
-    <v-row align="center" justify="center">
-      <v-col cols="auto">
+    <v-row>
+      <v-col cols="12" class="mx-auto text-center">
         <video autoplay id="cam" muted></video>
         <canvas id="canvas"></canvas>
+        <canvas id="canvasFace"></canvas>
       </v-col>
     </v-row>
-    <v-row align="center" justify="center" v-if="hasCamera">
-      <v-col cols="auto">
+    <v-row v-if="hasCamera">
+      <v-col cols="12" class="mx-auto text-center">
         <v-btn :loading="load.loading" :disabled="startDesable" size="x-large" @click="processVideo">
           Registrar ponto
         </v-btn>
@@ -31,21 +32,29 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12">
-                <v-text-field label="Nome do usuário" v-model="dataUser.user.name" readonly></v-text-field>
+              <v-col cols="3">
+                <v-img :src="pointLocal.capturedImage" width="120" class="image"></v-img>
+              </v-col>
+              <v-col cols="9">
+                <v-row>
+                  <v-col cols="12">
+                    Usuário: <h4>{{ dataUser.user.name }}</h4>
+                    <hr>
+                  </v-col>
+                  <v-col cols="6" v-if="dataUser.point">
+                    Data da entrada: <h4>{{ dataUser.point.entryDate }} </h4>
+                    <hr>
+                  </v-col>
+                  <v-col cols="6" v-if="dataUser.point">
+                    Horario da entrada: <h4>{{ dataUser.point.entryTime }}</h4>
+                    <hr>
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
             <v-row>
               <v-col cols="12">
                 <v-text-field label="Observação" v-model="observation"></v-text-field>
-              </v-col>
-            </v-row>
-            <v-row v-if="dataUser.point">
-              <v-col cols="6">
-                <v-text-field label="Data da entrada" v-model="dataUser.point.entryDate" readonly></v-text-field>
-              </v-col>
-              <v-col cols="6">
-                <v-text-field label="Horario da entrada" v-model="dataUser.point.entryTime" readonly></v-text-field>
               </v-col>
             </v-row>
           </v-container>
@@ -58,16 +67,6 @@
       </v-card>
     </v-dialog>
   </v-container>
-
-  <!-- Snackbar -->
-  <v-snackbar v-model="snackbar.open" :color="snackbar.color" :timeout="3000">
-    {{ snackbar.mensage }}
-    <template v-slot:actions>
-      <v-btn color="white" text @click="snackbar = false" append-icon>
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
-    </template>
-  </v-snackbar>
   <v-overlay v-model="load.loading" class="align-center justify-center">
     <div class="text-center">
       <v-progress-circular color="primary" indeterminate></v-progress-circular>
@@ -80,13 +79,16 @@
 
 <script>
 import * as faceapi from 'face-api.js';
+import { snackbarShow } from "~/composables/useUi"
 
 export default {
   data() {
     return {
       video: null,
       canvas: null,
+      canvasface: null,
       dataUser: [],
+      imageMarge: 50,
       observation: null,
       pointLocal: {
         capturedImage: null,
@@ -95,11 +97,6 @@ export default {
       faceMatcherJson: [],
       treineServeData: [],
       dialog: false,
-      snackbar: {
-        open: false,
-        mensage: null,
-        color: 'success'
-      },
       load: {
         loading: false,
         mensage: null
@@ -127,6 +124,7 @@ export default {
   async mounted() {
     this.video = document.getElementById('cam')
     this.canvas = document.getElementById('canvas')
+    this.canvasface = document.getElementById('canvasFace');
 
     this.load.loading = true
     await this.getVideoDevices()
@@ -142,16 +140,16 @@ export default {
         if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
           this.faceMatcherJson = this.treineServeData.faceMatcherJson
           this.faceMatcher = faceapi.FaceMatcher.fromJSON(this.faceMatcherJson)
+          // carrega logo o treinamento antecipado
+          this.load.mensage = 'Carregando o treinamento na memoria...'
+          await faceapi.detectSingleFace(this.video, this.options)
         } else {
-          this.snackbar.open = true
-          this.snackbar.mensage = 'Não existe nem um dado treinado!'
+          snackbarShow('Não existe nem um dado treinado!', 'warning')
           this.startDesable = true
         }
       })
     } else {
-      this.snackbar.open = true
-      this.snackbar.mensage = 'Nem uma camera foi encontrada!'
-      this.snackbar.color = 'warning'
+      snackbarShow('Nem uma camera foi encontrada!', 'warning')
     }
     this.load.loading = false
   },
@@ -202,9 +200,7 @@ export default {
         this.dataUser = response;
         this.dialog = true
       } else {
-        this.snackbar.open = true
-        this.snackbar.mensage = 'Não encontrei esse usuario no banco, talvez você tenha que retreinar!'
-        this.snackbar.color = 'warning'
+        snackbarShow('Não encontrei esse usuario no banco, talvez você tenha que retreinar!', 'warning')
       }
     },
 
@@ -220,16 +216,25 @@ export default {
         body: data
       })
       if (PointSave) {
-        this.snackbar.open = true
-        this.snackbar.mensage = 'Ponto registrado com sucesso!'
+        snackbarShow('Ponto registrado com sucesso!', 'success')
         this.dialog = false
+      }
+    },
+
+    getCutImage(box) {
+      const { x, y, width, height } = box;
+      const offset = 20;
+      return {
+        x: x - this.imageMarge,
+        y: y - (this.imageMarge + offset),
+        width: width + (2 * this.imageMarge),
+        height: height + (2 * (this.imageMarge))
       }
     },
 
     async processVideo() {
       this.load.loading = true;
       this.load.mensage = 'buscando rosto na camera...'
-      this.snackbar.color = 'success'
       this.canvas.width = this.video.videoWidth;
       this.canvas.height = this.video.videoHeight;
 
@@ -248,22 +253,26 @@ export default {
 
           // Capture the current frame from the video
           const ctx = this.canvas.getContext('2d');
+          // Desenhe o frame atual do vídeo no canvas
           ctx.drawImage(this.video, 0, 0, this.resolutionDevice.width, this.resolutionDevice.height);
+
+          // Create a new canvas element
+          const faceCtx = this.canvasface.getContext('2d');
+          const cut = this.getCutImage(singleResult.detection.box);
+          this.canvasface.width = cut.width;
+          this.canvasface.height = cut.height;
+          // Draw the face on the canvas
+          faceCtx.drawImage(this.canvas, cut.x, cut.y, cut.width, cut.height, 0, 0, cut.width, cut.height);
+
           // Convert the canvas image to a data URL
-          this.pointLocal.capturedImage = this.canvas.toDataURL('image/png');
-          // Clear the canvas
-          this.canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
-          //
+          this.pointLocal.capturedImage = this.canvasface.toDataURL('image/png');
+          // pega os dados do usuario
           await this.getDateUser(bestMatch.label)
         } else {
-          this.snackbar.open = true
-          this.snackbar.mensage = 'Não estou reconhecendo... Chegue mais perto e/ou de frente para camera!'
-          this.snackbar.color = 'warning'
+          snackbarShow('Não estou reconhecendo... Chegue mais perto e fique de frente para camera!', 'warning')
         }
       } else {
-        this.snackbar.open = true
-        this.snackbar.mensage = 'Não encontrei rosto da imagem!'
-        this.snackbar.color = 'warning'
+        snackbarShow('Não foi encontrado rosto da imagem!', 'warning')
       }
       this.load.loading = false;
     },
@@ -284,5 +293,13 @@ export default {
 
 #canvas {
   display: none;
+}
+
+#canvasFace {
+  display: none;
+}
+
+.image {
+  border: 2px solid #9c9c9c;
 }
 </style>
