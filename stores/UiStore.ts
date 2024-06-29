@@ -4,7 +4,7 @@ export const useUiStore = defineStore('Ui', {
         log: [] as {}[],
     }),
     actions: {
-        showSnackbar(message: string, color: string = '', timeout: number = 2000) {
+        showSnackbar(message: string, color: string = '', timeout: number = 1500) {
             if (color === 'error') timeout = 4000
             this.snackbar.push({ text: message, color: color, timeout: timeout })
             this.log.push({ message })
