@@ -37,10 +37,11 @@
         </v-col>
       </v-row>
     </v-footer>
-
+    <snackbar />
   </v-app>
 </template>
 <script>
+import snackbar from '~/components/snackbar.vue';
 import { useAuthStore } from '@/stores/auth.ts'
 
 export default {
@@ -49,6 +50,9 @@ export default {
       drawer: false,
       authStore: null
     }
+  },
+  components: {
+    snackbar
   },
   computed: {
     isLoged() {

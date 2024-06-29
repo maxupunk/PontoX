@@ -3,10 +3,13 @@ import '@mdi/font/css/materialdesignicons.css'
 
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
+import { VSnackbarQueue } from 'vuetify/labs/VSnackbarQueue'
 
 export default defineNuxtPlugin((app) => {
   const vuetify = createVuetify({
-    // ... your configuration
+    components: {
+      VSnackbarQueue,
+    },
   })
   app.vueApp.use(vuetify)
 })
