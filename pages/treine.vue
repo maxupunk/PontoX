@@ -105,9 +105,9 @@ export default {
   async mounted() {
     this.load.loading = true;
     await this.loadModels().then(async () => {
+      this.allUsers = await $fetch('/api/users')
       this.loadTreine()
       this.load.mensage = 'buscanco usuarios...'
-      this.allUsers = await $fetch('/api/users')
     })
     this.load.loading = false;
   },
