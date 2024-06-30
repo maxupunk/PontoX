@@ -19,7 +19,7 @@ export default defineEventHandler(async (event: any) => {
       if (body.hasOwnProperty(key)) {
         const value = body[key];
         if (!isBase64Image(value)) {
-          content += `\n\t ${key} - ${value}`
+          content += `\n\t${key} - ${value}`
         }
       }
     }
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event: any) => {
       });
       logbody = `* Ponto - ${userQuery?.name} -> ${pointUserQuery?.name}`
     } else {
-      logbody = `${event.method} - ${event.path} - user: ${userQuery?.name} \n { ${content} \n }`
+      logbody = `↳ ${event.method} - ${event.path} - user: ${userQuery?.name} ${content}`
     }
 
 
