@@ -1,8 +1,8 @@
-import prisma from "../../prisma";
+import prisma from "~/server/prisma";
 
 export default defineEventHandler(async () => {
   try {
-    const usersResp = await prisma.users.findMany();
+    const usersResp = await prisma.user.findMany();
     return { "users": usersResp };
   } catch (e: any) {
     throw createError({

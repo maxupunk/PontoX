@@ -1,4 +1,4 @@
-import prisma from "../../prisma";
+import prisma from "~/server/prisma";
 import { saveUserImage } from '../../../utils/utils';
 import bcrypt from 'bcrypt';
 
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
                 delete body.password;
             }
 
-            return prisma.users.update({
+            return prisma.user.update({
                 where: { id: userId },
                 data: body,
             });

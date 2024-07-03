@@ -1,11 +1,11 @@
-import prisma from "../../prisma";
+import prisma from "~/server/prisma";
 
 export default defineEventHandler(async (event: any) => {
   let body = await readBody(event)
   const id = event.context.params.id
   const entryDateStart = body.entryDateStart ? body.entryDateStart : '';
   const entryDateEnd = body.entryDateEnd ? body.entryDateEnd : new Date().toISOString().split('T')[0];
-  const user = await prisma.points.findMany({
+  const user = await prisma.point.findMany({
     select: {
       entryDate: true,
       entryTime: true,

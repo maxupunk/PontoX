@@ -1,8 +1,8 @@
-import prisma from "../../prisma";
+import prisma from "~/server/prisma";
 
 export default defineEventHandler(async () => {
   try {
-    const pointsResp = await prisma.points.findMany({
+    const pointsResp = await prisma.point.findMany({
       select: {
         id: true,
         entryDate: true,

@@ -1,4 +1,4 @@
-import prisma from "../../prisma";
+import prisma from "~/server/prisma";
 import { saveUserImage } from '../../../utils/utils';
 
 export default defineEventHandler(async (event) => {
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
       observation: body.observation,
     };
 
-    return await prisma.points.create({
+    return await prisma.point.create({
       data: data,
     });
   } catch (e: any) {

@@ -1,11 +1,11 @@
-import prisma from "../prisma";
+import prisma from "~/server/prisma";
 import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
 
 export default defineEventHandler(async (event: any) => {
   try {
     let body = await readBody(event);
-    const userQuery = await prisma.users.findFirst({
+    const userQuery = await prisma.user.findFirst({
       where: { login: body.login },
     });
 
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event: any) => {
       const result = await bcrypt.compare(body.password, passwordDB);
       if (result) {
         const token = nanoid(36);
-        await prisma.users.update({
+        await prisma.user.update({
           where: { id: userQuery.id },
           data: { token },
         });

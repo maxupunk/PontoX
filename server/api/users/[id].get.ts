@@ -1,10 +1,10 @@
-import prisma from "../../prisma";
+import prisma from "~/server/prisma";
 
 export default defineEventHandler(async (event) => {
     try {
         const userId = Number(event.context.params?.id);
 
-        const userQuery = await prisma.users.findUnique({
+        const userQuery = await prisma.user.findUnique({
             where: { id: userId },
         });
 
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
             status: userQuery?.status,
         };
 
-        const pointQuery = await prisma.points.findFirst({
+        const pointQuery = await prisma.point.findFirst({
             where: {
                 userId: userId,
                 departureDate: null,

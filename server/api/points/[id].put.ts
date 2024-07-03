@@ -1,10 +1,10 @@
-import prisma from "../../prisma";
+import prisma from "~/server/prisma";
 
 export default defineEventHandler(async (event) => {
     try {
         const pointId = Number(event.context.params?.id);
         let body = await readBody(event);
-        const updatedPoint = await prisma.points.update({
+        const updatedPoint = await prisma.point.update({
             where: { id: pointId },
             data: {
                 userId: body.userId,

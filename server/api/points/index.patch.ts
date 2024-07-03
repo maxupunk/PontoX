@@ -1,4 +1,4 @@
-import prisma from "../../prisma";
+import prisma from "~/server/prisma";
 import { saveUserImage } from '../../../utils/utils';
 
 export default defineEventHandler(async (event) => {
@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const formattedDate = `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${("0" + date.getDate()).slice(-2)}`;
     const formattedTime = `${("0" + date.getHours()).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}`;
 
-    const pointQuery = await prisma.points.findFirst({
+    const pointQuery = await prisma.point.findFirst({
       where: {
         userId: body.userId,
         departureDate: null,
