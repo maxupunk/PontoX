@@ -43,19 +43,12 @@
                 </v-container>
             </v-card-text>
         </v-card>
-        <!--Snackbar -->
-        <v-snackbar v-model="snackbar.open" color="success" :timeout="3000">
-            {{ snackbar.mensage }}
-            <template v-slot:actions>
-                <v-btn color="white" text @click="snackbar = false" append-icon>
-                    <v-icon>mdi-close</v-icon>
-                </v-btn>
-            </template>
-        </v-snackbar>
     </v-dialog>
 </template>
 
 <script>
+import { snackbarShow } from "~/composables/useUi"
+
 export default {
     props: {
         id: {
@@ -72,10 +65,6 @@ export default {
             user: {},
             dialog: false,
             fullscreen: false,
-            snackbar: {
-                open: false,
-                mensage: null
-            },
             loading: false,
         };
     },
@@ -118,7 +107,7 @@ export default {
                     body: JSON.stringify(this.user)
                 })
                 if (UpdUser.changes) {
-                    this.$emit('message', 'Usuário atualizado com sucesso!')
+                    snackbarShow('Usuário atualizado com sucesso!', 'success')
                 }
             } else {
                 const NewUser = await $fetch('/api/users', {
@@ -126,7 +115,7 @@ export default {
                     body: JSON.stringify(this.user)
                 })
                 if (NewUser.changes) {
-                    this.$emit('message', 'Usuário cadastrado com sucesso!')
+                    snackbarShow('Usuário cadastrado com sucesso!', 'success')
                     this.$router.push(`/users/${NewUser.lastInsertRowid}`)
                 }
             }

@@ -18,20 +18,11 @@
                 </template>
 
                 <template v-slot:item.action="{ item }">
-                    <user-form :id="item.id" icon="mdi-pencil" @reload="loadUsers()" @message="setMessage" />
+                    <user-form :id="item.id" icon="mdi-pencil" @reload="loadUsers()" />
                     <v-btn icon="mdi-camera-plus" flat @click="$router.push(`/users/${item.id}`)"></v-btn>
                 </template>
             </v-data-table>
         </v-skeleton-loader>
-        <!--Snackbar -->
-        <v-snackbar v-model="snackbar.open" color="success" :timeout="3000">
-            {{ snackbar.mensage }}
-            <template v-slot:actions>
-                <v-btn color="white" text @click="snackbar.open = false" append-icon>
-                    <v-icon>mdi-close</v-icon>
-                </v-btn>
-            </template>
-        </v-snackbar>
     </v-container>
 </template>
 
@@ -41,10 +32,6 @@ export default {
     components: { userForm },
     data() {
         return {
-            snackbar: {
-                open: false,
-                mensage: null
-            },
             loading: true,
             users: [],
             token: null,
@@ -68,10 +55,6 @@ export default {
             const { users } = await $fetch('/api/users')
             this.users = users;
             this.loading = false
-        },
-        setMessage(mensage) {
-            this.snackbar.mensage = mensage
-            this.snackbar.open = true
         }
     },
 };
