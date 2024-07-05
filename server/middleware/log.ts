@@ -5,7 +5,7 @@ import prisma from "../prisma";
 export default defineEventHandler(async (event: any) => {
   if (event.method !== 'GET') {
     const authorization = event.headers.get('authorization');
-    const userQuery = await prisma.users.findFirst({
+    const userQuery = await prisma.user.findFirst({
       where: {
         token: authorization,
       },
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event: any) => {
       logbody = `Logged - ${body.login}`
     } else if (event.path == '/api/points') {
       // anota quem deu o ponto para quem
-      const pointUserQuery = await prisma.users.findUnique({
+      const pointUserQuery = await prisma.user.findUnique({
         where: {
           id: body.userId,
         },
