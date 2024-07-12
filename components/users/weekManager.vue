@@ -63,8 +63,3 @@ onMounted(() => {
     weekStore.loadWeek(props.userid)
 })
 </script>
-<style lang="css">
-.text-uppercase {
-    text-transform: uppercase;
-}
-</style>
