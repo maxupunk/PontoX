@@ -5,7 +5,7 @@ import { snackbarShow } from "~/composables/useUi"
 export const useWeekStore = defineStore('Calendar', {
     state: () => ({
         week: {} as Week,
-        error: false
+        error: false as boolean
     }),
 
     actions: {
@@ -21,21 +21,31 @@ export const useWeekStore = defineStore('Calendar', {
         removeHour(day: any, index: number) {
             this.week[day].splice(index, 1)
         },
-        saveWeek(userID: number) {
+        async saveWeek(userID: number) {
             if (this.error) {
                 snackbarShow('Existe(m) conflito(s) no(s) horario(s), precisa corrigir os conflitos para salvar os dados!', 'error')
                 return false
             }
             const url: string = `/api/users/${userID}/daysweek`
-            return $fetch(url, {
+            $fetch(url, {
                 method: 'PUT',
                 body: this.week
+            }).then((response: any) => {
+                if (response.message == 'success') {
+                    snackbarShow('Horários salvos com sucesso!', 'success')
+                    return response
+                }
+            }).catch((error: any) => {
+                snackbarShow('Erro ao salvar os horários!', 'error')
+                return false
             })
         },
     },
 
     getters: {
         getWeek(): Week {
+            this.error = false;
+            const stateLnk = this;
             Object.keys(this.week).forEach(day => {
                 const daySlots = this.week[day];
                 daySlots.forEach((timeSlot: any, index: number) => {
@@ -45,10 +55,9 @@ export const useWeekStore = defineStore('Calendar', {
                     const departureTimeDate = new Date(`2023-01-01T${departureTime}`);
                     if (entryTimeDate >= departureTimeDate) {
                         timeSlot.color = 'error';
-                        this.error = true;
+                        stateLnk.error = true;
                     } else {
                         delete timeSlot.color
-                        this.error = false;
                     }
                     // Verifica choque de horário
                     for (let i = 0; i < daySlots.length; i++) {
@@ -63,11 +72,10 @@ export const useWeekStore = defineStore('Calendar', {
                                 (departureTimeDate >= entryTimeCompare && departureTimeDate <= departureTimeCompare)) {
                                 compareSlot.color = 'warning';
                                 timeSlot.color = 'warning';
-                                this.error = true;
+                                stateLnk.error = true;
                             } else {
                                 delete compareSlot.color;
                                 delete timeSlot.color;
-                                this.error = false;
                             }
                         }
                     }
