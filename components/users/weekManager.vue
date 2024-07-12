@@ -27,10 +27,10 @@
                                 <h3>{{ i + 1 }}</h3>
                             </v-col>
                             <v-col cols="5">
-                                <timePick v-model="item.entryTime" label="horário de entrada" />
+                                <input-time-pick v-model="item.entryTime" label="horário de entrada" />
                             </v-col>
                             <v-col cols="5">
-                                <timePick v-model="item.departureTime" :min="item.entryTime" label="horário de saida" />
+                                <input-time-pick v-model="item.departureTime" :min="item.entryTime" label="horário de saida" />
                             </v-col>
                             <v-col cols="1">
                                 <v-btn icon variant="text" @click="weekStore.removeHour(dayName, i)">
@@ -46,13 +46,13 @@
 </template>
 <script setup lang="ts">
 import { defineComponent } from 'vue'
-import timePick from '~/components/crud/timePick.vue';
+import InputTimePick from '~/components/crud/InputTimePick.vue';
 import { useWeekStore } from '~/stores/WeekStore';
 
 const weekStore = useWeekStore()
 defineComponent({
     name: 'weekManager',
-    components: { timePick },
+    components: { InputTimePick },
 })
 
 const props = defineProps({
