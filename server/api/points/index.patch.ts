@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
       data.entryTime = formattedTime;
       data.entryImage = nameImage;
 
-      return await prisma.points.create({
+      return await prisma.point.create({
         data: data,
       });
     } else {
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
       data.departureTime = formattedTime;
       data.departureImage = nameImage;
 
-      return await prisma.points.update({
+      return await prisma.point.update({
         where: {
           id: pointQuery.id,
         },
