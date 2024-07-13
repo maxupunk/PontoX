@@ -2,7 +2,7 @@ import prisma from "~/server/prisma";
 import { saveUserImage } from '../../../utils/utils';
 
 export default defineEventHandler(async (event) => {
-  // try {
+  try {
     const body = await readBody(event);
 
     const date = new Date();
@@ -44,10 +44,10 @@ export default defineEventHandler(async (event) => {
         data: data,
       });
     }
-  /* } catch (e: any) {
+  } catch (e: any) {
     throw createError({
       statusCode: 400,
       statusMessage: e.message,
     });
-  } */
+  }
 });
