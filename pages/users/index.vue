@@ -13,12 +13,13 @@
                 </template>
 
                 <template v-slot:item.status="{ item }">
-                    <v-chip :color="item.status ? 'success' : 'error'" dark>{{ item.status ? 'Ativo' : 'Inativo'
-                        }}</v-chip>
+                    <v-chip :color="item.status ? 'success' : 'error'" dark>{{ item.status ? 'Ativo' :
+                        'Inativo'}}</v-chip>
                 </template>
 
                 <template v-slot:item.action="{ item }">
                     <user-form :id="item.id" icon="mdi-pencil" @reload="loadUsers()" />
+                    <v-btn icon="mdi-calendar-account" flat @click="$router.push(`/users/${item.id}/calendar`)"></v-btn>
                     <v-btn icon="mdi-camera-plus" flat @click="$router.push(`/users/${item.id}`)"></v-btn>
                 </template>
             </v-data-table>

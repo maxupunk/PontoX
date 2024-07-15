@@ -1,10 +1,10 @@
 <template>
-    <v-card>
+    <v-card :loading="loading">
         <v-toolbar>
             <v-toolbar-title class="text-uppercase">Horários</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-                <v-btn icon @click="weekStore.saveWeek(userid)">
+                <v-btn icon @click="saveWeek">
                     <v-icon>mdi-content-save</v-icon>
                 </v-btn>
             </v-toolbar-items>
@@ -30,7 +30,8 @@
                                 <input-time-pick v-model="item.entryTime" label="horário de entrada" />
                             </v-col>
                             <v-col cols="5">
-                                <input-time-pick v-model="item.departureTime" :min="item.entryTime" label="horário de saida" />
+                                <input-time-pick v-model="item.departureTime" :min="item.entryTime"
+                                    label="horário de saida" />
                             </v-col>
                             <v-col cols="1">
                                 <v-btn icon variant="text" @click="weekStore.removeHour(dayName, i)">
@@ -46,6 +47,7 @@
 </template>
 <script setup lang="ts">
 import { defineComponent } from 'vue'
+import { snackbarShow } from "~/composables/useUi"
 import InputTimePick from '~/components/crud/InputTimePick.vue';
 import { useWeekStore } from '~/stores/WeekStore';
 
@@ -59,7 +61,19 @@ const props = defineProps({
     userid: { type: Number, required: true }
 })
 
+let loading = ref(true)
+
+function saveWeek() {
+    loading.value = true
+    weekStore.saveWeek(props.userid).finally(() => {
+        snackbarShow('Semana salva com sucesso', 'success')
+        loading.value = false
+    })
+}
+
 onMounted(() => {
-    weekStore.loadWeek(props.userid)
+    weekStore.loadWeek(props.userid).finally(() => {
+        loading.value = false
+    })
 })
 </script>

@@ -1,0 +1,38 @@
+adicionar o banco de horas
+ -> em usuario
+    - add inputs de domingo até sabado (horario de chegada e saida manha e horario chegada e saida atarde)
+    - opção para replicar para todos os dias que está sendo selecionado
+    - opção de replicar todos os dias da semanas
+-> no relatorio
+    - comparaçãso dia por dia a quantidade de horas trabalhada e a que trabalhou
+    - relatorio total a quantidade de horas trabalhado e a quantidade que deveria ter trabalhado
+-> guarda o horas positiva e negativa em algum local
+
+
+tabela de dias do mês por linha
+id  | userID | data       | entrara | saida
+1   | 9      |2024-04-01  | 08:00   | 12:00
+2   | 9      |2024-04-01  | 14:00   | 17:00
+3   | 9      |2024-04-01  | 18:00   | 24:00
+
+
+JSON in user
+user: {
+    workday: {
+        dom: {
+            0: {
+                entry: 08:00
+                departure: 12:00
+            },
+            1: {
+                entry: 08:00
+                departure: 12:00
+            }
+            ...
+        },
+
+    }
+}
+
+
+

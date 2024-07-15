@@ -7,11 +7,14 @@ export default defineEventHandler(async (event: any) => {
         const userQuery = await prisma.user.findUnique({
             where: { id: userId },
         });
+
+        const dateStart = new Date(body.dateStart);
+        const dateEnd = new Date(body.dateEnd);
+
         if (userQuery && userQuery.daysWeek) {
             const week = JSON.parse(userQuery.daysWeek);
-            insertUserDaysMonthFromJson(userId, week, body.dateStart, body.dateEnd)
+            return insertUserDaysMonthFromJson(userId, week, dateStart, dateEnd)
         }
-        return { message: 'success' };
     } catch (e: any) {
         throw createError({
             statusCode: 400,
@@ -25,14 +28,21 @@ export default defineEventHandler(async (event: any) => {
 async function insertUserDaysMonthFromJson(userID: number, week: any, dateFirst: Date, dateLast: Date) {
     const daysOfWeek = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
 
-    const firstDayOfMonth = new Date(dateFirst);
-    const lastDayOfMonth = new Date(dateLast);
+    await prisma.workDay.deleteMany({
+        where: {
+            AND: [
+                { date: { gte: dateFirst.toISOString().split("T")[0] } },
+                { date: { lte: dateLast.toISOString().split("T")[0] } },
+                { userId: userID },
+            ],
+        },
+    });
 
-    for (let day = firstDayOfMonth; day <= lastDayOfMonth; day.setDate(day.getDate() + 1)) {
+    for (let day = dateFirst; day <= dateLast; day.setDate(day.getDate() + 1)) {
         const dayOfWeek = daysOfWeek[day.getDay()];
         if (week[dayOfWeek].length) {
             const formattedDate: string = day.toISOString().split('T')[0];
-            const workerDay = await prisma.workDay.upsert({
+            await prisma.workDay.upsert({
                 where: {
                     date_userId: {
                         date: formattedDate,
@@ -43,21 +53,14 @@ async function insertUserDaysMonthFromJson(userID: number, week: any, dateFirst:
                 create: {
                     date: formattedDate,
                     userId: userID,
+                    workHours: {
+                        createMany: {
+                            data: week[dayOfWeek],
+                        },
+                    }
                 },
             });
-            console.log("week", week[dayOfWeek]);
-            const workHours = await prisma.workHour.createManyAndReturn({
-                data: week[dayOfWeek],
-            });
-            console.log("workhours", workHours);
-            for (const workHour of workHours) {
-                await prisma.workDayWorkHour.create({
-                    data: {
-                        workDayId: workerDay.id,
-                        workHourId: workHour.id,
-                    },
-                });
-            }
         }
     }
+    return true;
 }

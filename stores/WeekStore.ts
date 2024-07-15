@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import type { Week } from '~/interfaces/Week'
 import { snackbarShow } from "~/composables/useUi"
 
-export const useWeekStore = defineStore('Calendar', {
+export const useWeekStore = defineStore('week', {
     state: () => ({
         week: {} as Week,
         error: false as boolean
@@ -10,10 +10,9 @@ export const useWeekStore = defineStore('Calendar', {
 
     actions: {
         async loadWeek(userID: number) {
-            const response: any = await $fetch("/api/users/" + userID + "/daysweek")
-            if (response) {
+            return await $fetch("/api/users/" + userID + "/daysweek").then((response: any) => {
                 this.week = response
-            }
+            })
         },
         addHour(day: any) {
             this.week[day].push({ entryTime: '08:00', departureTime: '12:00' })
@@ -21,23 +20,15 @@ export const useWeekStore = defineStore('Calendar', {
         removeHour(day: any, index: number) {
             this.week[day].splice(index, 1)
         },
-        async saveWeek(userID: number) {
+        async saveWeek(userID: number): Promise<any> {
             if (this.error) {
                 snackbarShow('Existe(m) conflito(s) no(s) horario(s), precisa corrigir os conflitos para salvar os dados!', 'error')
                 return false
             }
             const url: string = `/api/users/${userID}/daysweek`
-            $fetch(url, {
+            return $fetch(url, {
                 method: 'PUT',
                 body: this.week
-            }).then((response: any) => {
-                if (response.message == 'success') {
-                    snackbarShow('Horários salvos com sucesso!', 'success')
-                    return response
-                }
-            }).catch((error: any) => {
-                snackbarShow('Erro ao salvar os horários!', 'error')
-                return false
             })
         },
     },

@@ -7,33 +7,65 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:../storage/sqlite.db"
+  url      = "file:../storage/sqlite.db" //env("DATABASE_URL")
 }
 
-model Users {
-  id        Int         @id @default(autoincrement())
+model User {
+  id        Int       @id @default(autoincrement())
   name      String?
-  email     String      @unique
-  login     String      @unique
+  email     String    @unique
+  login     String    @unique
   password  String
   token     String?
-  role      String      @default("funcionario")
-  status    Boolean     @default(true)
-  createdAt DateTime    @default(now())
-  points    Points[]    @relation("UserPoints")
+  daysWeek  String?   // JSON with days of the week
+  role      String    @default("funcionario")
+  status    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  points    Point[]   @relation("UserPoints")
+  workDays  WorkDay[] @relation("UserWorkDay")
+
+  @@map("users")
 }
 
-model Points {
-  id                    Int           @id   @default(autoincrement())
-  userId                Int
-  entryDate             String
-  entryTime             String
-  entryExpressio        String?
-  entryImage            String?
-  departureDate         String?
-  departureTime         String?
-  departureExpressio    String?
-  departureImage        String?
-  observation           String?
-  user                  Users?         @relation(fields: [userId], references: [id], name: "UserPoints")
+// dias do mês
+model WorkDay {
+  id        Int               @id @default(autoincrement())
+  date      String
+  user      User?             @relation(fields: [userId], references: [id], name: "UserWorkDay")
+  userId    Int
+  workHours WorkHour[]
+
+  @@map("workDays")
+  @@unique([date, userId])
+}
+
+model WorkHour {
+  id            Int               @id @default(autoincrement())
+  workDay       WorkDay           @relation(fields: [workDayId], references: [id], onDelete: Cascade)
+  workDayId     Int
+  entryTime     String
+  departureTime String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@map("workHours")
+}
+
+// dias do mês fim
+model Point {
+  id                 Int     @id @default(autoincrement())
+  userId             Int
+  entryDate          String
+  entryTime          String
+  entryExpressio     String?
+  entryImage         String?
+  departureDate      String?
+  departureTime      String?
+  departureExpressio String?
+  departureImage     String?
+  observation        String?
+  user               User?   @relation(fields: [userId], references: [id], name: "UserPoints")
+
+  @@map("points")
 }
