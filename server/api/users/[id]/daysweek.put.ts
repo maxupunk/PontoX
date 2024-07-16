@@ -11,7 +11,7 @@ export default defineEventHandler(async (event: any) => {
             },
         });
         if (update) {
-            return { message: 'success' };
+            return true;
         }
     } catch (e: any) {
         throw createError({
