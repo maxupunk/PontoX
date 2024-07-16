@@ -23,7 +23,19 @@ export default defineEventHandler(async (event) => {
                 departureDate: null,
             },
         });
-        return { user: userDate, point: pointQuery };
+
+        const date = new Date();
+        const workDay = await prisma.workDay.findFirst({
+            where: {
+                userId: userId,
+                date: date.toISOString().split('T')[0],
+            },
+            include: {
+                workHours: true,
+            },
+        });
+
+        return { user: userDate, point: pointQuery, workDay: workDay };
     } catch (e: any) {
         return {
             statusCode: 400,

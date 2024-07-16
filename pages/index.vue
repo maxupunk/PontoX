@@ -39,15 +39,15 @@
                 <v-row>
                   <v-col cols="12">
                     Usuário: <h4>{{ dataUser.user.name }}</h4>
-                    <hr>
+                    <v-divider></v-divider>
                   </v-col>
                   <v-col cols="6" v-if="dataUser.point">
                     Data da entrada: <h4>{{ dataUser.point.entryDate }} </h4>
-                    <hr>
+                    <v-divider></v-divider>
                   </v-col>
                   <v-col cols="6" v-if="dataUser.point">
                     Horario da entrada: <h4>{{ dataUser.point.entryTime }}</h4>
-                    <hr>
+                    <v-divider></v-divider>
                   </v-col>
                 </v-row>
               </v-col>
@@ -57,6 +57,15 @@
                 <v-text-field label="Observação" v-model="observation"></v-text-field>
               </v-col>
             </v-row>
+            <v-list density="compact" variant="elevated">
+              <v-list-subheader>Seu(s) horarios para hoje</v-list-subheader>
+              <v-list-item v-for="(hour, index) in hours" :key="index" :active="hour.check">
+                {{ index + 1 }} - Entrada: {{ hour.entryTime }} - Saida: {{ hour.departureTime }}
+                <template v-slot:append v-if="hour.check">
+                  <v-icon color="green">mdi-check</v-icon>
+                </template>
+              </v-list-item>
+            </v-list>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -120,6 +129,19 @@ export default {
     hasCamera() {
       return this.videoDevices.length > 0
     },
+    hours() {
+      const now = new Date();
+      const currentHour = now.getHours();
+      return this.dataUser.workDay.workHours.map((item) => {
+        const entryTimeHour = item.entryTime.split(":")[0];
+        const departureTimeHour = item.departureTime.split(":")[0];
+        return {
+          entryTime: item.entryTime,
+          departureTime: item.departureTime,
+          check: entryTimeHour <= currentHour && departureTimeHour >= currentHour ? true : false
+        }
+      })
+    }
   },
   async mounted() {
     this.video = document.getElementById('cam')
