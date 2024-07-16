@@ -8,8 +8,8 @@ export default defineEventHandler(async (event: any) => {
             where: { id: userId },
         });
 
-        const dateStart = new Date(body.dateStart);
-        const dateEnd = new Date(body.dateEnd);
+        const dateStart = new Date(`${body.dateStart}T00:00:00`);
+        const dateEnd = new Date(`${body.dateEnd}T00:00:00`);
 
         if (userQuery && userQuery.daysWeek) {
             const week = JSON.parse(userQuery.daysWeek);
@@ -27,7 +27,6 @@ export default defineEventHandler(async (event: any) => {
 
 async function insertUserDaysMonthFromJson(userID: number, week: any, dateFirst: Date, dateLast: Date) {
     const daysOfWeek = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
-
     await prisma.workDay.deleteMany({
         where: {
             AND: [
