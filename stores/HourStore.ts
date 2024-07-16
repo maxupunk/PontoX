@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 
 export const useHourStore = defineStore('hour', {
     state: () => ({
-        hour: {} as any
+        hour: {} as any,
+        copyData: {} as any,
     }),
 
     actions: {
@@ -34,9 +35,16 @@ export const useHourStore = defineStore('hour', {
             return await $fetch(`/api/hour/${workHourID}`, {
                 method: 'DELETE'
             })
+        },
+        copy(hour: object) {
+            this.copyData = hour
+        },
+        clearCopy() {
+            this.copyData = {}
         }
     },
 
     getters: {
+
     }
 })

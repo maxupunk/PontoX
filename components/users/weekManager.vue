@@ -15,6 +15,13 @@
                     <v-toolbar-title class="text-uppercase">{{ dayName }}</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
+                        <v-btn v-if="hourStore.copyData.entryTime" icon
+                            @click="weekStore.addHour(dayName, hourStore.copyData)">
+                            <v-icon>mdi-content-paste</v-icon>
+                            <v-tooltip activator="parent" location="start">
+                                {{ hourStore.copyData.entryTime }} - {{ hourStore.copyData.departureTime }}
+                            </v-tooltip>
+                        </v-btn>
                         <v-btn icon @click="weekStore.addHour(dayName)">
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
@@ -23,19 +30,25 @@
                 <v-card dense v-for="(item, i) in hours" :key="i" :color="item.color">
                     <v-card-text>
                         <v-row class="d-flex align-center">
-                            <v-col cols="1">
+                            <v-col cols="2">
                                 <h3>{{ i + 1 }}</h3>
                             </v-col>
-                            <v-col cols="5">
+                            <v-col cols="4">
                                 <input-time-pick v-model="item.entryTime" label="horário de entrada" />
                             </v-col>
-                            <v-col cols="5">
+                            <v-col cols="4">
                                 <input-time-pick v-model="item.departureTime" :min="item.entryTime"
                                     label="horário de saida" />
                             </v-col>
                             <v-col cols="1">
+                                <v-btn icon variant="text" @click="hourStore.copy(item)">
+                                    <v-icon>mdi-content-copy</v-icon>
+                                    <v-tooltip activator="parent">copiar horario</v-tooltip>
+                                </v-btn>
+                            </v-col>
+                            <v-col cols="1">
                                 <v-btn icon variant="text" @click="weekStore.removeHour(dayName, i)">
-                                    <v-icon>mdi-minus</v-icon>
+                                    <v-icon>mdi-delete-outline</v-icon>
                                 </v-btn>
                             </v-col>
                         </v-row>
@@ -50,8 +63,10 @@ import { defineComponent } from 'vue'
 import { snackbarShow } from "~/composables/useUi"
 import InputTimePick from '~/components/crud/InputTimePick.vue';
 import { useWeekStore } from '~/stores/WeekStore';
+import { useHourStore } from '~/stores/HourStore';
 
 const weekStore = useWeekStore()
+const hourStore = useHourStore()
 defineComponent({
     name: 'weekManager',
     components: { InputTimePick },
@@ -63,17 +78,20 @@ const props = defineProps({
 
 let loading = ref(true)
 
-function saveWeek() {
-    loading.value = true
-    weekStore.saveWeek(props.userid).finally(() => {
-        snackbarShow('Semana salva com sucesso', 'success')
-        loading.value = false
-    })
-}
-
 onMounted(() => {
     weekStore.loadWeek(props.userid).finally(() => {
         loading.value = false
     })
 })
+
+function saveWeek() {
+    loading.value = true
+    weekStore.saveWeek(props.userid).then((result) => {
+        if (result) {
+            snackbarShow('Semana salva com sucesso', 'success')
+        }
+    }).finally(() => {
+        loading.value = false
+    })
+}
 </script>
