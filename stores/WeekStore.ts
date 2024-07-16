@@ -14,8 +14,15 @@ export const useWeekStore = defineStore('week', {
                 this.week = response
             })
         },
-        addHour(day: any) {
-            this.week[day].push({ entryTime: '08:00', departureTime: '12:00' })
+        addHour(day: any, hours?: any) {
+            if (!hours) {
+                this.week[day].push({ entryTime: '08:00', departureTime: '12:00' })
+            } else {
+                this.week[day].push({
+                    entryTime: hours.entryTime,
+                    departureTime: hours.departureTime
+                })
+            }
         },
         removeHour(day: any, index: number) {
             this.week[day].splice(index, 1)
@@ -25,8 +32,7 @@ export const useWeekStore = defineStore('week', {
                 snackbarShow('Existe(m) conflito(s) no(s) horario(s), precisa corrigir os conflitos para salvar os dados!', 'error')
                 return false
             }
-            const url: string = `/api/users/${userID}/daysweek`
-            return $fetch(url, {
+            return $fetch(`/api/users/${userID}/daysweek`, {
                 method: 'PUT',
                 body: this.week
             })
