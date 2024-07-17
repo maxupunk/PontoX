@@ -57,6 +57,9 @@
                 <v-text-field label="Observação" v-model="observation"></v-text-field>
               </v-col>
             </v-row>
+            <v-alert v-if="pointOutHour" type="warning" :border="'start'" variant="outlined">
+              <strong>Atenção!</strong> Você está fora do horário de ponto!
+            </v-alert>
             <v-list density="compact" variant="elevated">
               <v-list-subheader>Seu(s) horarios para hoje</v-list-subheader>
               <v-list-item v-for="(hour, index) in hours" :key="index" :active="hour.check">
@@ -119,7 +122,8 @@ export default {
       modelsServer: [],
       options: null,
       faceMatcher: null,
-      startDesable: false
+      startDesable: false,
+      pointOutHour: true
     };
   },
   computed: {
@@ -132,13 +136,18 @@ export default {
     hours() {
       const now = new Date();
       const currentHour = now.getHours();
+      this.pointOutHour = true
       return this.dataUser.workDay.workHours.map((item) => {
         const entryTimeHour = item.entryTime.split(":")[0];
         const departureTimeHour = item.departureTime.split(":")[0];
+        const check = entryTimeHour <= currentHour && departureTimeHour >= currentHour ? true : false
+        if (check) {
+          this.pointOutHour = false
+        }
         return {
           entryTime: item.entryTime,
           departureTime: item.departureTime,
-          check: entryTimeHour <= currentHour && departureTimeHour >= currentHour ? true : false
+          check: check
         }
       })
     }
