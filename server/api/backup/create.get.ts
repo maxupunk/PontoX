@@ -1,7 +1,7 @@
 import fs from 'fs';
 import archiver from 'archiver';
 import path from 'path';
-import { folderStorage, folderBackup } from '~/utils/utils';
+import { folderStorage, folderBackup } from '~/server/utils/image';
 
 export default defineEventHandler(async () => {
   try {

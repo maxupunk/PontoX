@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { folderBackup } from '~/utils/utils';
+import { folderBackup } from '~/server/utils/image';
 
 export default defineEventHandler(async () => {
     try {
