@@ -3,43 +3,60 @@ import prisma from "~/server/prisma";
 export default defineEventHandler(async (event) => {
   try {
     let body = await readBody(event);
-    if (!body.workDayId && !body.date) {
+    if (!body.date) {
       throw createError({
         statusCode: 400,
         statusMessage: "workDayId is required",
       });
     }
-    // If date is passed, create a workDay
-    if (body.date) {
-      const workDay = await prisma.workDay.upsert({
-        where: {
-          date_userId: {
+    const workDayConsult = await prisma.workDay.findFirst({
+      where: {
+        OR: [
+          {
+            id: body.workDayId,
+          },
+          {
             date: body.date,
             userId: body.userId,
-          }
-        },
-        update: {},
-        create: {
+          },
+        ],
+      },
+      include: {
+        workHours: true,
+      },
+    })
+    let workDayID: number = 0;
+    if (workDayConsult) {
+      for (let workHour of workDayConsult.workHours) {
+        if (workHour.entryTime === body.entryTime && workHour.departureTime === body.departureTime) {
+          return { workHour: workHour, message: "Já existe esse horario para esse funcionario" };
+        }
+        if ((body.entryTime < workHour.departureTime && body.departureTime > workHour.entryTime)) {
+          return { workHour: workHour, message: "Existe e há um choque de horário com esse dados digitado." };
+        }
+      }
+      workDayID = workDayConsult.id;
+    } else {
+      const workDayCreted = await prisma.workDay.create({
+        data: {
           date: body.date,
           userId: body.userId,
-        },
+        }
       });
-      if (!workDay) {
-        throw createError({
-          statusCode: 400,
-          statusMessage: "workDay not found",
-        });
-      }
-      body.workDayId = workDay.id;
+      workDayID = workDayCreted.id;
     }
     // Create workHour
-    return await prisma.workHour.create({
+    const workHourCreted = await prisma.workHour.create({
       data: {
         entryTime: body.entryTime,
         departureTime: body.departureTime,
-        workDayId: body.workDayId,
+        workDayId: workDayID,
       },
     });
+    if (workHourCreted) {
+      setResponseStatus(event, 201)
+      return { workHour: workHourCreted, message: "ok"};
+    }
   } catch (e: any) {
     throw createError({
       statusCode: 400,

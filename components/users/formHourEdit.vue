@@ -29,19 +29,22 @@
             <v-card-text>
                 <v-container>
                     <v-row>
-                        <v-col cols="12" sm="6" md="6">
-                            <v-text-field v-model="hourData.entryTime" label="Horario de entrada"
+                        <v-col cols="12" md="4">
+                            <v-text-field type="time" v-model="hourData.entryTime" label="Horario de entrada"
                                 required></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6" md="6">
-                            <v-text-field v-model="hourData.departureTime" label="Horario de Saida"
+                        <v-col cols="12" md="4">
+                            <v-text-field type="time" v-model="hourData.departureTime" label="Horario de Saida"
                                 required></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                            <v-text-field v-model="hourData.date" label="data"></v-text-field>
+                        <v-col cols="12" md="4">
+                            <v-text-field type="date" label="Data inical" v-model="hourData.date"></v-text-field>
                         </v-col>
                     </v-row>
                 </v-container>
+                <v-alert v-if="workHourChock.entryTime" type="warning" dense>
+                    Horario chocado com {{ workHourChock.entryTime }} - {{ workHourChock.departureTime }}
+                </v-alert>
             </v-card-text>
         </v-card>
     </v-dialog>
@@ -66,12 +69,13 @@ let hourData = reactive({
     entryTime: '' as string,
     departureTime: '' as string,
     workDayId: '' as number | string,
-    date: '' as string | null
+    date: null as any
 })
 
 const dialog = ref(false)
 const fullscreen = ref(false)
 const loading = ref(false)
+const workHourChock = <any>ref({})
 
 watch(dialog, async (val) => {
     if (val) {
@@ -107,19 +111,34 @@ const formTitle = computed(() => {
 
 function save() {
     loading.value = true
+    workHourChock.value = {}
     if (props.data.id) {
-        hourStore.updateWorkHour(hourData).then(() => {
-            snackbarShow('Horario atualizado com sucesso', 'success')
-            emit('update')
-        }).finally(() => {
-            close()
+        hourStore.updateWorkHour(hourData).then((response) => {
+            if (response.message) {
+                snackbarShow(response.message, 'warning')
+                if (response.workHour) {
+                    workHourChock.value = response.workHour
+                }
+            } else {
+                snackbarShow('Horario atualizado com sucesso', 'success')
+                emit('update')
+                close()
+            }
+            loading.value = false
         })
     } else {
-        hourStore.createWorkHour(hourData, props.userId).then(() => {
-            snackbarShow('Horario criado com sucesso', 'success')
-            emit('update')
-        }).finally(() => {
-            close()
+        hourStore.createWorkHour(hourData, props.userId).then((response) => {
+            if (response.message) {
+                snackbarShow(response.message, 'warning')
+                if (response.workHour) {
+                    workHourChock.value = response.workHour
+                }
+            } else {
+                snackbarShow('Horario criado com sucesso', 'success')
+                emit('update')
+                close()
+            }
+            loading.value = false
         })
     }
 }
