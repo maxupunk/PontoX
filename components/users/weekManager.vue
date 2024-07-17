@@ -34,11 +34,12 @@
                                 <h3>{{ i + 1 }}</h3>
                             </v-col>
                             <v-col cols="4">
-                                <input-time-pick v-model="item.entryTime" label="horário de entrada" />
+                                <v-text-field type="time" v-model="item.entryTime" label="horário de entrada"
+                                    required></v-text-field>
                             </v-col>
                             <v-col cols="4">
-                                <input-time-pick v-model="item.departureTime" :min="item.entryTime"
-                                    label="horário de saida" />
+                                <v-text-field type="time" v-model="item.departureTime" label="horário de saida"
+                                    :min="item.entryTime" required></v-text-field>
                             </v-col>
                             <v-col cols="1">
                                 <v-btn icon variant="text" @click="hourStore.copy(item)">
