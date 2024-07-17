@@ -9,7 +9,7 @@ export default defineEventHandler(async (event: any) => {
         });
 
         const dateStart = new Date(`${body.dateStart}T00:00:00`);
-        const dateEnd = new Date(`${body.dateEnd}T00:00:00`);
+        const dateEnd = new Date(`${body.dateEnd}T23:59:59`);
 
         if (userQuery && userQuery.daysWeek) {
             const week = JSON.parse(userQuery.daysWeek);
