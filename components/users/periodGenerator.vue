@@ -16,7 +16,8 @@
         </v-card-text>
         <v-card-text>
             <formHourEdit label="criar horario avulso" :user-id="userid" @update="fetchPeriod" />
-            <v-calendar disabled :model-value="date" :events="periodStore.getEvents">
+            <v-calendar disabled :model-value="date" :events="periodStore.getEvents"
+                @update:modelValue="calendarUpdate">
                 <template v-slot:event="{ event }">
                     <div class="d-flex justify-center">
                         <formHourEdit :data="event" :user-id="userid" @update="fetchPeriod" />
@@ -44,11 +45,25 @@ const props = defineProps({
     userid: { type: Number, required: true }
 })
 
-const date = ref([])
+const date = ref<Date[]>([])
 const loading = ref(false)
+
+onMounted(() => {
+    fetchPeriod()
+})
+
+function calendarUpdate(value: Date[]) {
+    const {firstDay, lastDay} = getFirstLastDay(value[0])
+    date.value = [firstDay, lastDay]
+    fetchPeriod()
+}
 
 function fetchPeriod() {
     loading.value = true
+    if (!date.value.length) {
+        const {firstDay, lastDay} = getFirstLastDay()
+        date.value = [firstDay, lastDay]
+    }
     periodStore.fetch(props.userid, date).finally(() => {
         loading.value = false
     })
