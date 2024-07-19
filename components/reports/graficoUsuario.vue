@@ -80,7 +80,7 @@ export default {
         },
         async LoadData() {
             this.loading = true;
-            const resulmo = await $fetch('/api/relatorios/' + this.id, {
+            const resulmo = await $fetch('/api/reports/' + this.id, {
                 method: 'POST',
                 body: {
                     entryDateStart: this.dateStart,

@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import graficoUsuario from '~/components/relatorios/graficoUsuario.vue';
+import graficoUsuario from '~/components/reports/graficoUsuario.vue';
 
 export default {
     data() {
@@ -75,7 +75,7 @@ export default {
         },
         async fetchData() {
             this.loading = true;
-            const resulmo = await $fetch('/api/relatorios/resumo', {
+            const resulmo = await $fetch('/api/reports/resumo', {
                 method: 'POST',
                 body: {
                     entryDateStart: this.entryDateStart,
