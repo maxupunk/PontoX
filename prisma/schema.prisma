@@ -11,21 +11,35 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  name      String?
-  email     String    @unique
-  login     String    @unique
-  password  String
-  token     String?
-  daysWeek  String?   // JSON with days of the week
-  role      String    @default("funcionario")
-  status    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  points    Point[]   @relation("UserPoints")
-  workDays  WorkDay[] @relation("UserWorkDay")
+  id                    Int               @id        @default(autoincrement())
+  name                  String?
+  email                 String            @unique
+  login                 String            @unique
+  password              String
+  token                 String?
+  daysWeek              String?           // JSON with days of the week
+  role                  String            @default("funcionario")
+  status                Boolean           @default(true)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  points                Point[]           @relation("UserPoints")
+  workDays              WorkDay[]         @relation("UserWorkDay")
+  MonthlyBalanceHour    MonthlyBalanceHour[]  @relation("UserMonthlyBalanceHour")
 
   @@map("users")
+}
+
+model MonthlyBalanceHour {
+  id            Int                   @id @default(autoincrement())
+  userId        Int                   // Chave estrangeira para o modelo User
+  date          String                // data que foi pego o saldo, calculado aparte do ultimo saldo tirado
+  hours         Float                 // Saldo em horas, pode ser positivo ou negativo em caso uso
+  observation   String?               // Observação (usado para justificar o saldo)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  user          User                  @relation(fields: [userId], references: [id], name: "UserMonthlyBalanceHour")
+
+  @@map("monthlyBalanceHours")
 }
 
 // dias do mês
