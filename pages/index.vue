@@ -137,6 +137,9 @@ export default {
       const now = new Date();
       const currentHour = now.getHours();
       this.pointOutHour = true
+      if (!this.dataUser.workDay) {
+        return []
+      }
       return this.dataUser.workDay.workHours.map((item) => {
         const entryTimeHour = item.entryTime.split(":")[0];
         const departureTimeHour = item.departureTime.split(":")[0];
