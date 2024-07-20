@@ -13,7 +13,8 @@
         <v-list-item link prepend-icon="mdi-school" title="Treinamento" to="/treine"></v-list-item>
         <v-list-item link prepend-icon="mdi-account-group" title="Usuarios" to="/users"></v-list-item>
         <v-list-subheader>Relatorios</v-list-subheader>
-        <v-list-item link prepend-icon="mdi-account-group" title="Resumo" to="/relatorios/resumo"></v-list-item>
+        <v-list-item link prepend-icon="mdi-account-group" title="horas tatal faltando" to="/reports/hourstotalmissing"></v-list-item>
+        <v-list-item link prepend-icon="mdi-account-group" title="Horas total trabalhada" to="/reports/hourstotal"></v-list-item>
         <v-list-subheader>Outros</v-list-subheader>
         <v-list-item link prepend-icon="mdi-backup-restore" title="Backups" to="/backups"></v-list-item>
         <v-list-item link prepend-icon="mdi-information-outline" title="Sobre" to="/about"></v-list-item>
