@@ -1,8 +1,9 @@
-export default function getFirstLastDayCalendar([dateStart, , ...rest]: Date[]) {
-    if (!dateStart || rest.length === 0) {
+export default function getFirstLastDayCalendar(date: Date[]) {
+    if (date.length < 2) {
         return { firstDay: null, lastDay: null };
     }
-    const dateEnd = rest.pop(); // Obtém o último elemento do array
+    const dateStart = date[0];
+    const dateEnd = date.pop();
     return {
         firstDay: formatDate(dateStart),
         lastDay: dateEnd ? formatDate(dateEnd) : null,

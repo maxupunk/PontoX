@@ -38,10 +38,8 @@ export const usePeriodStore = defineStore('period', {
                 snackbarShow('Por favor selecione um período!', 'error')
                 return
             }
-            const dateStart = dates.value[0].toString().split("T")[0]
-            // get last date from array
-            const dateEnd = dates.value[dates.value.length - 1].toString().split("T")[0]
-            const response: any = await $fetch(`/api/users/${userID}/period?dateStart=${dateStart}&dateEnd=${dateEnd}`)
+            const {firstDay, lastDay} = getFirstLastDayCalender(dates.value)
+            const response: any = await $fetch(`/api/users/${userID}/period?dateStart=${firstDay}&dateEnd=${lastDay}`)
             if (response) {
                 this.days = response
             }
