@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
     const entryDateStart = body.entryDateStart ? body.entryDateStart : '';
-    const entryDateEnd = body.entryDateEnd ? body.entryDateEnd : new Date().toISOString().split('T')[0];
+    const entryDateEnd = body.entryDateEnd ? body.entryDateEnd : new Date().toString().split('T')[0];
     const users = await prisma.user.findMany({
       select: {
         id: true,

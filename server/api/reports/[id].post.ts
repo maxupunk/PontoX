@@ -4,7 +4,7 @@ export default defineEventHandler(async (event: any) => {
   let body = await readBody(event)
   const id = event.context.params.id
   const entryDateStart = body.entryDateStart ? body.entryDateStart : '';
-  const entryDateEnd = body.entryDateEnd ? body.entryDateEnd : new Date().toISOString().split('T')[0];
+  const entryDateEnd = body.entryDateEnd ? body.entryDateEnd : new Date().toString().split('T')[0];
   const user = await prisma.point.findMany({
     select: {
       entryDate: true,

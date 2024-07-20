@@ -13,8 +13,8 @@ export const usePeriodStore = defineStore('period', {
                 snackbarShow('Por favor selecione um período!', 'error')
                 return
             }
-            const dateStart = dates.value[0].toISOString().split("T")[0]
-            const dateEnd = dates.value[dates.value.length - 1].toISOString().split("T")[0]
+            const dateStart = dates.value[0].toString().split("T")[0]
+            const dateEnd = dates.value[dates.value.length - 1].toString().split("T")[0]
             
             const response = await $fetch(`/api/users/${userID}/periodgenerate`, {
                 method: 'POST',
@@ -38,9 +38,9 @@ export const usePeriodStore = defineStore('period', {
                 snackbarShow('Por favor selecione um período!', 'error')
                 return
             }
-            const dateStart = dates.value[0].toISOString().split("T")[0]
+            const dateStart = dates.value[0].toString().split("T")[0]
             // get last date from array
-            const dateEnd = dates.value[dates.value.length - 1].toISOString().split("T")[0]
+            const dateEnd = dates.value[dates.value.length - 1].toString().split("T")[0]
             const response: any = await $fetch(`/api/users/${userID}/period?dateStart=${dateStart}&dateEnd=${dateEnd}`)
             if (response) {
                 this.days = response

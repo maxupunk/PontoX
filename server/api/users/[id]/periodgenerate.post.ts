@@ -30,8 +30,8 @@ async function insertUserDaysMonthFromJson(userID: number, week: any, dateFirst:
     await prisma.workDay.deleteMany({
         where: {
             AND: [
-                { date: { gte: dateFirst.toISOString().split("T")[0] } },
-                { date: { lte: dateLast.toISOString().split("T")[0] } },
+                { date: { gte: dateFirst.toString().split("T")[0] } },
+                { date: { lte: dateLast.toString().split("T")[0] } },
                 { userId: userID },
             ],
         },
@@ -40,7 +40,7 @@ async function insertUserDaysMonthFromJson(userID: number, week: any, dateFirst:
     for (let day = dateFirst; day <= dateLast; day.setDate(day.getDate() + 1)) {
         const dayOfWeek = daysOfWeek[day.getDay()];
         if (week[dayOfWeek].length) {
-            const formattedDate: string = day.toISOString().split('T')[0];
+            const formattedDate: string = day.toString().split('T')[0];
             await prisma.workDay.upsert({
                 where: {
                     date_userId: {

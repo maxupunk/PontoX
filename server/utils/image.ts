@@ -25,7 +25,7 @@ export function saveUserImage(userId: Number, capturedImage: string): string {
 
         // Save the image
         const date = new Date()
-        const nameImage = date.toISOString().replace(/[:.]/g, '.') + '.jpg'
+        const nameImage = date.toString().replace(/[:.]/g, '.') + '.jpg'
         const filePath = path.join(dirPath, nameImage);
         fs.writeFileSync(filePath, imageBase64);
         fs.chmodSync(filePath, '664');
