@@ -1,9 +1,13 @@
 adicionar o banco de horas
- -> no relatorio
+-> no relatorio
     - comparaçãso dia por dia a quantidade de horas trabalhada e a que trabalhou
-    - relatorio total a quantidade de horas trabalhado e a quantidade que deveria ter trabalhado
 -> guarda o horas positiva e negativa em algum local
 
+adicionais
+-> melhorar o sistema de $fetch dentro de plugins
+-> alterar as pastas /server/api/FOLDERS para o singlular FOLDER
+-> padronizar os stores para respoder uma promisse
+-> colocar todos os componente para typescript
 
 
 
