@@ -1,4 +1,4 @@
-export default function getFirstLastDay(date?: Date) {
+export default function getFirstLastDayMonth(date?: Date) {
     if (!date) {
         date = new Date()
     }
