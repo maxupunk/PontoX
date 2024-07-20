@@ -53,7 +53,7 @@ onMounted(() => {
 })
 
 function calendarUpdate(value: Date[]) {
-    const {firstDay, lastDay} = getFirstLastDay(value[0])
+    const {firstDay, lastDay} = getFirstLastDayMonth(value[0])
     date.value = [firstDay, lastDay]
     fetchPeriod()
 }
@@ -61,7 +61,7 @@ function calendarUpdate(value: Date[]) {
 function fetchPeriod() {
     loading.value = true
     if (!date.value.length) {
-        const {firstDay, lastDay} = getFirstLastDay()
+        const {firstDay, lastDay} = getFirstLastDayMonth()
         date.value = [firstDay, lastDay]
     }
     periodStore.fetch(props.userid, date).finally(() => {
