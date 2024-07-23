@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     const usersWithFormattedTime = users.map(user => {
       const totalMinutesSum = user.points.reduce((acc, point) => {
         const entryDateTime = new Date(`${point.entryDate}T${point.entryTime}`);
-        const departureDateTime = new Date(`${point.departureDate}T${point.departureTime}`);
+        const departureDateTime = (point.departureDate !== null) ? new Date(`${point.departureDate}T${point.departureTime}`) : new Date();
         const totalTimeMinutes = (departureDateTime.getTime() - entryDateTime.getTime()) / (1000 * 60); // Convert to minutes
         return acc + totalTimeMinutes;
       }, 0);
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
         id: user.id,
         name: user.name,
         hours: Math.floor(totalMinutesSum / 60),
-        minuites: totalMinutesSum % 60
+        minutes: Math.floor(totalMinutesSum % 60)
       };
     });
 
