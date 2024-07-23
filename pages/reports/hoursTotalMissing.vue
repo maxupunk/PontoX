@@ -4,7 +4,8 @@
             <v-card-actions>
                 <v-row justify="center" align="center">
                     <v-col cols="6">
-                        <v-date-input v-model="date" label="selecione o período" variant="underlined" multiple="range" @update:model-value="refresh" />
+                        <v-date-input v-model="date" label="selecione o período" variant="underlined" multiple="range"
+                            @update:model-value="refresh" />
                     </v-col>
                     <v-col cols="auto">
                         <v-btn @click="refresh" :loading="loading" icon="mdi-reload"></v-btn>
@@ -57,79 +58,76 @@
     </v-container>
 </template>
 
-<script>
-export default {
-    data() {
-        return {
-            loading: false,
-            details: true,
-            date: [],
-            entryDateStart: '',
-            entryDateEnd: '',
-            users: [],
-            timer: null,
-        };
-    },
-    computed: {
-        workDate() {
-            return this.users.map((item) => {
-                const colorPercentage = this.color(item.percentage);
-                return {
-                    name: item.name,
-                    workedHours: item.workedHours,
-                    workedMinutes: item.workedMinutes,
-                    workPendingHours: item.workPendingHours,
-                    workPendingMinutes: item.workPendingMinutes,
-                    inWork: item.inWork,
-                    percentage: item.percentage,
-                    color: colorPercentage,
-                };
-            });
-        },
-    },
-    methods: {
-        refresh() {
-            const { firstDay, lastDay } = getFirstLastDayCalender(this.date)
-            this.fetchData(firstDay, lastDay);
-        },
-        async fetchData(entryDateStart, entryDateEnd) {
-            this.loading = true;
-            const resulmo = await $fetch('/api/reports/hoursmission', {
-                method: 'POST',
-                body: {
-                    entryDateStart: entryDateStart,
-                    entryDateEnd: entryDateEnd,
-                },
-            })
-            this.users = resulmo;
-            this.loading = false;
-        },
+<script setup lang="ts">
 
-        color(percent) {
-            let color;
-            if (percent <= 10) {
-                color = 'green';
-            } else if (percent <= 20) {
-                color = 'light-green';
-            } else if (percent <= 30) {
-                color = 'lime';
-            } else if (percent <= 40) {
-                color = 'yellow';
-            } else if (percent <= 50) {
-                color = 'amber';
-            } else if (percent <= 60) {
-                color = 'orange';
-            } else if (percent <= 70) {
-                color = 'deep-orange';
-            } else if (percent <= 80) {
-                color = 'red';
-            } else if (percent <= 90) {
-                color = 'dark-red';
-            } else {
-                color = 'red darken-4';
-            }
-            return color
+const loading = ref(false)
+const details = ref(true)
+const date = ref([])
+const users = ref([])
+
+const workDate = computed(() => {
+    return users.value.map((item: any) => {
+        const colorPercentage = color(item.percentage);
+        return {
+            name: item.name,
+            workedHours: item.workedHours,
+            workedMinutes: item.workedMinutes,
+            workPendingHours: item.workPendingHours,
+            workPendingMinutes: item.workPendingMinutes,
+            inWork: item.inWork,
+            percentage: item.percentage,
+            color: colorPercentage,
+        };
+    });
+})
+
+const refresh = () => {
+    const { firstDay, lastDay } = getFirstLastDayCalender(date.value)
+    fetchData(firstDay, lastDay);
+}
+
+const fetchData = async (entryDateStart: any, entryDateEnd: any) => {
+    loading.value = true;
+    await $fetch('/api/reports/hoursmission', {
+        method: 'POST',
+        body: {
+            entryDateStart: entryDateStart,
+            entryDateEnd: entryDateEnd,
         },
-    },
-};
+    }).then((res: any) => {
+        if (res) {
+            users.value = res;
+        }
+    }).finally(() => {
+        loading.value = false;
+    });
+}
+
+const color = (percent: any) => {
+    let color;
+    if (percent <= 10) {
+        color = 'green';
+    } else if (percent <= 20) {
+        color = 'light-green';
+    } else if (percent <= 30) {
+        color = 'lime';
+    } else if (percent <= 40) {
+        color = 'yellow';
+    } else if (percent <= 50) {
+        color = 'amber';
+    } else if (percent <= 60) {
+        color = 'orange';
+    } else if (percent <= 70) {
+        color = 'deep-orange';
+    } else if (percent <= 80) {
+        color = 'red';
+    } else if (percent <= 90) {
+        color = 'dark-red';
+    } else {
+        color = 'red darken-4';
+    }
+    return color
+}
+
+
 </script>
