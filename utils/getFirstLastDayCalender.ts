@@ -1,12 +1,12 @@
 export default function getFirstLastDayCalendar(date: Date[]) {
     if (date.length < 2) {
-        return { firstDay: null, lastDay: null };
+        return { firstDay: '', lastDay: '' };
     }
     const dateStart = date[0];
-    const dateEnd = date.pop();
+    const dateEnd = date[date.length - 1];
     return {
         firstDay: formatDate(dateStart),
-        lastDay: dateEnd ? formatDate(dateEnd) : null,
+        lastDay: dateEnd ? formatDate(dateEnd) : '',
     };
 }
 
