@@ -74,7 +74,7 @@ const entryDateEnd = computed(() => {
 const fetchData = async (): Promise<void> => {
     loading.value = true;
     try {
-        const res: User[] = await $fetch('/api/reports/resumo', {
+        const res: any = await $fetch('/api/reports/resumo', {
             method: 'POST',
             body: {
                 entryDateStart: entryDateStart.value,
