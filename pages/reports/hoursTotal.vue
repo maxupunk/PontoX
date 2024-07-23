@@ -6,10 +6,10 @@
                     <v-row justify="center" align="center">
                         <v-col cols="6">
                             <v-date-input v-model="date" label="selecione o período" variant="underlined"
-                                multiple="range" @update:model-value="refresh" />
+                                multiple="range" @update:model-value="fetchData" />
                         </v-col>
                         <v-col cols="auto">
-                            <v-btn @click="refresh" :loading="loading" icon="mdi-reload"></v-btn>
+                            <v-btn @click="fetchData" :loading="loading" icon="mdi-reload"></v-btn>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -71,18 +71,14 @@ const entryDateEnd = computed(() => {
     return lastDay
 })
 
-const refresh = () => {
-    fetchData(entryDateStart.value, entryDateEnd.value);
-}
-
-const fetchData = async (firstDay: string, lastDay: string): Promise<void> => {
+const fetchData = async (): Promise<void> => {
     loading.value = true;
     try {
         const res: User[] = await $fetch('/api/reports/resumo', {
             method: 'POST',
             body: {
-                entryDateStart: firstDay,
-                entryDateEnd: lastDay,
+                entryDateStart: entryDateStart.value,
+                entryDateEnd: entryDateEnd.value,
             },
         });
         users.value = res;
