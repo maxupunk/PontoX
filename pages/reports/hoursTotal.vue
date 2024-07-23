@@ -3,12 +3,13 @@
         <v-card>
             <v-card-actions>
                 <v-container>
-                    <v-row>
+                    <v-row justify="center" align="center">
                         <v-col cols="6">
-                            <v-text-field type="date" label="Data inical" v-model="entryDateStart"></v-text-field>
+                            <v-date-input v-model="date" label="selecione o período" variant="underlined"
+                                multiple="range" @update:model-value="refresh" />
                         </v-col>
-                        <v-col cols="6">
-                            <v-text-field type="date" label="Date final" v-model="entryDateEnd"></v-text-field>
+                        <v-col cols="auto">
+                            <v-btn @click="refresh" :loading="loading" icon="mdi-reload"></v-btn>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -29,14 +30,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in users" :key="item.name">
+                        <tr v-for="item in users" :key="item.id">
                             <td>
                                 <graficoUsuario :label="item.name" :id="item.id" :dateStart="entryDateStart"
                                     :dateEnd="entryDateEnd"></graficoUsuario>
                             </td>
                             <td>
                                 {{ item.hours }} hora(s)
-                                <span v-if="item.minuites"> / {{ item.minuites }} minuto(s)</span>
+                                <span v-if="item.minutes"> / {{ item.minutes }} minuto(s)</span>
                             </td>
                         </tr>
                     </tbody>
@@ -45,46 +46,51 @@
         </v-card>
     </v-container>
 </template>
-
-<script>
+<script setup lang="ts">
+import { snackbarShow } from "~/composables/useUi"
 import graficoUsuario from '~/components/reports/graficoUsuario.vue';
 
-export default {
-    data() {
-        return {
-            loading: false,
-            entryDateStart: '',
-            entryDateEnd: '',
-            users: [],
-            timer: null,
-        };
-    },
-    components: { graficoUsuario },
-    watch: {
-        entryDateStart() {
-            this.debouncedFetchData();
-        },
-        entryDateEnd() {
-            this.debouncedFetchData();
-        },
-    },
-    methods: {
-        debouncedFetchData() {
-            clearTimeout(this.timer);
-            this.timer = setTimeout(this.fetchData, 1000);
-        },
-        async fetchData() {
-            this.loading = true;
-            const resulmo = await $fetch('/api/reports/resumo', {
-                method: 'POST',
-                body: {
-                    entryDateStart: this.entryDateStart,
-                    entryDateEnd: this.entryDateEnd,
-                },
-            })
-            this.users = resulmo;
-            this.loading = false;
-        },
-    },
+interface User {
+    id: number;
+    name: string;
+    hours: number;
+    minutes: number;
+}
+
+const loading = ref(false)
+const date = ref([])
+const users = ref<User[]>([])
+
+const entryDateStart = computed(() => {
+    const { firstDay } = getFirstLastDayCalender(date.value)
+    return firstDay
+})
+
+const entryDateEnd = computed(() => {
+    const { lastDay } = getFirstLastDayCalender(date.value)
+    return lastDay
+})
+
+const refresh = () => {
+    fetchData(entryDateStart.value, entryDateEnd.value);
+}
+
+const fetchData = async (firstDay: string, lastDay: string): Promise<void> => {
+    loading.value = true;
+    try {
+        const res: User[] = await $fetch('/api/reports/resumo', {
+            method: 'POST',
+            body: {
+                entryDateStart: firstDay,
+                entryDateEnd: lastDay,
+            },
+        });
+        users.value = res;
+    } catch (error: any) {
+        snackbarShow(error, 'error');
+    } finally {
+        loading.value = false;
+    }
 };
+
 </script>
