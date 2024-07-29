@@ -41,7 +41,6 @@ async function insertUserDaysMonthFromJson(userID: number, week: any, dateFirst:
         const dayOfWeek = daysOfWeek[day.getDay()];
         if (week[dayOfWeek].length) {
             const formattedDate: string = day.toISOString().split('T')[0];
-            console.log(formattedDate);
             await prisma.workDay.upsert({
                 where: {
                     date_userId: {
