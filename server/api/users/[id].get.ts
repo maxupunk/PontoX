@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
         const workDay = await prisma.workDay.findFirst({
             where: {
                 userId: userId,
-                date: date.toString().split('T')[0],
+                date: date.toISOString().split('T')[0],
             },
             include: {
                 workHours: true,
