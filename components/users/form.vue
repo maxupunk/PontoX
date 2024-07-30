@@ -106,7 +106,7 @@ export default {
                     method: 'PUT',
                     body: JSON.stringify(this.user)
                 })
-                if (UpdUser.changes) {
+                if (UpdUser) {
                     snackbarShow('Usuário atualizado com sucesso!', 'success')
                 }
             } else {
@@ -114,7 +114,7 @@ export default {
                     method: 'POST',
                     body: JSON.stringify(this.user)
                 })
-                if (NewUser.changes) {
+                if (NewUser) {
                     snackbarShow('Usuário cadastrado com sucesso!', 'success')
                     this.$router.push(`/users/${NewUser.lastInsertRowid}`)
                 }
