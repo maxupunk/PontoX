@@ -29,7 +29,7 @@
 export default {
   data() {
     return {
-      technologies: ['Vue.js', 'Nuxt.js', 'Vuetify', 'Node.js', 'SQLite', 'Face-api.js', 'Drizzle-orm', 'Bcrypt', '...']
+      technologies: ['Vue.js', 'Nuxt.js', 'Vuetify', 'Node.js', 'SQLite', 'Face-api.js', 'PrimaJs', 'Bcrypt', '...']
     }
   }
 }
