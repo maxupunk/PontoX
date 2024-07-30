@@ -131,6 +131,7 @@
 </template>
 
 <script>
+import { snackbarShow } from "~/composables/useUi"
 
 export default {
     data() {
@@ -205,31 +206,24 @@ export default {
     },
     methods: {
         async loadPoints() {
-            this.load.loading = true
-            this.load.mensage = 'Buscando dados...'
             const response = await $fetch('/api/points')
             this.points = response.points;
-            this.load.loading = false
         },
         async loadUsers() {
-            this.load.loading = true
-            this.load.mensage = 'Buscando dados de usuarios...'
             const response = await $fetch('/api/users')
             this.users = response.users;
-            this.load.loading = false
         },
         async editItem(item) {
-            this.load.loading = true
-            this.load.mensage = 'Buscando usuario...'
             const response = await $fetch(`/api/points/${item.id}`)
             this.editedPoint = response.point;
             this.dialog = true
-            this.load.loading = false
         },
         async save() {
-            this.load.loading = true
+            if (!this.editedPoint.userId) {
+                snackbarShow('Selecione um usuario!', 'warning')
+                return
+            }
             if (this.editedPoint.id) {
-                this.load.mensage = 'Atualizando usuario...'
                 const UpdUser = await $fetch(`/api/points/${this.editedPoint.id}`, {
                     method: 'PUT',
                     headers: {
@@ -237,9 +231,8 @@ export default {
                     },
                     body: JSON.stringify(this.editedPoint)
                 })
-                if (UpdUser.changes) {
-                    this.snackbar.open = true
-                    this.snackbar.mensage = 'Usuário atualizado com sucesso!'
+                if (UpdUser) {
+                    snackbarShow('Usuário atualizado com sucesso!', 'success')
                 }
             } else {
                 this.load.mensage = 'Cadastrando usuario...'
@@ -250,9 +243,8 @@ export default {
                     },
                     body: JSON.stringify(this.editedPoint)
                 })
-                if (NewUser.changes) {
-                    this.snackbar.open = true
-                    this.snackbar.mensage = 'Usuário cadastrado com sucesso!'
+                if (NewUser) {
+                    snackbarShow('Usuário cadastrado com sucesso!', 'success')
                 }
             }
             this.loadPoints()
