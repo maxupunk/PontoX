@@ -43,7 +43,7 @@
                     </v-row>
                 </v-container>
                 <v-alert v-if="workHourChock.entryTime" type="warning" dense>
-                    Horario chocado com {{ workHourChock.entryTime }} - {{ workHourChock.departureTime }}
+                    Choque de horario na data {{ workHourChock.date }} horario {{ workHourChock.entryTime }} - {{ workHourChock.departureTime }}
                 </v-alert>
             </v-card-text>
         </v-card>
@@ -79,6 +79,7 @@ const workHourChock = <any>ref({})
 
 watch(dialog, async (val) => {
     if (val) {
+        workHourChock.value = {}
         if (props.data.id) {
             loading.value = true
             hourStore.fetchWorkHour(props.data.id).then((response) => {
@@ -87,7 +88,7 @@ watch(dialog, async (val) => {
                     entryTime: response.entryTime,
                     departureTime: response.departureTime,
                     workDayId: response.workDayId,
-                    date: response.workDay.date
+                    date: response.date
                 })
             }).finally(() => {
                 loading.value = false
@@ -98,7 +99,6 @@ watch(dialog, async (val) => {
                     id: null,
                     entryTime: '',
                     departureTime: '',
-                    workDayId: '',
                     date: ''
                 })
         }

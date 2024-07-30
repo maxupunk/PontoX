@@ -53,7 +53,7 @@ onMounted(() => {
 })
 
 function calendarUpdate(value: Date[]) {
-    const {firstDay, lastDay} = getFirstLastDayMonth(value[0])
+    const { firstDay, lastDay } = getFirstLastDayMonth(value[0])
     date.value = [firstDay, lastDay]
     fetchPeriod()
 }
@@ -61,7 +61,7 @@ function calendarUpdate(value: Date[]) {
 function fetchPeriod() {
     loading.value = true
     if (!date.value.length) {
-        const {firstDay, lastDay} = getFirstLastDayMonth()
+        const { firstDay, lastDay } = getFirstLastDayMonth()
         date.value = [firstDay, lastDay]
     }
     periodStore.fetch(props.userid, date).finally(() => {
@@ -71,8 +71,13 @@ function fetchPeriod() {
 
 function generate() {
     loading.value = true
-    periodStore.generate(props.userid, date).then(() => {
-        snackbarShow('Período gerado com sucesso', 'success')
+    periodStore.generate(props.userid, date).then((response) => {
+        if (response && response.message) {
+            snackbarShow(response.message, 'success')
+            fetchPeriod()
+        }
+    }).catch((error: any) => {
+        snackbarShow(error.response._data.message, 'error')
     }).finally(() => {
         loading.value = false
     })
