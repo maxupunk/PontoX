@@ -58,8 +58,14 @@ interface User {
 }
 
 const loading = ref(false)
-const date = ref([])
+const date = ref<any>([])
 const users = ref<User[]>([])
+
+onMounted(() => {
+    const { firstDay, lastDay } = getFirstLastDayMonth()
+    date.value = [firstDay, lastDay]
+    fetchData()
+})
 
 const entryDateStart = computed(() => {
     const { firstDay } = getFirstLastDayCalender(date.value)
@@ -71,7 +77,7 @@ const entryDateEnd = computed(() => {
     return lastDay
 })
 
-const fetchData = async (): Promise<void> => {
+async function fetchData() {
     loading.value = true;
     try {
         const res: any = await $fetch('/api/reports/resumo', {

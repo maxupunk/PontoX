@@ -62,8 +62,14 @@
 
 const loading = ref(false)
 const details = ref(true)
-const date = ref([])
+const date = ref<any>([])
 const users = ref([])
+
+onMounted(() => {
+    const { firstDay, lastDay } = getFirstLastDayMonth()
+    date.value = [firstDay, lastDay]
+    refresh();
+})
 
 const workDate = computed(() => {
     return users.value.map((item: any) => {
