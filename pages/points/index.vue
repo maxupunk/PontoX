@@ -8,7 +8,7 @@
                 {{ load.mensage }}
             </div>
         </v-overlay>
-        <v-data-table :items="points" :headers="headers">
+        <v-data-table :items="pointStore.points" :headers="headers">
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-toolbar-title>Gerenciamento de pontos</v-toolbar-title>
@@ -36,13 +36,13 @@
                                 <v-card-text>
                                     <v-container>
                                         <v-row>
-                                            <v-select :items="users" item-value="id" item-title="name"
-                                                v-model="editedPoint.userId" label="Usuario"></v-select>
+                                            <v-select :items="userStore.users" item-value="id" item-title="name"
+                                                v-model="pointStore.point.userId" label="Usuario"></v-select>
                                         </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="6">
-                                                <span v-if="editedPoint.entryImage">
-                                                    <img :src="`/api/imagens/${editedPoint.userId}/${editedPoint.entryImage}`"
+                                                <span v-if="pointStore.point.entryImage">
+                                                    <img :src="`/api/imagens/${pointStore.point.userId}/${pointStore.point.entryImage}`"
                                                         @error="setDefaultImage" width="100%">
                                                 </span>
                                                 <span v-else>
@@ -52,18 +52,18 @@
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-container>
                                                     <v-row>
-                                                        <v-text-field type="date" v-model="editedPoint.entryDate"
+                                                        <v-text-field type="date" v-model="pointStore.point.entryDate"
                                                             label="Data entrada"></v-text-field>
                                                         <v-spacer></v-spacer>
-                                                        <v-text-field v-model="editedPoint.entryTime"
+                                                        <v-text-field v-model="pointStore.point.entryTime"
                                                             label="Hora entrada" v-maska:[maskTime]></v-text-field>
                                                     </v-row>
                                                     <v-row>
-                                                        <v-text-field v-model="editedPoint.entryImage"
+                                                        <v-text-field v-model="pointStore.point.entryImage"
                                                             label="Imagem de entrada" readonly></v-text-field>
                                                     </v-row>
                                                     <v-row>
-                                                        <v-text-field v-model="editedPoint.entryExpressio"
+                                                        <v-text-field v-model="pointStore.point.entryExpressio"
                                                             label="Expressão" readonly></v-text-field>
                                                     </v-row>
                                                 </v-container>
@@ -71,8 +71,8 @@
                                         </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="6">
-                                                <span v-if="editedPoint.departureImage">
-                                                    <img :src="`/api/imagens/${editedPoint.userId}/${editedPoint.departureImage}`"
+                                                <span v-if="pointStore.point.departureImage">
+                                                    <img :src="`/api/imagens/${pointStore.point.userId}/${pointStore.point.departureImage}`"
                                                         @error="setDefaultImage" width="100%">
                                                 </span>
                                                 <span v-else>
@@ -82,25 +82,26 @@
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-container>
                                                     <v-row>
-                                                        <v-text-field type="date" v-model="editedPoint.departureDate"
+                                                        <v-text-field type="date"
+                                                            v-model="pointStore.point.departureDate"
                                                             label="Data saida"></v-text-field>
                                                         <v-spacer></v-spacer>
-                                                        <v-text-field v-model="editedPoint.departureTime"
+                                                        <v-text-field v-model="pointStore.point.departureTime"
                                                             label="Hora saida" v-maska:[maskTime]></v-text-field>
                                                     </v-row>
                                                     <v-row>
-                                                        <v-text-field v-model="editedPoint.departureImage"
+                                                        <v-text-field v-model="pointStore.point.departureImage"
                                                             label="Imagem de saida" readonly></v-text-field>
                                                     </v-row>
                                                     <v-row>
-                                                        <v-text-field v-model="editedPoint.departureExpressio"
+                                                        <v-text-field v-model="pointStore.point.departureExpressio"
                                                             label="Expressão" readonly></v-text-field>
                                                     </v-row>
                                                 </v-container>
                                             </v-col>
                                         </v-row>
                                         <v-row>
-                                            <v-text-field v-model="editedPoint.observation"
+                                            <v-text-field v-model="pointStore.point.observation"
                                                 label="Observação"></v-text-field>
                                         </v-row>
                                     </v-container>
@@ -115,150 +116,128 @@
                 <v-icon class="me-2" @click="editItem(item)">
                     mdi-pencil
                 </v-icon>
+                <v-icon @click="deleteDialog(item)">
+                    mdi-delete
+                </v-icon>
             </template>
         </v-data-table>
-
-        <!-- Snackbar -->
-        <v-snackbar v-model="snackbar.open" color="success" :timeout="3000">
-            {{ snackbar.mensage }}
-            <template v-slot:actions>
-                <v-btn color="white" text @click="snackbar = false" append-icon>
-                    <v-icon>mdi-close</v-icon>
-                </v-btn>
-            </template>
-        </v-snackbar>
+        <!-- Dialog confirm delete -->
+        <v-dialog v-model:model-value="confirmDelete.dialog" min-width="340" max-width="500">
+            <v-card title="Deseja realmente deletar o ponto?">
+                <v-card-text>
+                    <v-row class="align-center justify-space-around">
+                        <v-col cols="2">
+                            <v-icon color="warning" icon="mdi-alert-octagram-outline" size="70"></v-icon>
+                        </v-col>
+                        <v-col cols="10">
+                            O ponto de será deletado permanentemente sem possibilidade de recuperação.
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="error" @click="deleteItem">delete</v-btn>
+                    <v-btn color="blue darken-1" @click="confirmDelete.dialog = false">Cancelar</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
+<script setup lang="ts">
+import { snackbarShow } from "~/composables/useUi";
+import { usePointStore } from "~/stores/PointStore";
+import { useUserStore } from "~/stores/UserStore";
 
-<script>
-import { snackbarShow } from "~/composables/useUi"
+const pointStore = usePointStore()
+const userStore = useUserStore()
 
-export default {
-    data() {
-        return {
-            dialog: false,
-            fullscreen: false,
-            snackbar: {
-                open: false,
-                mensage: null
-            },
-            load: {
-                loading: false,
-                mensage: null
-            },
-            maskDate:
-            {
-                mask: "####-##-##"
-            },
-            maskTime:
-            {
-                mask: "##:##:##"
-            },
-            points: [],
-            token: null,
-            headers: [
-                { text: 'ID', value: 'id' },
-                { text: 'Usuario', value: 'name' },
-                { text: 'Entrada data', value: 'entryDate' },
-                { text: 'Entrada hora', value: 'entryTime' },
-                { text: 'Saida data', value: 'departureDate' },
-                { text: 'Saida hora', value: 'departureTime' },
-                { text: 'Ações', value: 'action', sortable: false },
-            ],
-            users: [],
-            editedPoint: {
-                id: null,
-                name: null,
-                entryDate: null,
-                entryTime: null,
-                entryImage: null,
-                departureDate: null,
-                departureTime: null,
-                departureImage: null,
-                observation: null,
-            },
-            defaultItem: {
-                id: null,
-                name: null,
-                entryDate: null,
-                entryTime: null,
-                entryImage: null,
-                departureDate: null,
-                departureTime: null,
-                departureImage: null,
-                observation: null,
-            },
-        };
-    },
-    mounted() {
-        this.loadPoints()
-        this.loadUsers()
-    },
-    watch: {
-        dialog(val) {
-            val || this.close()
-        },
-    },
-    computed: {
-        formTitle() {
-            return this.editedPoint.id === null ? 'Cadastro' : 'Atualizar'
-        },
-    },
-    methods: {
-        async loadPoints() {
-            const response = await $fetch('/api/points')
-            this.points = response.points;
-        },
-        async loadUsers() {
-            const response = await $fetch('/api/users')
-            this.users = response.users;
-        },
-        async editItem(item) {
-            const response = await $fetch(`/api/points/${item.id}`)
-            this.editedPoint = response.point;
-            this.dialog = true
-        },
-        async save() {
-            if (!this.editedPoint.userId) {
-                snackbarShow('Selecione um usuario!', 'warning')
-                return
-            }
-            if (this.editedPoint.id) {
-                const UpdUser = await $fetch(`/api/points/${this.editedPoint.id}`, {
-                    method: 'PUT',
-                    headers: {
-                        Authorization: this.token
-                    },
-                    body: JSON.stringify(this.editedPoint)
-                })
-                if (UpdUser) {
-                    snackbarShow('Usuário atualizado com sucesso!', 'success')
-                }
-            } else {
-                this.load.mensage = 'Cadastrando usuario...'
-                const NewUser = await $fetch('/api/points', {
-                    method: 'POST',
-                    headers: {
-                        Authorization: this.token
-                    },
-                    body: JSON.stringify(this.editedPoint)
-                })
-                if (NewUser) {
-                    snackbarShow('Usuário cadastrado com sucesso!', 'success')
-                }
-            }
-            this.loadPoints()
-            this.close()
-        },
-        setDefaultImage(e) {
-            e.target.src = '/imageFailed.jpg';
-        },
-        close() {
-            this.dialog = false
-            this.$nextTick(() => {
-                this.editedPoint = Object.assign({}, this.defaultItem)
-            })
-        },
-    },
-};
+const dialog = ref(false)
+const confirmDelete = ref({
+    id: null,
+    dialog: false
+})
+
+const fullscreen = ref(false)
+const load = ref({
+    loading: false,
+    mensage: null
+})
+const maskTime = {
+    mask: "##:##:##"
+}
+const headers = ref([
+    { text: 'ID', value: 'id' },
+    { text: 'Usuario', value: 'name' },
+    { text: 'Entrada data', value: 'entryDate' },
+    { text: 'Entrada hora', value: 'entryTime' },
+    { text: 'Saida data', value: 'departureDate' },
+    { text: 'Saida hora', value: 'departureTime' },
+    { text: 'Ações', value: 'action', sortable: false },
+])
+
+onMounted(() => {
+    pointStore.fetchPoints()
+    userStore.fetchUsers()
+})
+
+watch(dialog, (val) => {
+    if (!val) {
+        close()
+    }
+})
+
+const formTitle = computed(() => {
+    return pointStore.point.id === null ? 'Cadastro' : 'Atualizar'
+})
+
+async function editItem(item: any) {
+    pointStore.fetchPoint(item.id)
+    dialog.value = true
+}
+
+async function save() {
+    if (!pointStore.point.userId) {
+        snackbarShow('Selecione um usuario!', 'warning')
+        return
+    }
+    if (pointStore.point.id) {
+        const UpdUser = await pointStore.updatePoint(pointStore.point)
+        if (UpdUser) {
+            snackbarShow('Usuário atualizado com sucesso!', 'success')
+        }
+    } else {
+        const NewUser = await pointStore.createPoint(pointStore.point)
+        if (NewUser) {
+            snackbarShow('Usuário cadastrado com sucesso!', 'success')
+        }
+    }
+    close()
+}
+
+function deleteDialog(point: any) {
+    confirmDelete.value = point
+    confirmDelete.value.dialog = true
+}
+
+async function deleteItem() {
+    const response = await $fetch(`/api/points/${confirmDelete.value.id}`, {
+        method: 'DELETE',
+    })
+    if (response) {
+        snackbarShow('Usuário deletado com sucesso!', 'success')
+    }
+    confirmDelete.value.dialog = false
+    pointStore.fetchPoints()
+}
+
+function setDefaultImage(e: any) {
+    e.target.src = '/imageFailed.jpg'
+}
+
+function close() {
+    dialog.value = false
+    pointStore.point = {}
+    pointStore.fetchPoints()
+}
+
 </script>
