@@ -62,11 +62,9 @@
             </v-alert>
             <v-list density="compact" variant="elevated">
               <v-list-subheader>Seu(s) horarios para hoje</v-list-subheader>
-              <v-list-item v-for="(hour, index) in hours" :key="index" :active="hour.check">
-                {{ index + 1 }} - Entrada: {{ hour.entryTime }} - Saida: {{ hour.departureTime }}
-                <template v-slot:append v-if="hour.check">
-                  <v-icon color="green">mdi-check</v-icon>
-                </template>
+              <v-list-item v-for="(hour, index) in dataUser.workHour" :key="index" :active="hour.check">
+                <v-checkbox v-model="pointCheck" :label="`Entrada ${hour.entryTime} - Saida: ${hour.departureTime}`"
+                  :value="hour.id" hide-details></v-checkbox>
               </v-list-item>
             </v-list>
           </v-container>
@@ -123,7 +121,8 @@ export default {
       options: null,
       faceMatcher: null,
       startDesable: false,
-      pointOutHour: true
+      pointOutHour: true,
+      pointCheck: 0,
     };
   },
   computed: {
@@ -133,27 +132,33 @@ export default {
     hasCamera() {
       return this.videoDevices.length > 0
     },
-    hours() {
-      const now = new Date();
-      const currentHour = now.getHours();
-      this.pointOutHour = true
-      if (!this.dataUser.workDay) {
-        return []
-      }
-      return this.dataUser.workDay.workHours.map((item) => {
-        const entryTimeHour = item.entryTime.split(":")[0];
-        const departureTimeHour = item.departureTime.split(":")[0];
-        const check = entryTimeHour <= currentHour && departureTimeHour >= currentHour ? true : false
-        if (check) {
-          this.pointOutHour = false
+    selecthour() {
+      return this.dataUser.workHour.filter(hour => hour.id === this.pointCheck)
+    },
+    getClosestWorkHour() {
+      if (!this.dataUser.workHour.length) return
+
+      const currentTime = new Date();
+      let closestWorkHour = null;
+      let smallestDifference = Infinity;
+
+      this.dataUser.workHour.forEach((workHour) => {
+        const entryTime = this.parseTime(workHour.entryTime);
+        const departureTime = this.parseTime(workHour.departureTime);
+
+        const entryDiff = Math.abs(currentTime.getTime() - entryTime.getTime());
+        const departureDiff = Math.abs(currentTime.getTime() - departureTime.getTime());
+
+        const minDiff = Math.min(entryDiff, departureDiff);
+
+        if (minDiff < smallestDifference) {
+          smallestDifference = minDiff;
+          closestWorkHour = workHour;
         }
-        return {
-          entryTime: item.entryTime,
-          departureTime: item.departureTime,
-          check: check
-        }
-      })
-    }
+      });
+
+      return closestWorkHour.id;
+    },
   },
   async mounted() {
     this.video = document.getElementById('cam')
@@ -233,6 +238,7 @@ export default {
         this.observation = response.point ? response.point.observation : null;
         this.dataUser = response;
         this.dialog = true
+        this.pointCheck = this.getClosestWorkHour
       } else {
         snackbarShow('Não encontrei esse usuario no banco, talvez você tenha que retreinar!', 'warning')
       }
@@ -243,7 +249,8 @@ export default {
         "userId": this.dataUser.user.id,
         "expressio": this.pointLocal.expressioUser,
         "capturedImage": this.pointLocal.capturedImage,
-        "observation": this.observation
+        "observation": this.observation,
+        "workHourId": this.pointCheck
       }
       const PointSave = await $fetch(`/api/points`, {
         method: 'PATCH',
@@ -253,6 +260,13 @@ export default {
         snackbarShow('Ponto registrado com sucesso!', 'success')
         this.dialog = false
       }
+    },
+
+    parseTime(time) {
+      const [hours, minutes] = time.split(':').map(Number);
+      const date = new Date();
+      date.setHours(hours, minutes, 0, 0);
+      return date;
     },
 
     getCutImage(box) {
