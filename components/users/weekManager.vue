@@ -90,6 +90,7 @@ function saveWeek() {
     weekStore.saveWeek(props.userid).then((result) => {
         if (result) {
             snackbarShow('Semana salva com sucesso', 'success')
+            hourStore.copyData = {}
         }
     }).finally(() => {
         loading.value = false
