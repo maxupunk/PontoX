@@ -12,8 +12,7 @@ export const usePointStore = defineStore('point', {
             this.points = response.points
         },
         async fetchPoint(id: number) {
-            const response = await $fetch(`/api/points/${id}`)
-            this.point = response.point
+            this.point = await $fetch(`/api/points/${id}`)
         },
         async createPoint(point: any) {
             const response = await $fetch('/api/points', {

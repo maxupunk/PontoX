@@ -39,6 +39,28 @@
                                             <v-select :items="userStore.users" item-value="id" item-title="name"
                                                 v-model="pointStore.point.userId" label="Usuario"></v-select>
                                         </v-row>
+                                        <v-row v-if="pointStore.point.WorkHours">
+                                            <v-col cols="12">
+                                                <v-card variant="outlined">
+                                                    <v-card-text>
+                                                        <v-row>
+                                                            <v-col cols="4">
+                                                                <h3>Data</h3>
+                                                                {{ pointStore.point.WorkHours.date }}
+                                                            </v-col>
+                                                            <v-col cols="4">
+                                                                <h3>Horario de entrada</h3>
+                                                                {{ pointStore.point.WorkHours.entryTime }}
+                                                            </v-col>
+                                                            <v-col cols="4">
+                                                                <h3>Horario de saida</h3>
+                                                                {{ pointStore.point.WorkHours.departureTime }}
+                                                            </v-col>
+                                                        </v-row>
+                                                    </v-card-text>
+                                                </v-card>
+                                            </v-col>
+                                        </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="6">
                                                 <span v-if="pointStore.point.entryImage">
@@ -86,7 +108,8 @@
                                                             v-model="pointStore.point.departureDate"
                                                             label="Data saida"></v-text-field>
                                                         <v-spacer></v-spacer>
-                                                        <v-text-field type="time" v-model="pointStore.point.departureTime"
+                                                        <v-text-field type="time"
+                                                            v-model="pointStore.point.departureTime"
                                                             label="Hora saida"></v-text-field>
                                                     </v-row>
                                                     <v-row>

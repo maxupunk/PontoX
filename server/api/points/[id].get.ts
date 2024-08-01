@@ -12,6 +12,14 @@ export default defineEventHandler(async (event) => {
                         name: true,
                     },
                 },
+                WorkHours: {
+                    select: {
+                        id: true,
+                        date: true,
+                        entryTime: true,
+                        departureTime: true,
+                    },
+                },
             },
         });
 
@@ -22,22 +30,7 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        return {
-            point: {
-                id: pointQuery.id,
-                userId: pointQuery.userId,
-                name: pointQuery.user?.name,
-                entryDate: pointQuery.entryDate,
-                entryTime: pointQuery.entryTime,
-                entryExpressio: pointQuery.entryExpressio,
-                entryImage: pointQuery.entryImage,
-                departureDate: pointQuery.departureDate,
-                departureTime: pointQuery.departureTime,
-                departureExpressio: pointQuery.departureExpressio,
-                departureImage: pointQuery.departureImage,
-                observation: pointQuery.observation,
-            },
-        };
+        return pointQuery;
     } catch (e: any) {
         throw createError({
             statusCode: 400,
