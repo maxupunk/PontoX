@@ -55,8 +55,8 @@
                                                         <v-text-field type="date" v-model="pointStore.point.entryDate"
                                                             label="Data entrada"></v-text-field>
                                                         <v-spacer></v-spacer>
-                                                        <v-text-field v-model="pointStore.point.entryTime"
-                                                            label="Hora entrada" v-maska:[maskTime]></v-text-field>
+                                                        <v-text-field type="time" v-model="pointStore.point.entryTime"
+                                                            label="Hora entrada"></v-text-field>
                                                     </v-row>
                                                     <v-row>
                                                         <v-text-field v-model="pointStore.point.entryImage"
@@ -86,8 +86,8 @@
                                                             v-model="pointStore.point.departureDate"
                                                             label="Data saida"></v-text-field>
                                                         <v-spacer></v-spacer>
-                                                        <v-text-field v-model="pointStore.point.departureTime"
-                                                            label="Hora saida" v-maska:[maskTime]></v-text-field>
+                                                        <v-text-field type="time" v-model="pointStore.point.departureTime"
+                                                            label="Hora saida"></v-text-field>
                                                     </v-row>
                                                     <v-row>
                                                         <v-text-field v-model="pointStore.point.departureImage"
@@ -162,9 +162,6 @@ const load = ref({
     loading: false,
     mensage: null
 })
-const maskTime = {
-    mask: "##:##:##"
-}
 const headers = ref([
     { text: 'ID', value: 'id' },
     { text: 'Usuario', value: 'name' },
