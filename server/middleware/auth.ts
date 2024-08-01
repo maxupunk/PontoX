@@ -2,7 +2,7 @@ import prisma from "../prisma";
 import { pathToRegexp } from 'path-to-regexp';
 
 export default defineEventHandler(async (event: any) => {
-  /* const pathWhitelist = ['/api/login', '/', '/login', '/api/treine', '/api/imagens/:label/:file', '/api/reports/resumo', '/api/reports/:id'];
+  const pathWhitelist = ['/api/login', '/', '/login', '/api/treine', '/api/imagens/:label/:file', '/api/reports/resumo', '/api/reports/:id'];
   // Transforma cada caminho da lista de permissões em uma expressão regular
   const regexWhitelist = pathWhitelist.map(path => pathToRegexp(path));
 
@@ -27,5 +27,5 @@ export default defineEventHandler(async (event: any) => {
     } else {
       return sendRedirect(event, '/login', 401)
     }
-  } */
+  }
 })
