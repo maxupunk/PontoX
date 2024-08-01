@@ -4,23 +4,39 @@ export default defineEventHandler(async (event) => {
     try {
         const hourId = Number(event.context.params?.id);
         let body = await readBody(event);
-        const hourConsult = await prisma.workHour.findFirst({
-            where: { id: hourId },
-            include: {
-                workDay: {
-                    include: {
-                        workHours: true,
-                    },
-                },
+        if (!body.date) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: "date é requerida",
+            });
+        }
+
+        const workHour = await prisma.workHour.findFirst({
+            where: {
+                id: hourId ,
             },
         })
-        if (hourConsult && hourConsult.workDay) {
-            for (let workHour of hourConsult.workDay.workHours) {
-                if (workHour.id === hourId) continue;
-                if (workHour.entryTime === body.entryTime && workHour.departureTime === body.departureTime) {
+
+        if (!workHour) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: "Horario não encontrado",
+            });
+        }
+
+        const workHours = await prisma.workHour.findMany({
+            where: {
+                date: body.date,
+                userId: workHour.userId
+            },
+        })
+        if (workHours) {
+            for (const workHour of workHours) {
+                console.log(workHour.id, hourId);
+                if (workHour.entryTime === body.entryTime && workHour.departureTime === body.departureTime && workHour.id !== hourId) {
                     return { workHour: workHour, message: "Já existe esse horario para esse funcionario" };
                 }
-                if ((body.entryTime < workHour.departureTime && body.departureTime > workHour.entryTime)) {
+                if ((body.entryTime < workHour.departureTime && body.departureTime > workHour.entryTime) && workHour.id !== hourId) {
                     return { workHour: workHour, message: "Existe um choque de horário com esse horario." };
                 }
             }

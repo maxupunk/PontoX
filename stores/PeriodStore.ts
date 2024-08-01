@@ -8,37 +8,29 @@ export const usePeriodStore = defineStore('period', {
     }),
 
     actions: {
-        async generate(userID: number, dates: any): Promise<void> {
+        async generate(userID: number, dates: any) {
             if (dates.value.length === 0) {
                 snackbarShow('Por favor selecione um período!', 'error')
                 return
             }
-            const dateStart = dates.value[0].toString().split("T")[0]
-            const dateEnd = dates.value[dates.value.length - 1].toString().split("T")[0]
-            
+            const { firstDay, lastDay } = getFirstLastDayCalender(dates.value)
+
             const response = await $fetch(`/api/users/${userID}/periodgenerate`, {
                 method: 'POST',
                 body: {
                     userID: userID,
-                    dateStart: dateStart,
-                    dateEnd: dateEnd
+                    dateStart: firstDay,
+                    dateEnd: lastDay
                 }
             })
-            if (response) {
-                snackbarShow('Período gerado com sucesso!', 'success')
-                const url = `/api/users/${userID}/period?dateStart=${dateStart}&dateEnd=${dateEnd}`
-                const response: any = await $fetch(url)
-                if (response) {
-                    this.days = response
-                }
-            }
+            return response
         },
         async fetch(userID: number, dates: any): Promise<void> {
             if (dates.value.length === 0) {
                 snackbarShow('Por favor selecione um período!', 'error')
                 return
             }
-            const {firstDay, lastDay} = getFirstLastDayCalender(dates.value)
+            const { firstDay, lastDay } = getFirstLastDayCalender(dates.value)
             const response: any = await $fetch(`/api/users/${userID}/period?dateStart=${firstDay}&dateEnd=${lastDay}`)
             if (response) {
                 this.days = response
@@ -59,18 +51,26 @@ export const usePeriodStore = defineStore('period', {
         getEvents: (state) => {
             let events: any = []
             state.days.map((day: any) => {
-                day.workHours.map((workHour: any) => {
-                    events.push({
-                        id: workHour.id,
-                        title: workHour.entryTime + ' - ' + workHour.departureTime,
-                        start: new Date(day.date + 'T' + workHour.entryTime),
-                        end: new Date(day.date + 'T' + workHour.departureTime),
-                        color: 'green',
-                        date: day.date,
-                        // allDay: true,
-                    })
+                events.push({
+                    id: day.id,
+                    title: day.entryTime + ' - ' + day.departureTime,
+                    start: new Date(day.date + 'T' + day.entryTime),
+                    end: new Date(day.date + 'T' + day.departureTime),
+                    color: 'green',
+                    date: day.date,
+                    // allDay: true,
                 })
             })
+            // ordena os eventos por título
+            events.sort((a:any, b:any) => {
+                if (a.title < b.title) {
+                    return -1;
+                }
+                if (a.title > b.title) {
+                    return 1;
+                }
+                return 0;
+            });
             return events
         },
     }

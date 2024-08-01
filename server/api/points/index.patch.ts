@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     const nameImage = saveUserImage(body.userId, body.capturedImage);
 
-    const data:any = {
+    let data:any = {
       userId: body.userId,
       observation: body.observation,
     };
@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
       data.entryDate = formattedDate;
       data.entryTime = formattedTime;
       data.entryImage = nameImage;
+      data.workHourId = body.workHourId;
 
       return await prisma.point.create({
         data: data,

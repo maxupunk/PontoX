@@ -17,15 +17,12 @@ export default defineEventHandler(async (event) => {
             },
           },
         },
-        workDays: {
+        WorkHours: {
           where: {
             date: {
               gte: entryDateStart, // maior ou igual a dataInicial
               lte: entryDateEnd,  // menor ou igual a dataFinal
             },
-          },
-          include: {
-            workHours: true,
           },
         },
       },
@@ -43,14 +40,11 @@ export default defineEventHandler(async (event) => {
         return acc + totalTimeMinutes;
       }, 0);
 
-      const workHoursTotalMinutesSum = user.workDays.reduce((acc, workDay) => {
-        const workHoursTotalMinutes = workDay.workHours.reduce((acc, workHour) => {
-          const entryDateTime = new Date(`${workDay.date}T${workHour.entryTime}`);
-          const departureDateTime = new Date(`${workDay.date}T${workHour.departureTime}`);
-          const totalTimeMinutes = (departureDateTime.getTime() - entryDateTime.getTime()) / (1000 * 60); // Convert to minutes
-          return acc + totalTimeMinutes;
-        }, 0);
-        return acc + workHoursTotalMinutes;
+      const workHoursTotalMinutesSum = user.WorkHours.reduce((acc, workDay) => {
+        const entryDateTime = new Date(`${workDay.date}T${workDay.entryTime}`);
+        const departureDateTime = new Date(`${workDay.date}T${workDay.departureTime}`);
+        const totalTimeMinutes = (departureDateTime.getTime() - entryDateTime.getTime()) / (1000 * 60); // Convert to minutes
+        return acc + totalTimeMinutes;
       }, 0);
 
       const percentage = (pointTotalMinutes / workHoursTotalMinutesSum) * 100;

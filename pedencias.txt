@@ -1,6 +1,4 @@
 adicionar o banco de horas
--> no relatorio
-    - comparaçãso dia por dia a quantidade de horas trabalhada e a que trabalhou
 -> guarda o horas positiva e negativa em algum local
 
 adicionais

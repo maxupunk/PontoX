@@ -25,10 +25,7 @@ export const useHourStore = defineStore('hour', {
         async updateWorkHour(hourData: any): Promise<any> {
             return await $fetch(`/api/hour/${hourData.id}`, {
                 method: 'PUT',
-                body: {
-                    entryTime: hourData.entryTime,
-                    departureTime: hourData.departureTime,
-                }
+                body: hourData
             })
         },
         async deleteWorkHour(workHourID: number): Promise<any> {

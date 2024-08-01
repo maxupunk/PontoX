@@ -10,16 +10,13 @@ export default defineEventHandler(async (event: any) => {
         const query = getQuery(event)
         const dateStart = query.dateStart ? String(query.dateStart) : new Date().toString().split("T")[0];
         const dateEnd = query.dateEnd ? String(query.dateEnd) : new Date().toString().split("T")[0];
-        const userQuery = await prisma.workDay.findMany({
+        const userQuery = await prisma.workHour.findMany({
             where: {
                 AND: [
                     { date: { gte: dateStart } },
                     { date: { lte: dateEnd } },
                     { userId: userId },
                 ],
-            },
-            include: {
-                workHours: true,
             },
         });
         return userQuery

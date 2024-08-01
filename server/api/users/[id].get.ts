@@ -5,17 +5,16 @@ export default defineEventHandler(async (event) => {
         const userId = Number(event.context.params?.id);
 
         const userQuery = await prisma.user.findUnique({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                login: true,
+                role: true,
+                status: true,
+            },
             where: { id: userId },
         });
-
-        const userDate = {
-            id: userQuery?.id,
-            name: userQuery?.name,
-            email: userQuery?.email,
-            login: userQuery?.login,
-            role: userQuery?.role,
-            status: userQuery?.status,
-        };
 
         const pointQuery = await prisma.point.findFirst({
             where: {
@@ -25,17 +24,14 @@ export default defineEventHandler(async (event) => {
         });
 
         const date = new Date();
-        const workDay = await prisma.workDay.findFirst({
+        const workHour = await prisma.workHour.findMany({
             where: {
                 userId: userId,
                 date: date.toISOString().split('T')[0],
             },
-            include: {
-                workHours: true,
-            },
         });
 
-        return { user: userDate, point: pointQuery, workDay: workDay };
+        return { user: userQuery, point: pointQuery, workHour: workHour };
     } catch (e: any) {
         return {
             statusCode: 400,
