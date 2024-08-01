@@ -32,7 +32,6 @@ export default defineEventHandler(async (event) => {
         })
         if (workHours) {
             for (const workHour of workHours) {
-                console.log(workHour.id, hourId);
                 if (workHour.entryTime === body.entryTime && workHour.departureTime === body.departureTime && workHour.id !== hourId) {
                     return { workHour: workHour, message: "Já existe esse horario para esse funcionario" };
                 }
