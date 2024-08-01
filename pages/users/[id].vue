@@ -146,7 +146,7 @@ export default {
         snackbarShow('Imagem enviada com sucesso! indo para a pagina de treino...', 'success')
         setTimeout(() => {
           this.$router.push('/treine');
-        }, 2000)
+        }, 1000)
       }
     },
 
