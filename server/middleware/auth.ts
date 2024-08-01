@@ -1,31 +1,45 @@
 import prisma from "../prisma";
 import { pathToRegexp } from 'path-to-regexp';
+import { H3Event, sendRedirect, createError } from 'h3';
 
-export default defineEventHandler(async (event: any) => {
-  const pathWhitelist = ['/api/login', '/', '/login', '/api/treine', '/api/imagens/:label/:file', '/api/reports/resumo', '/api/reports/:id'];
-  // Transforma cada caminho da lista de permissões em uma expressão regular
-  const regexWhitelist = pathWhitelist.map(path => pathToRegexp(path));
+const pathWhitelist = ['/api/login', '/', '/login', '/api/treine', '/api/imagens/:label/:file', '/api/reports/resumo', '/api/reports/:id'];
+const regexWhitelist = pathWhitelist.map(path => pathToRegexp(path));
 
-  // Verifica se a URL do evento corresponde a alguma das expressões regulares
-  const isPathValid = regexWhitelist.some(re => re.test(event.path));
+function isPathWhitelisted(path: string): boolean {
+  return regexWhitelist.some(re => re.test(path));
+}
+
+async function validateAuthorization(token: string | null) {
+  if (!token) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+    });
+  }
+
+  const userQuery = await prisma.user.findFirst({
+    where: {
+      token: token,
+    },
+  });
+
+  if (!userQuery) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+    });
+  }
+}
+
+export default defineEventHandler(async (event: H3Event) => {
+  const isPathValid = isPathWhitelisted(event.path);
 
   if (!isPathValid) {
-    let authorization = event.headers.get('authorization');
-    if (authorization) {
-      const userQuery = await prisma.user.findFirst({
-        where: {
-          token: authorization,
-        },
-      });
-      if (!userQuery) {
-        throw createError({
-          statusCode: 401,
-          statusMessage: 'Unauthorized',
-        })
-      }
-
-    } else {
-      return sendRedirect(event, '/login', 401)
+    const authorization = event.headers.get('authorization');
+    try {
+      await validateAuthorization(authorization);
+    } catch (error) {
+      return sendRedirect(event, '/login', 401);
     }
   }
-})
+});
