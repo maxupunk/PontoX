@@ -19,10 +19,19 @@ export default defineEventHandler(async (event) => {
                 delete body.password;
             }
 
-            return prisma.user.update({
+            const userUpdate = prisma.user.update({
                 where: { id: userId },
                 data: body,
             });
+
+            if (!userUpdate) {
+                throw createError({
+                    statusCode: 400,
+                    statusMessage: 'Erro ao atualizar usuário',
+                });
+            } else {
+                return true;
+            }
         }
     } catch (e: any) {
         throw createError({

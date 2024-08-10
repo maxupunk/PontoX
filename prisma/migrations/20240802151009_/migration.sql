@@ -1,10 +1,10 @@
 -- CreateTable
 CREATE TABLE "users" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT,
-    "email" TEXT NOT NULL,
-    "login" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT,
+    "login" TEXT,
+    "password" TEXT,
     "token" TEXT,
     "daysWeek" TEXT,
     "role" TEXT NOT NULL DEFAULT 'funcionario',
