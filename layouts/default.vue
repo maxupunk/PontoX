@@ -34,7 +34,7 @@
       <NuxtPage />
     </v-main>
 
-    <v-dialog :model-value="!isLoged && !isWhiteList" max-width="420" persistent>
+    <v-dialog :model-value="!isLoged" max-width="420" persistent>
       <form @submit.prevent="doLogin">
         <v-card>
           <v-toolbar dark color="primary" dense flat>
@@ -94,9 +94,6 @@ export default {
         return false
       }
     },
-    isWhiteList() {
-      return this.$route.path === '/' || this.$route.path === '/about'
-    }
   },
   methods: {
     async doLogin() {
@@ -110,7 +107,6 @@ export default {
       }
       this.token = login.token
       this.authStore.setToken(login.token, this.user.remember)
-      window.location.reload()
     },
     logout() {
       this.authStore.logout()
