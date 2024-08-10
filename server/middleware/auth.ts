@@ -32,8 +32,6 @@ async function validateAuthorization(token: string | null) {
     },
   });
 
-  console.log('USER', userQuery);
-
   if (!userQuery) {
     throw createError({
       statusCode: 401,
