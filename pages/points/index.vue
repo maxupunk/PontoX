@@ -16,6 +16,7 @@
                     <v-spacer></v-spacer>
                     <v-dialog v-model="dialog" persistent scrollable :fullscreen="$vuetify.display.xs || fullscreen">
                         <template v-slot:activator="{ props }">
+                            <v-btn icon="mdi-reload" @click="pointStore.fetchPoints()"></v-btn>
                             <v-btn icon="mdi-timer-plus" v-bind="props"></v-btn>
                         </template>
                         <template v-slot:default>
