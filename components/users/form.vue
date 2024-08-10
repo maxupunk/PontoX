@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-model="dialog" persistent scrollable :fullscreen="$vuetify.display.xs || fullscreen">
         <template v-slot:activator="{ props: activatorProps }">
-            <v-btn v-bind="activatorProps" :icon="icon" flat></v-btn>
+            <v-btn v-bind="activatorProps" :icon="props.icon ? props.icon : 'mdi-account-plus'" flat></v-btn>
         </template>
         <v-card :loading="loading">
             <v-toolbar :title="formTitle">
@@ -22,22 +22,23 @@
                 <v-container>
                     <v-row>
                         <v-col cols="12" sm="6" md="6">
-                            <v-text-field v-model="user.name" label="Nome" required></v-text-field>
+                            <v-text-field v-model="userStore.user.name" label="Nome" required></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
-                            <v-text-field v-model="user.email" label="E-mail"></v-text-field>
+                            <v-text-field v-model="userStore.user.email" label="E-mail"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
-                            <v-text-field v-model="user.login" label="Login"></v-text-field>
+                            <v-text-field v-model="userStore.user.login" label="Login"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
-                            <v-text-field v-model="user.password" label="Senha"></v-text-field>
+                            <v-text-field v-model="userStore.user.password" label="Senha"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
-                            <v-select v-model="user.role" label="Perfil" :items="['colaborador', 'admin']" required />
+                            <v-select v-model="userStore.user.role" label="Perfil" :items="['colaborador', 'admin']"
+                                required />
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
-                            <v-switch v-model="user.status" label="Ativo" color="primary" />
+                            <v-switch v-model="userStore.user.status" label="Ativo" color="primary" />
                         </v-col>
                     </v-row>
                 </v-container>
@@ -46,85 +47,59 @@
     </v-dialog>
 </template>
 
-<script>
-import { snackbarShow } from "~/composables/useUi"
+<script setup lang="ts">
+import { snackbarShow } from '~/composables/useUi'
+import { useUserStore } from '~/stores/UserStore';
 
-export default {
-    props: {
-        id: {
-            type: Number,
-            default: null
-        },
-        icon: {
-            type: String,
-            default: 'mdi-account-plus'
+const emit = defineEmits(['reload'])
+
+const props = defineProps<{
+    id?: number,
+    icon?: string
+}>()
+
+const userStore = useUserStore();
+const dialog = ref(false)
+const fullscreen = ref(false)
+const loading = ref(false)
+
+const formTitle = ref(userStore.user.id ? 'Editar Usuário' : 'Novo Usuário')
+
+watch(dialog, (val) => {
+    if (val) {
+        if (props.id) {
+            userStore.fetchUser(props.id)
+        } else {
+            userStore.user = {}
         }
-    },
-    data() {
-        return {
-            user: {},
-            dialog: false,
-            fullscreen: false,
-            loading: false,
-        };
-    },
-    watch: {
-        dialog(val) {
-            if (val) {
-                if (this.id) {
-                    this.loadUserData()
-                } else {
-                    this.user = {
-                        name: '',
-                        email: '',
-                        login: '',
-                        password: '',
-                        role: 'colaborador',
-                        status: true
-                    }
-                }
-            }
-        },
-    },
-    computed: {
-        formTitle() {
-            return this.user.id ? 'Editar Usuário' : 'Novo Usuário'
-        },
-    },
-    methods: {
-        async loadUserData() {
-            this.loading = true
-            const { user } = await $fetch(`/api/users/${this.id}`)
-            this.user = user
-            this.loading = false
-        },
-        async save() {
-            this.loading = true
-            if (this.user.id) {
-                this.loading = true
-                const UpdUser = await $fetch(`/api/users/${this.user.id}`, {
-                    method: 'PUT',
-                    body: JSON.stringify(this.user)
-                })
-                if (UpdUser) {
-                    snackbarShow('Usuário atualizado com sucesso!', 'success')
-                }
-            } else {
-                const NewUser = await $fetch('/api/users', {
-                    method: 'POST',
-                    body: JSON.stringify(this.user)
-                })
-                if (NewUser) {
-                    snackbarShow('Usuário cadastrado com sucesso!', 'success')
-                    this.$router.push(`/users/${NewUser.lastInsertRowid}`)
-                }
-            }
-            this.$emit('reload')
-            this.dialog = false
-        },
-        close() {
-            this.dialog = false
-        },
-    },
-};
+    }
+})
+
+const save = async () => {
+    loading.value = true
+    if (userStore.user.id) {
+        loading.value = true
+        await userStore.updateUser(userStore.user.id, userStore.user).then(() => {
+            snackbarShow('Usuário atualizado com sucesso!', 'success')
+            emit('reload')
+            dialog.value = false
+        }).finally(() => {
+            loading.value = false
+        })
+    } else {
+        await userStore.createUser(userStore.user).then(() => {
+            snackbarShow('Usuário cadastrado com sucesso!', 'success')
+            emit('reload')
+            dialog.value = false
+        }).catch(async (error) => {
+            snackbarShow(error.data.message, 'error')
+        }).finally(() => {
+            loading.value = false
+        })
+    }
+}
+
+const close = () => {
+    dialog.value = false
+}
 </script>

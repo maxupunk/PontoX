@@ -11,8 +11,24 @@ export const useUserStore = defineStore('user', {
         async fetchUsers() {
             return await $fetch("/api/users/").then((response: any) => {
                 this.users = response.users
-            }).catch((error: any) => {
-                snackbarShow(error, 'error')
+            })
+        },
+        async fetchUser(id: number) {
+            return await $fetch("/api/users/" + id).then((response: any) => {
+                this.user = response.user
+            })
+        },
+        async createUser(data: any) {
+            const response = await $fetch("/api/users/", {
+                method: 'POST',
+                body: JSON.stringify(data)
+            })
+            return response
+        },
+        async updateUser(id: string, data: any) {
+            return await $fetch("/api/users/" + id, {
+                method: 'PUT',
+                body: JSON.stringify(data)
             })
         },
     },
