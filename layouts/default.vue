@@ -13,9 +13,12 @@
         <v-list-item link prepend-icon="mdi-school" title="Treinamento" to="/treine"></v-list-item>
         <v-list-item link prepend-icon="mdi-account-group" title="Usuarios" to="/users"></v-list-item>
         <v-list-subheader>Relatorios</v-list-subheader>
-        <v-list-item link prepend-icon="mdi-account-group" title="horas corridas" to="/reports/hourstotalmissing"></v-list-item>
-        <v-list-item link prepend-icon="mdi-account-group" title="Horas total trabalhada" to="/reports/hourstotal"></v-list-item>
-        <v-list-item link prepend-icon="mdi-account-group" title="Resulmo dia a dia" to="/reports/hoursdaytoday"></v-list-item>
+        <v-list-item link prepend-icon="mdi-account-group" title="horas corridas"
+          to="/reports/hourstotalmissing"></v-list-item>
+        <v-list-item link prepend-icon="mdi-account-group" title="Horas total trabalhada"
+          to="/reports/hourstotal"></v-list-item>
+        <v-list-item link prepend-icon="mdi-account-group" title="Resulmo dia a dia"
+          to="/reports/hoursdaytoday"></v-list-item>
         <v-list-subheader>Outros</v-list-subheader>
         <v-list-item link prepend-icon="mdi-backup-restore" title="Backups" to="/backups"></v-list-item>
         <v-list-item link prepend-icon="mdi-information-outline" title="Sobre" to="/about"></v-list-item>
@@ -30,6 +33,27 @@
     <v-main>
       <NuxtPage />
     </v-main>
+
+    <v-dialog :model-value="!isLoged && !isWhiteList" max-width="420" persistent>
+      <form @submit.prevent="doLogin">
+        <v-card>
+          <v-toolbar dark color="primary" dense flat>
+            <v-toolbar-title>Senha de administradores</v-toolbar-title>
+          </v-toolbar>
+          <v-card-text>
+            <v-text-field v-model="user.login" label="Login" type="text" autocomplete="login" required></v-text-field>
+            <v-text-field v-model="user.password" label="Senha" type="password" autocomplete="new-password"
+              required></v-text-field>
+            <v-checkbox label="permanecer logado?" v-model="user.remember"></v-checkbox>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn block color="primary" type="submit">Confirmar</v-btn>
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </v-card>
+      </form>
+    </v-dialog>
 
 
     <v-footer app>
@@ -50,7 +74,13 @@ export default {
   data() {
     return {
       drawer: false,
-      authStore: null
+      authStore: null,
+      user: {
+        login: '',
+        password: '',
+        permanente: false
+      },
+      authStore: useAuthStore()
     }
   },
   components: {
@@ -63,15 +93,27 @@ export default {
       } else {
         return false
       }
+    },
+    isWhiteList() {
+      return this.$route.path === '/' || this.$route.path === '/about'
     }
   },
-  async mounted() {
-    this.authStore = useAuthStore()
-  },
   methods: {
-    async logout() {
-      await this.authStore.logout()
-      this.$router.push('/login')
+    async doLogin() {
+      const login = await $fetch('/api/login', {
+        method: 'POST',
+        body: JSON.stringify(this.user)
+      })
+      if (!login) {
+        snackbarShow('login ou senha inválidos!', 'error')
+        return
+      }
+      this.token = login.token
+      this.authStore.setToken(login.token, this.user.remember)
+      window.location.reload()
+    },
+    logout() {
+      this.authStore.logout()
     }
   }
 }

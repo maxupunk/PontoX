@@ -1,12 +1,18 @@
 import prisma from "../prisma";
 import { pathToRegexp } from 'path-to-regexp';
-import { H3Event, sendRedirect, createError } from 'h3';
+import { H3Event, createError } from 'h3';
 
-const pathWhitelist = ['/api/login', '/', '/login', '/api/treine', '/api/imagens/:label/:file', '/api/reports/resumo', '/api/reports/:id'];
+const pathWhitelist = ['/api/login', '/api/treine', '/api/imagens/:label/:file', '/api/reports/resumo', '/api/reports/:id'];
 const regexWhitelist = pathWhitelist.map(path => pathToRegexp(path));
 
-function isPathWhitelisted(path: string): boolean {
-  return regexWhitelist.some(re => re.test(path));
+// verifica se o path é da API ou se está na whitelist
+function isPathWhiteList(path: string, event: any): boolean {
+  const pathAPI = event.path.startsWith("/api/");
+  const whiteList = regexWhitelist.some(re => re.test(path));
+  if (!pathAPI || whiteList) {
+    return true;
+  }
+  return false;
 }
 
 async function validateAuthorization(token: string | null) {
@@ -18,10 +24,15 @@ async function validateAuthorization(token: string | null) {
   }
 
   const userQuery = await prisma.user.findFirst({
+    select: {
+      id: true,
+    },
     where: {
       token: token,
     },
   });
+
+  console.log('USER', userQuery);
 
   if (!userQuery) {
     throw createError({
@@ -32,14 +43,15 @@ async function validateAuthorization(token: string | null) {
 }
 
 export default defineEventHandler(async (event: H3Event) => {
-  const isPathValid = isPathWhitelisted(event.path);
+  const isWhiteList = isPathWhiteList(event.path, event);
 
-  if (!isPathValid) {
+  if (!isWhiteList) {
     const authorization = event.headers.get('authorization');
     try {
       await validateAuthorization(authorization);
     } catch (error) {
-      return sendRedirect(event, '/login', 401);
+      event.node.res.statusCode = 401;
+      event.node.res.end('Unauthorized');
     }
   }
 });
