@@ -1,4 +1,4 @@
-import prisma from "~/server/prisma";
+import prisma from "../prisma";
 import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
 

@@ -1,4 +1,4 @@
-import prisma from "~/server/prisma";
+import prisma from "~~/server/prisma";
 import bcrypt from 'bcrypt';
 
 export default defineEventHandler(async (event) => {

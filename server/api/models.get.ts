@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { folderpathImagens } from '~/server/utils/image';
+import { folderpathImagens } from '~~/server/utils/image';
 
 export default defineEventHandler(() => {
   try {

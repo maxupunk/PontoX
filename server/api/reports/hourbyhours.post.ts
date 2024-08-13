@@ -1,6 +1,6 @@
 import { Point } from "face-api.js";
 import { id } from "vuetify/locale";
-import prisma from "~/server/prisma";
+import prisma from "~~/server/prisma";
 
 export default defineEventHandler(async (event) => {
   try {

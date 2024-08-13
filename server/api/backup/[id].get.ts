@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { folderBackup } from '~/server/utils/image';
+import { folderBackup } from '~~/server/utils/image';
 
 export default defineEventHandler(async (event: any) => {
     const backupPath = path.join(folderBackup, event.context.params?.id)

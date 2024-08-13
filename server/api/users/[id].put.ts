@@ -1,5 +1,5 @@
-import prisma from "~/server/prisma";
-import { saveUserImage } from '~/server/utils/image';
+import prisma from "~~/server/prisma";
+import { saveUserImage } from '~~/server/utils/image';
 import bcrypt from 'bcrypt';
 
 export default defineEventHandler(async (event) => {
