@@ -1,9 +1,30 @@
 import prisma from "~~/server/prisma";
 import bcrypt from 'bcrypt';
+import joi from 'joi';
+import { messages } from 'joi-translation-pt-br';
 
 export default defineEventHandler(async (event) => {
+  let body = await readBody(event);
+
+  const schema = joi.object({
+    name: joi.string().required(),
+    email: joi.string().email(),
+    login: joi.string(),
+    password: joi.string(),
+    role: joi.string(),
+    status: joi.boolean(),
+  });
+
+  const { error } = schema.validate(body, { messages });
+
+  if (error) {
+    throw createError({
+      status: 400,
+      message: error.message,
+    });
+  }
+
   try {
-    let body = await readBody(event);
     if (body.password !== undefined) {
       const password = body.password;
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -25,22 +46,15 @@ export default defineEventHandler(async (event) => {
     if (user) {
       throw createError({
         status: 400,
-        message: 'Usuario ou email já existe',
+        message: 'Esse nome de usuário ou email já existe',
       });
     }
 
-    const UserInsert = await prisma.user.create({
+    await prisma.user.create({
       data: body,
     });
-    
-    if (!UserInsert) {
-      throw createError({
-        status: 400,
-        message: 'Erro ao criar usuário',
-      });
-    } else {
-      return true;
-    }
+
+    return { message: 'Usuário cadastrado com sucesso' };
   } catch (e: any) {
     throw createError({
       status: 400,

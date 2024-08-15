@@ -4,45 +4,47 @@
             <v-btn v-bind="activatorProps" :icon="props.icon ? props.icon : 'mdi-account-plus'" flat></v-btn>
         </template>
         <v-card :loading="loading">
-            <v-toolbar :title="formTitle">
-                <v-spacer></v-spacer>
-                <v-btn icon @click="save" :loading="loading">
-                    <v-icon>mdi-content-save</v-icon>
-                </v-btn>
-                <v-btn icon @click="fullscreen = !fullscreen">
-                    <v-icon v-if="!fullscreen">mdi-arrow-expand</v-icon>
-                    <v-icon v-else>mdi-arrow-collapse</v-icon>
-                </v-btn>
-                <v-btn icon @click="close">
-                    <v-icon>mdi-close</v-icon>
-                </v-btn>
-            </v-toolbar>
+            <form @submit.prevent="save">
+                <v-toolbar :title="formTitle">
+                    <v-spacer></v-spacer>
+                    <v-btn icon type="submit" :loading="loading">
+                        <v-icon>mdi-content-save</v-icon>
+                    </v-btn>
+                    <v-btn icon @click="fullscreen = !fullscreen">
+                        <v-icon v-if="!fullscreen">mdi-arrow-expand</v-icon>
+                        <v-icon v-else>mdi-arrow-collapse</v-icon>
+                    </v-btn>
+                    <v-btn icon @click="close">
+                        <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                </v-toolbar>
 
-            <v-card-text>
-                <v-container>
-                    <v-row>
-                        <v-col cols="12" sm="6" md="6">
-                            <v-text-field v-model="userStore.user.name" label="Nome" required></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="6">
-                            <v-text-field v-model="userStore.user.email" label="E-mail"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                            <v-text-field v-model="userStore.user.login" label="Login"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                            <v-text-field v-model="userStore.user.password" label="Senha"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                            <v-select v-model="userStore.user.role" label="Perfil" :items="['colaborador', 'admin']"
-                                required />
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                            <v-switch v-model="userStore.user.status" label="Ativo" color="primary" />
-                        </v-col>
-                    </v-row>
-                </v-container>
-            </v-card-text>
+                <v-card-text>
+                    <v-container>
+                        <v-row>
+                            <v-col cols="12" sm="6" md="6">
+                                <v-text-field v-model="userStore.user.name" label="Nome" required></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="6">
+                                <v-text-field v-model="userStore.user.email" label="E-mail"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                                <v-text-field v-model="userStore.user.login" label="Login"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                                <v-text-field v-model="userStore.user.password" label="Senha"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                                <v-select v-model="userStore.user.role" label="Perfil" :items="['colaborador', 'admin']"
+                                    required />
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                                <v-switch v-model="userStore.user.status" label="Ativo" color="primary" />
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-card-text>
+            </form>
         </v-card>
     </v-dialog>
 </template>
@@ -79,16 +81,16 @@ const save = async () => {
     loading.value = true
     if (userStore.user.id) {
         loading.value = true
-        await userStore.updateUser(userStore.user.id, userStore.user).then(() => {
-            snackbarShow('Usuário atualizado com sucesso!', 'success')
+        await userStore.updateUser(userStore.user.id, userStore.user).then((response) => {
+            snackbarShow(response.message, 'success')
             emit('reload')
             dialog.value = false
         }).finally(() => {
             loading.value = false
         })
     } else {
-        await userStore.createUser(userStore.user).then(() => {
-            snackbarShow('Usuário cadastrado com sucesso!', 'success')
+        await userStore.createUser(userStore.user).then((response) => {
+            snackbarShow(response.message, 'success')
             emit('reload')
             dialog.value = false
         }).catch(async (error) => {

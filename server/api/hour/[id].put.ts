@@ -40,13 +40,15 @@ export default defineEventHandler(async (event) => {
                 }
             }
         }
-        return prisma.workHour.update({
+        await prisma.workHour.update({
             where: { id: hourId },
             data: {
                 entryTime: body.entryTime,
                 departureTime: body.departureTime,
             },
         });
+
+        return { message: 'Horario atualizado com sucesso' };
     } catch (e: any) {
         throw createError({
             statusCode: 400,

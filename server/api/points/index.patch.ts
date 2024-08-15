@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     const nameImage = saveUserImage(body.userId, body.capturedImage);
 
-    let data:any = {
+    let data: any = {
       userId: body.userId,
       observation: body.observation,
     };
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
       data.entryImage = nameImage;
       data.workHourId = body.workHourId;
 
-      return await prisma.point.create({
+      await prisma.point.create({
         data: data,
       });
     } else {
@@ -38,13 +38,14 @@ export default defineEventHandler(async (event) => {
       data.departureTime = formattedTime;
       data.departureImage = nameImage;
 
-      return await prisma.point.update({
+      await prisma.point.update({
         where: {
           id: pointQuery.id,
         },
         data: data,
       });
     }
+    return { message: 'Ponto registrado com sucesso!' };
   } catch (e: any) {
     throw createError({
       statusCode: 400,

@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
     try {
         const pointId = Number(event.context.params?.id);
         let body = await readBody(event);
-        const updatedPoint = await prisma.point.update({
+        await prisma.point.update({
             where: { id: pointId },
             data: {
                 userId: body.userId,
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
                 observation: body.observation,
             },
         });
-        return updatedPoint;
+        return { message: 'Ponto atualizado com sucesso' };
     } catch (e: any) {
         throw createError({
             statusCode: 400,

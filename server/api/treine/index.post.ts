@@ -9,12 +9,9 @@ export default defineEventHandler(async (event) => {
     fs.writeFile(filePath, jsonString, err => {
       if (err) {
         console.log('Erro ao escrever arquivo: ', err);
-      } else {
-        console.log('Arquivo JSON salvo com sucesso.');
       }
     });
-
-    return body
+    return { message: 'Treino realizado com sucesso' };
   } catch (e: any) {
     throw createError({
       statusCode: 400,

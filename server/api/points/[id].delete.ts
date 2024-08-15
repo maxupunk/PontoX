@@ -29,9 +29,11 @@ export default defineEventHandler(async (event: any) => {
             });
         }
 
-        return await prisma.point.delete({
+        await prisma.point.delete({
             where: { id: id }
         });
+
+        return { message: "Ponto deletado com sucesso!" };
     } catch (e: any) {
         throw createError({
             statusCode: 400,

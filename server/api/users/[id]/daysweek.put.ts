@@ -4,15 +4,13 @@ export default defineEventHandler(async (event: any) => {
     try {
         const userId = Number(event.context.params?.id);
         let body = await readBody(event);
-        const update = await prisma.user.update({
+        await prisma.user.update({
             where: { id: userId },
             data: {
                 daysWeek: JSON.stringify(body),
             },
         });
-        if (update) {
-            return true;
-        }
+        return { message: 'Horário semanal atualizado com sucesso!' };
     } catch (e: any) {
         throw createError({
             statusCode: 400,

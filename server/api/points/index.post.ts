@@ -28,9 +28,11 @@ export default defineEventHandler(async (event) => {
       observation: body.observation,
     };
 
-    return await prisma.point.create({
+    await prisma.point.create({
       data: data,
     });
+
+    return { message: 'Ponto registrado com sucesso' };
   } catch (e: any) {
     throw createError({
       statusCode: 400,

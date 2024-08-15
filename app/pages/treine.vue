@@ -63,21 +63,12 @@
         </v-card-text>
       </v-card>
     </v-overlay>
-
-    <!-- Snackbar -->
-    <v-snackbar v-model="snackbar.open" :color="snackbar.color" :timeout="3000">
-      {{ snackbar.mensage }}
-      <template v-slot:actions>
-        <v-btn color="white" text @click="snackbar = false" append-icon>
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
 <script>
 import * as faceapi from 'face-api.js';
+import { snackbarShow } from '~/composables/useUi'
 
 export default {
   data() {
@@ -88,11 +79,6 @@ export default {
       allUsers: [],
       token: null,
       dialog: false,
-      snackbar: {
-        open: false,
-        mensage: null,
-        color: 'success'
-      },
       load: {
         loading: false,
         mensage: null
@@ -150,6 +136,10 @@ export default {
           Authorization: this.token
         },
         body: faceMatcherJson
+      }).then((response) => {
+        snackbarShow(response.message, 'success')
+      }).catch((error) => {
+        snackbarShow(error, 'error')
       })
     },
 

@@ -11,9 +11,8 @@ export default defineNuxtConfig({
     transpile: ['vuetify'],
   },
   modules: [
-    (_options, nuxt) => {
-      nuxt.hooks.hook('vite:extendConfig', (config) => {
-        // @ts-expect-error
+    (_options: any, nuxt: any) => {
+      nuxt.hooks.hook('vite:extendConfig', (config: any) => {
         config.plugins.push(vuetify({ autoImport: true }))
       })
     },
@@ -29,5 +28,5 @@ export default defineNuxtConfig({
       },
     },
   },
-  compatibilityDate: "2024-08-12",
+  compatibilityDate: '2024-08-15',
 })

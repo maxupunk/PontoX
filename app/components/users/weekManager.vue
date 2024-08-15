@@ -87,11 +87,9 @@ onMounted(() => {
 
 function saveWeek() {
     loading.value = true
-    weekStore.saveWeek(props.userid).then((result) => {
-        if (result) {
-            snackbarShow('Semana salva com sucesso', 'success')
-            hourStore.copyData = {}
-        }
+    weekStore.saveWeek(props.userid).then((response) => {
+        snackbarShow(response.message, 'success')
+        hourStore.copyData = {}
     }).finally(() => {
         loading.value = false
     })
