@@ -58,8 +58,8 @@ async function insertUserDaysMonthFromJson(userID: number, week: any, dateFirst:
         const promises:any = [];
         for (let day = dateFirst; day <= dateLast; day.setDate(day.getDate() + 1)) {
             const dayOfWeek = daysOfWeek[day.getDay()];
-            if (week[dayOfWeek].length) {
-                const formattedDate: string = day.toISOString().split('T')[0];
+            if (dayOfWeek !== undefined && week[dayOfWeek] && week[dayOfWeek].length) {
+                const formattedDate: string = day.toISOString().split('T')[0] ?? '';
                 week[dayOfWeek].forEach(async (hour: any) => {
                     promises.push(
                         prisma.workHour.create({
