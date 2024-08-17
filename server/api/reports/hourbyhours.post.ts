@@ -40,12 +40,12 @@ export default defineEventHandler(async (event) => {
       let delayEntryTime = 0;
       let delayDepartureTime = 0;
       if (workHour.points.length) {
-        const firstEntry = workHour.points[0];
+        const firstEntry = workHour.points[0] as any;
         const entryDateTime = new Date(`${workHour.date}T${workHour.entryTime}`);
         const entryTime = new Date(`${firstEntry.entryDate}T${firstEntry.entryTime}`);
         delayEntryTime = (entryDateTime.getTime() - entryTime.getTime()) / (1000 * 60);
 
-        const lastPoint = workHour.points[workHour.points.length - 1];
+        const lastPoint = workHour.points[workHour.points.length - 1] as any;
         const departureDateTime = (lastPoint.departureDate !== null) ? new Date(`${lastPoint.departureDate}T${lastPoint.departureTime}`) : new Date();
         const departureTime = new Date(`${workHour.date}T${workHour.departureTime}`);
         delayDepartureTime += (departureTime.getTime() - departureDateTime.getTime()) / (1000 * 60);
