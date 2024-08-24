@@ -5,8 +5,8 @@ export default defineEventHandler(async (event) => {
     let body = await readBody(event);
     if (!body.date) {
       throw createError({
-        statusCode: 400,
-        statusMessage: "workDayId is required",
+        status: 400,
+        message: "workDayId is required",
       });
     }
     const workHour = await prisma.workHour.findFirst({
@@ -37,8 +37,8 @@ export default defineEventHandler(async (event) => {
     }
   } catch (e: any) {
     throw createError({
-      statusCode: 400,
-      statusMessage: e.message,
+      status: 400,
+      message: e.message,
     });
   }
 });

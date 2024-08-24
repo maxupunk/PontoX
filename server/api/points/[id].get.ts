@@ -25,16 +25,16 @@ export default defineEventHandler(async (event) => {
 
         if (!pointQuery) {
             throw createError({
-                statusCode: 404,
-                statusMessage: "Point not found",
+                status: 404,
+                message: "Point não existe",
             });
         }
 
         return pointQuery;
     } catch (e: any) {
         throw createError({
-            statusCode: 400,
-            statusMessage: e.message,
+            status: 400,
+            message: e.message,
         });
     }
 });

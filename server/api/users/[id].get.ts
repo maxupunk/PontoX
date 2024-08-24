@@ -34,8 +34,8 @@ export default defineEventHandler(async (event) => {
         return { user: userQuery, point: pointQuery, workHour: workHour };
     } catch (e: any) {
         return {
-            statusCode: 400,
-            statusMessage: e.message,
+            status: 400,
+            message: e.message,
         };
     }
 });

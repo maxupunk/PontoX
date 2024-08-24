@@ -6,8 +6,8 @@ export default defineEventHandler(async (event) => {
         let body = await readBody(event);
         if (!body.date) {
             throw createError({
-                statusCode: 400,
-                statusMessage: "date é requerida",
+                status: 400,
+                message: "date é requerida",
             });
         }
 
@@ -19,8 +19,8 @@ export default defineEventHandler(async (event) => {
 
         if (!workHour) {
             throw createError({
-                statusCode: 400,
-                statusMessage: "Horario não encontrado",
+                status: 400,
+                message: "Horario não encontrado",
             });
         }
 
@@ -51,8 +51,8 @@ export default defineEventHandler(async (event) => {
         return { message: 'Horario atualizado com sucesso' };
     } catch (e: any) {
         throw createError({
-            statusCode: 400,
-            statusMessage: e.message,
+            status: 400,
+            message: e.message,
         });
     }
 });

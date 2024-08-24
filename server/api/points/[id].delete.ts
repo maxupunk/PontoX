@@ -8,12 +8,12 @@ export default defineEventHandler(async (event: any) => {
         });
         if (!point) {
             throw createError({
-                statusCode: 404,
-                statusMessage: "O ponto não foi encontrado",
+                status: 404,
+                message: "O ponto não foi encontrado",
             });
         }
 
-        const monthlyBalance = await prisma.monthlyBalanceHour.findFirst({
+        const monthlyBalance = await prisma.bankHour.findFirst({
             where: {
                 AND: [
                     { date: { lte: point.entryDate } },
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event: any) => {
 
         if (monthlyBalance) {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: `Não é possível deletar um ponto que já foi fechado. Data do banco de horas: ${monthlyBalance.date}`,
             });
         }
@@ -36,8 +36,8 @@ export default defineEventHandler(async (event: any) => {
         return { message: "Ponto deletado com sucesso!" };
     } catch (e: any) {
         throw createError({
-            statusCode: 400,
-            statusMessage: e.message,
+            status: 400,
+            message: e.message,
         });
     }
 

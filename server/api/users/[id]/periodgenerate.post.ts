@@ -8,7 +8,7 @@ export default defineEventHandler(async (event: any) => {
             where: { id: userId },
         });
 
-        const monthlyBalance = await prisma.monthlyBalanceHour.findFirst({
+        const monthlyBalance = await prisma.bankHour.findFirst({
             where: {
                 AND: [
                     { date: { gte: body.dateStart } },
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event: any) => {
 
         if (monthlyBalance) {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: `Já existe fechamento de horas para o usuario nesse período. Data do banco de horas: ${monthlyBalance.date}`,
             });
         }
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event: any) => {
         }
     } catch (e: any) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: e.message,
         });
     }
@@ -78,7 +78,7 @@ async function insertUserDaysMonthFromJson(userID: number, week: any, dateFirst:
         return { message: 'Horas geradas com sucesso!' };
     } catch (e: any) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: e.message,
         });
     }

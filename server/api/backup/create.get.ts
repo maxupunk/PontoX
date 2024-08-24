@@ -11,8 +11,8 @@ export default defineEventHandler(async () => {
     return await zipDirectory(folderStorage, fileBackup);
   } catch (e: any) {
     throw createError({
-      statusCode: 400,
-      statusMessage: e.message,
+      status: 400,
+      message: e.message,
     });
   }
 });

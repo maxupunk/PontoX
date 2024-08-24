@@ -18,8 +18,8 @@ function isPathWhiteList(path: string, event: any): boolean {
 async function validateAuthorization(token: string | null) {
   if (!token) {
     throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
+      status: 401,
+      message: 'Não autorizado',
     });
   }
 
@@ -34,8 +34,8 @@ async function validateAuthorization(token: string | null) {
 
   if (!userQuery) {
     throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
+      status: 401,
+      message: 'Não autorizado',
     });
   }
 }

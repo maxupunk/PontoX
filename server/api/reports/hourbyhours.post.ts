@@ -24,8 +24,8 @@ export default defineEventHandler(async (event) => {
 
     if (!workHours) {
       throw createError({
-        statusCode: 404,
-        statusMessage: 'Não existem banco de horas a trabalhar desse usuario.',
+        status: 404,
+        message: 'Não existem banco de horas a trabalhar desse usuario.',
       });
     }
 
@@ -68,8 +68,8 @@ export default defineEventHandler(async (event) => {
 
   } catch (e: any) {
     throw createError({
-      statusCode: 400,
-      statusMessage: e.message,
+      status: 400,
+      message: e.message,
     });
   }
 });

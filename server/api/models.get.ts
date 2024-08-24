@@ -7,8 +7,8 @@ export default defineEventHandler(() => {
     return imagesUrl();
   } catch (e: any) {
     throw createError({
-      statusCode: 400,
-      statusMessage: e.message,
+      status: 400,
+      message: e.message,
     });
   }
 });
@@ -29,9 +29,12 @@ function imagesUrl(dirPath: string = folderpathImagens): { label: string, files:
       const existingLabelIndex = data.findIndex(d => d.label === label);
 
       if (existingLabelIndex > -1) {
-        data[existingLabelIndex].files.push(item);
-        // Limit to the last 6 images
-        data[existingLabelIndex].files = data[existingLabelIndex].files.slice(-6);
+        const existingData = data[existingLabelIndex];
+        if (existingData) {
+          existingData.files.push(item);
+          // Limit to the last 6 images
+          existingData.files = existingData.files.slice(-6);
+        }
       } else {
         data.push({ label: label, files: [item] });
       }
