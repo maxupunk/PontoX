@@ -24,13 +24,8 @@
     </v-row>
   </v-container>
 </template>
-
-<script>
-export default {
-  data() {
-    return {
-      technologies: ['Vue.js', 'Nuxt.js', 'Vuetify', 'Node.js', 'SQLite', 'Face-api.js', 'PrimaJs', 'Bcrypt', '...']
-    }
-  }
-}
+<script setup lang="ts">
+const technologies = ref<string[]>([
+  'Vue.js 3', 'Nuxt.js 3', 'Vuetify 3', 'Node.js', 'SQLite', 'Face-api.js', 'PrimaJs', 'Bcrypt', '...'
+])
 </script>
