@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Week } from '~/interfaces/Week'
+import type { Week } from '~~/interfaces/Week'
 import { snackbarShow } from "~/composables/useUi"
 
 export const useWeekStore = defineStore('week', {
@@ -15,17 +15,25 @@ export const useWeekStore = defineStore('week', {
             })
         },
         addHour(day: any, hours?: any) {
-            if (!hours) {
-                this.week[day].push({ entryTime: '08:00', departureTime: '12:00' })
+            if (this.week[day]) {
+                if (!hours) {
+                    this.week[day].push({ entryTime: '08:00', departureTime: '12:00' })
+                } else {
+                    this.week[day].push({
+                        entryTime: hours.entryTime,
+                        departureTime: hours.departureTime
+                    })
+                }
             } else {
-                this.week[day].push({
-                    entryTime: hours.entryTime,
-                    departureTime: hours.departureTime
-                })
+                console.error(`[removeHour] Week or day ${day} is undefined`);
             }
         },
         removeHour(day: any, index: number) {
-            this.week[day].splice(index, 1)
+            if (this.week[day]) {
+                this.week[day].splice(index, 1)
+            } else {
+                console.error(`[removeHour] Week or day ${day} is undefined`);
+            }
         },
         async saveWeek(userID: number): Promise<any> {
             if (this.error) {
@@ -44,7 +52,7 @@ export const useWeekStore = defineStore('week', {
             this.error = false;
             const stateLnk = this;
             Object.keys(this.week).forEach(day => {
-                const daySlots = this.week[day];
+                const daySlots:any = this.week[day];
                 daySlots.forEach((timeSlot: any, index: number) => {
                     const { entryTime, departureTime } = timeSlot;
                     // verifica se a entrada é maior que a saída
