@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { snackbarShow } from "~/composables/useUi"
 
 export const useUserStore = defineStore('user', {
     state: () => ({
