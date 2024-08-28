@@ -9,6 +9,7 @@ import { VSnackbarQueue } from 'vuetify/labs/VSnackbarQueue'
 import { VTimePicker } from 'vuetify/labs/VTimePicker'
 import { VDateInput } from 'vuetify/labs/VDateInput'
 import { VCalendar } from 'vuetify/labs/VCalendar'
+import { VNumberInput } from 'vuetify/labs/VNumberInput'
 
 export default defineNuxtPlugin((app) => {
   const vuetify = createVuetify({
@@ -16,7 +17,8 @@ export default defineNuxtPlugin((app) => {
       VSnackbarQueue,
       VTimePicker,
       VDateInput,
-      VCalendar
+      VCalendar,
+      VNumberInput
     },
     locale: {
       locale: 'pt',
