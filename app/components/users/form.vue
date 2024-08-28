@@ -81,7 +81,7 @@ const save = async () => {
     loading.value = true
     if (userStore.user.id) {
         loading.value = true
-        await userStore.updateUser(userStore.user.id, userStore.user).then((response) => {
+        await userStore.updateUser(userStore.user.id, userStore.user).then((response: any) => {
             snackbarShow(response.message, 'success')
             emit('reload')
             dialog.value = false
@@ -89,7 +89,7 @@ const save = async () => {
             loading.value = false
         })
     } else {
-        await userStore.createUser(userStore.user).then((response) => {
+        await userStore.createUser(userStore.user).then((response: any) => {
             snackbarShow(response.message, 'success')
             emit('reload')
             dialog.value = false

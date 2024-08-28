@@ -2,7 +2,7 @@ import prisma from "~~/server/prisma";
 
 export default defineEventHandler(async (event: any) => {
   let body = await readBody(event)
-  const id = event.context.params.id
+  const UserId: number = Number(event.context.params.id)
   const entryDateStart = body.entryDateStart ? body.entryDateStart : '';
   const entryDateEnd = body.entryDateEnd ? body.entryDateEnd : new Date().toString().split('T')[0];
   const user = await prisma.point.findMany({
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event: any) => {
       departureTime: true,
     },
     where: {
-      userId: Number(id),
+      userId: UserId,
       entryDate: {
         gte: entryDateStart, // maior ou igual a dataInicial
         lte: entryDateEnd,
