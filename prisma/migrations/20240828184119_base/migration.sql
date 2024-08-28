@@ -14,15 +14,15 @@ CREATE TABLE "users" (
 );
 
 -- CreateTable
-CREATE TABLE "monthlyBalanceHours" (
+CREATE TABLE "bankHours" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "userId" INTEGER NOT NULL,
     "date" TEXT NOT NULL,
-    "hours" REAL NOT NULL,
+    "minute" REAL NOT NULL,
     "observation" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "monthlyBalanceHours_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "updatedAt" DATETIME,
+    CONSTRAINT "bankHours_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -60,6 +60,3 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_login_key" ON "users"("login");
-
--- CreateIndex
-CREATE UNIQUE INDEX "monthlyBalanceHours_date_userId_key" ON "monthlyBalanceHours"("date", "userId");
