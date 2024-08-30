@@ -23,7 +23,6 @@ logs
 .env.*
 !.env.example
 
-storage/imagens/*
-storage/faceMatcher.json
+storage/*
 sqlite.db
 backup/*
