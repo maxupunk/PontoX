@@ -9,6 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "seed": "node prisma/seed.mjs",
+    "importFiles": "node prisma/importFiles.mjs",
     "studio": "npx prisma studio"
   },
   "devDependencies": {
@@ -17,6 +18,7 @@
     "@types/archiver": "^6.0.2",
     "@types/bcrypt": "^5.0.2",
     "@types/node-fetch": "^2.6.11",
+    "csv-parser": "^3.0.0",
     "nuxt": "^3.13.0",
     "prisma": "^5.17.0",
     "ts-node": "^10.9.2",
