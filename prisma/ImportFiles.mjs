@@ -20,6 +20,8 @@ async function readCSV(filePath, headers) {
 async function main() {
   try {
 
+    let countUsers = 0;
+    let countPoints = 0;
     const usersFilePath = path.join('./', process.env.STORAGE_FOLDER, 'users.csv');
     const pointsFilePath = path.join('./', process.env.STORAGE_FOLDER, 'points.csv');
 
@@ -56,7 +58,8 @@ async function main() {
           updatedAt: user.updatedAt ? new Date(user.updatedAt) : new Date(),
         },
       });
-      console.log('User inserted successfully:', user);
+      countUsers++;
+      console.log('User inserted successfully:', countUsers);
     }
 
     // Insert points into the database
@@ -96,10 +99,11 @@ async function main() {
           updatedAt: point.updatedAt ? new Date(point.updatedAt) : new Date(),
         },
       });
-      console.log('Point inserted successfully:', point);
+      countPoints++;
+      console.log('Point inserted successfully:', countPoints);
     }
 
-    console.log('Data inserted successfully');
+    console.log('Data inserted successfully', `Usuarios: ${countUsers} - Points: ${countPoints}`);
 
   } catch (e) {
     console.error(e);
