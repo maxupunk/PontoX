@@ -61,6 +61,9 @@ export default {
     computed: {
         options() {
             return {
+                chart: {
+                    id: 'vuechart-userGraph',
+                },
                 xaxis: {
                     categories: this.categories,
                 },
