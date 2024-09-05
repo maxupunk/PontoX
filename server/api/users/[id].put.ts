@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
                 delete body.password;
             }
 
-            prisma.user.update({
+            await prisma.user.update({
                 where: { id: userId },
                 data: body,
             });
