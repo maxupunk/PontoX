@@ -30,4 +30,7 @@ export default defineNuxtConfig({
     },
   },
   compatibilityDate: '2024-08-15',
+  runtimeConfig: {
+    bdUrl: process.env.DATABASE_URL
+  },
 })
