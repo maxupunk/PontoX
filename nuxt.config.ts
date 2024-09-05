@@ -3,6 +3,7 @@ import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
 export default defineNuxtConfig({
   devtools: { enabled: false },
+  telemetry: false,
   ssr: false,
   future: {
     compatibilityVersion: 4,
