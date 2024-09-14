@@ -10,7 +10,11 @@ export default defineEventHandler(async () => {
         login: true,
         role: true,
         status: true,
-      }
+      },
+      orderBy: [
+        { status: 'desc' },
+        { id: 'asc' }
+      ],
     });
     return { "users": usersResp };
   } catch (e: any) {

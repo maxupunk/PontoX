@@ -1,7 +1,7 @@
 <template>
     <v-container>
         <v-skeleton-loader :loading="loading" type="table-heading, table-thead, table-tbody, table-tfoot">
-            <v-data-table :items="userStore.users" :headers="headers">
+            <v-data-table :items="userStore.users" :headers="headers" items-per-page="100">
                 <template v-slot:top>
                     <v-toolbar flat>
                         <v-toolbar-title>Usuarios</v-toolbar-title>
