@@ -59,6 +59,8 @@ export default defineEventHandler(async (event: any) => {
     const filename = path.resolve(dir, `${dateString}.log`);
     // Write the data to a file
     fs.appendFileSync(filename, dataString);
+  } else {
+    console.log(event.path)
   }
 })
 
