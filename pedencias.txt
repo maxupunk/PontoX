@@ -1,5 +1,8 @@
-adicionar o banco de horas
--> guarda o horas positiva e negativa em algum local
+em ususario > calendario
+    -> opção de fazer uma replicação de calendario para outros usuario
+
+em usuario
+    -> ordenar os usuario inativos para ultimos
 
 adicionais
 -> melhorar o sistema de $fetch dentro de plugins
