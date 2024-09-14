@@ -56,7 +56,7 @@ export default {
       video: null,
       canvas: null,
       dataUser: [],
-      imageMarge: 50,
+      imageMarge: 70,
       capturedImage: null,
       load: {
         loading: false,
