@@ -54,12 +54,19 @@
     <v-overlay v-model="load.loading" class="align-center justify-center">
       <v-card>
         <v-card-text>
-          <div class="text-center">
-            <v-progress-circular color="primary" indeterminate></v-progress-circular>
-          </div>
-          <div class="text-center">
-            {{ load.mensage }}
-          </div>
+          <v-row>
+            <v-col cols="12" class="text-center">
+              <strong>{{ load.mensage }}</strong>
+            </v-col>
+            <v-col cols="12">
+              <v-progress-linear :model-value="percent" :indeterminate="!percent" height="20">
+                <strong v-if="percent">{{ percent }}%</strong>
+              </v-progress-linear>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-text v-if="load.image">
+          <img :src="load.image" width="350" />
         </v-card-text>
       </v-card>
     </v-overlay>
@@ -81,7 +88,9 @@ export default {
       dialog: false,
       load: {
         loading: false,
-        mensage: null
+        mensage: null,
+        image: '',
+        current: 0,
       },
       modelsServer: [],
       options: null,
@@ -98,6 +107,9 @@ export default {
     this.load.loading = false;
   },
   computed: {
+    percent() {
+      return Math.ceil(this.load.current / this.modelsServer.length * 100)
+    },
     treineFileInfo() {
       if (this.treineServeData.hasOwnProperty('fileStats')) {
         return this.treineServeData.fileStats
@@ -149,6 +161,7 @@ export default {
       this.faceMatcherJson = await faceMatcher.toJSON();
       await this.saveFaceMatcher(this.faceMatcherJson)
       this.loadTreine()
+      this.load.current = 0
       this.load.loading = false;
     },
 
@@ -167,15 +180,24 @@ export default {
       this.load.mensage = 'Buscando os modelos no servidor...'
       this.modelsServer = await $fetch('/api/models')
       return Promise.all(this.modelsServer.map(async label => {
+        let countFace = 0;
         let LabeledFaceDescriptors = [];
         for (const file of label.files) {
-          this.load.mensage = 'Processando - ' + label.label + ' - ' + file
+          this.load.mensage = 'Processando...'
           const img = await faceapi.fetchImage(`/api/imagens/${label.label}/${file}`);
+          this.load.image = img.src
           const detections = await faceapi.detectSingleFace(img, this.options).withFaceLandmarks().withFaceDescriptor();
           if (detections) {
             LabeledFaceDescriptors.push(detections.descriptor);
+            countFace++;
+            console.log(`Detectado - ${countFace} - ${label.label} - ${file}`)
+            this.load.mensage = 'Rosto detectado'
+          } else {
+            console.log('Sem detecção para ' + label.label + ' - ' + file)
           }
+          if (countFace >= 5) break;
         }
+        this.load.current++
         return new faceapi.LabeledFaceDescriptors(label.label, LabeledFaceDescriptors);
       }))
     }
