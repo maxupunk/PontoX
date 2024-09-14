@@ -98,7 +98,7 @@ export default {
       canvas: null,
       canvasface: null,
       dataUser: [],
-      imageMarge: 50,
+      imageMarge: 70,
       observation: null,
       pointLocal: {
         capturedImage: null,
