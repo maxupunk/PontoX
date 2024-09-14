@@ -33,7 +33,7 @@ function imagesUrl(dirPath: string = folderpathImagens): { label: string, files:
         if (existingData) {
           existingData.files.push(item);
           // Limit to the last 6 images
-          existingData.files = existingData.files.slice(-6);
+          //existingData.files = existingData.files.slice(-6);
         }
       } else {
         data.push({ label: label, files: [item] });
