@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 const config = useRuntimeConfig();
 
-console.log('config', config.bdUrl)
+console.log('DB', config.bdUrl)
 
 const prismaClientSingleton = () => {
   return new PrismaClient({
