@@ -32,19 +32,35 @@ export default defineEventHandler(async (event: any) => {
                     lte: DateEnd,  // menor ou igual a dataFinal
                 }
             },
+            include: {
+                WorkHours: true,
+            },
         });
 
         const pointTotalMinutes = points.reduce((acc, point) => {
             const entryDateTime = new Date(`${point.entryDate}T${point.entryTime}`);
             const departureDateTime = new Date(`${point.departureDate}T${point.departureTime}`);
-            const totalTimeMinutes = (departureDateTime.getTime() - entryDateTime.getTime()) / (1000 * 60); // Convert to minutes
-            return acc + totalTimeMinutes;
+            const totalWorkTime = (departureDateTime.getTime() - entryDateTime.getTime());
+
+            let resultTotalTime = 0;
+            if (point.WorkHours) {
+                const WorkHoursEntryTime = new Date(`${point.entryDate}T${point.WorkHours.entryTime}`);
+                const WorkHoursDepartureTime = new Date(`${point.departureDate}T${point.WorkHours.departureTime}`);
+                const WorkHoursTotalTime = (WorkHoursDepartureTime.getTime() - WorkHoursEntryTime.getTime());
+                resultTotalTime = totalWorkTime - WorkHoursTotalTime;
+            } else {
+                resultTotalTime = totalWorkTime;
+            }
+
+            return acc + resultTotalTime;
         }, 0);
+
+        const TotalInMinutes = pointTotalMinutes / 60000;
 
         await prisma.bankHour.create({
             data: {
                 userId: UserId,
-                minute: Math.floor(pointTotalMinutes),
+                minute: Math.floor(TotalInMinutes),
                 date: DateEnd,
                 observation: null,
             },
