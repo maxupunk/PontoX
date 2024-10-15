@@ -18,6 +18,10 @@ export default defineEventHandler(async (event) => {
           },
         },
       },
+      orderBy: [
+        { status: 'desc' },
+        { id: 'asc' }
+      ],
     });
 
     const usersWithFormattedTime = users.map(user => {
