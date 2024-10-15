@@ -20,6 +20,20 @@ export default defineEventHandler(async (event: any) => {
             });
         }
 
+        const point = await prisma.point.findFirst({
+            where: {
+                userId: UserId,
+                departureDate: null,
+            },
+        });
+
+        if (point) {
+            throw createError({
+                status: 400,
+                message: 'Não é possivel fechar o banco de horas, pois ainda existe um ponto em aberto!',
+            });
+        }
+
         const DateStart: any = bankHour?.date ? bankHour.date : new Date().toISOString().split('T')[0];
         const DateEnd: any = new Date().toISOString().split('T')[0];
         const points = await prisma.point.findMany({
@@ -32,30 +46,33 @@ export default defineEventHandler(async (event: any) => {
                     lte: DateEnd,  // menor ou igual a dataFinal
                 }
             },
-            include: {
-                WorkHours: true,
-            },
         });
 
-        const pointTotalMinutes = points.reduce((acc, point) => {
+        const pointTotal = points.reduce((acc, point) => {
             const entryDateTime = new Date(`${point.entryDate}T${point.entryTime}`);
             const departureDateTime = new Date(`${point.departureDate}T${point.departureTime}`);
             const totalWorkTime = (departureDateTime.getTime() - entryDateTime.getTime());
-
-            let resultTotalTime = 0;
-            if (point.WorkHours) {
-                const WorkHoursEntryTime = new Date(`${point.entryDate}T${point.WorkHours.entryTime}`);
-                const WorkHoursDepartureTime = new Date(`${point.departureDate}T${point.WorkHours.departureTime}`);
-                const WorkHoursTotalTime = (WorkHoursDepartureTime.getTime() - WorkHoursEntryTime.getTime());
-                resultTotalTime = totalWorkTime - WorkHoursTotalTime;
-            } else {
-                resultTotalTime = totalWorkTime;
-            }
-
-            return acc + resultTotalTime;
+            return acc + totalWorkTime;
         }, 0);
 
-        const TotalInMinutes = pointTotalMinutes / 60000;
+        const WorkHours = await prisma.workHour.findMany({
+            where: {
+                userId: UserId,
+                date: {
+                    gte: DateStart, // maior ou igual a dataInicial
+                    lte: DateEnd,  // menor ou igual a dataFinal
+                },
+            },
+        });
+
+        const WorkHoursTotal = WorkHours.reduce((acc, workHour) => {
+            const entryTime = new Date(`${workHour.date}T${workHour.entryTime}`);
+            const departureTime = new Date(`${workHour.date}T${workHour.departureTime}`);
+            const totalWorkTime = (departureTime.getTime() - entryTime.getTime());
+            return acc + totalWorkTime;
+        }, 0);
+
+        const TotalInMinutes = (pointTotal - WorkHoursTotal) / 60000;
 
         await prisma.bankHour.create({
             data: {
