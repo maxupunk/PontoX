@@ -19,6 +19,8 @@
 
                 <template v-slot:item.action="{ item }">
                     <user-form :id="item.id" icon="mdi-pencil" @reload="userStore.fetchUsers()" />
+                    <v-btn icon="mdi-store-clock-outline" flat
+                        @click="router.push(`/bankhour/user/${item.id}`)"></v-btn>
                     <v-btn icon="mdi-calendar-account" flat @click="router.push(`/users/${item.id}/calendar`)"></v-btn>
                     <v-btn icon="mdi-camera-plus" flat @click="router.push(`/users/${item.id}`)"></v-btn>
                 </template>
