@@ -3,6 +3,7 @@ import prisma from "~~/server/prisma";
 export default defineEventHandler(async (event: any) => {
     try {
         const UserId: number = Number(event.context.params?.id);
+        let { date } = await readBody(event);
 
         const bankHour = await prisma.bankHour.findFirst({
             where: {
@@ -35,7 +36,7 @@ export default defineEventHandler(async (event: any) => {
         }
 
         const DateStart: any = bankHour?.date ? bankHour.date : new Date().toISOString().split('T')[0];
-        const DateEnd: any = new Date().toISOString().split('T')[0];
+        const DateEnd: any = date ? new Date(date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
         const points = await prisma.point.findMany({
             where: {
                 userId: UserId,

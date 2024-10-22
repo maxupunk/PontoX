@@ -45,8 +45,11 @@ export const useBankHourStore = defineStore('bankhour', {
                 method: 'DELETE',
             })
         },
-        async closeMonth(idUser: number): Promise<any> {
-            return await $fetch(`/api/bankhour/user/${idUser}/close`)
+        async closeMonth(idUser: number, date: any): Promise<any> {
+            return await $fetch(`/api/bankhour/user/${idUser}/close`, {
+                method: 'POST',
+                body: { date: date }
+            })
         }
     },
 })

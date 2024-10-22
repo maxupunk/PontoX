@@ -7,7 +7,8 @@
                         <v-toolbar-title><b>{{ bankHourStore.bankUser?.user.name }}</b></v-toolbar-title>
                         <v-divider class="mx-4" inset vertical></v-divider>
                         <v-spacer></v-spacer>
-                        <v-chip :color="bankHourStore.bankUser.total > 0 ? 'success' : 'error'" dark>{{ minuteInHours(bankHourStore.bankUser.total) }}</v-chip>
+                        <v-chip :color="bankHourStore.bankUser.total > 0 ? 'success' : 'error'" dark>{{
+                            minuteInHours(bankHourStore.bankUser.total) }}</v-chip>
                         <v-btn icon="mdi-package-variant-closed-check" @click="closeMonth()"></v-btn>
                         <v-btn icon="mdi-reload" @click="bankHourStore.fetchBankHaursUser(idUser)"></v-btn>
                         <bank-hour-form @reload="bankHourStore.fetchBankHaursUser(idUser)" />
@@ -21,12 +22,15 @@
                 </template>
 
                 <template v-slot:item.action="{ item }: any">
-                    <bank-hour-form :id="item.id" icon="mdi-pencil" @reload="bankHourStore.fetchBankHaursUser(idUser)" />
+                    <bank-hour-form :id="item.id" icon="mdi-pencil"
+                        @reload="bankHourStore.fetchBankHaursUser(idUser)" />
                     <v-btn icon="mdi-delete" flat @click="deleteBankHour(item.id)"></v-btn>
                 </template>
             </v-data-table>
         </v-skeleton-loader>
     </v-container>
+    <dialog-confirmation ref="dialogDateRef" />
+    <dialog-delete ref="dialogDeleteRef" />
 </template>
 <script setup lang="ts">
 import BankHourForm from '~/components/bankhour/form.vue';
@@ -34,9 +38,14 @@ import { useBankHourStore } from '~/stores/BankHourStore';
 import { snackbarShow } from '~/composables/useUi'
 import { useRoute } from 'vue-router';
 import minuteInHours from '~/utils/minuteInHours';
+import dialogDelete from '~/components/dialogDeleteConfirmation.vue';
+import dialogConfirmation from '~/components/bankhour/dialogConfirmation.vue';
 
 const route = useRoute();
 const bankHourStore = useBankHourStore();
+
+const dialogDateRef = ref();
+const dialogDeleteRef = ref();
 
 const idUser: number = Number(route.params.id);
 let loading = ref(true);
@@ -47,20 +56,28 @@ const headers = ref([
 ]);
 
 function closeMonth() {
-    bankHourStore.closeMonth(idUser).then(() => {
-        snackbarShow('Mês fechado com sucesso', 'success');
-        bankHourStore.fetchBankHaursUser(idUser);
-    }).catch((error: any) => {
-        snackbarShow(error.data.message, 'warning');
+    dialogDateRef.value.open().then((date: any) => {
+        if (date) {
+            bankHourStore.closeMonth(idUser, date).then(() => {
+                snackbarShow('Mês fechado com sucesso', 'success');
+                bankHourStore.fetchBankHaursUser(idUser);
+            }).catch((error: any) => {
+                snackbarShow(error.data.message, 'warning');
+            });
+        }
     });
 }
 
 function deleteBankHour(id: number) {
-    bankHourStore.delete(id).then(() => {
-        snackbarShow('Registro deletado com sucesso', 'success');
-        bankHourStore.fetchBankHaursUser(idUser);
-    }).catch((error: any) => {
-        snackbarShow(error.data.message, 'error');
+    dialogDeleteRef.value.open().then((confirmed: boolean) => {
+        if (confirmed) {
+            bankHourStore.delete(id).then(() => {
+                snackbarShow('Registro deletado com sucesso', 'success');
+                bankHourStore.fetchBankHaursUser(idUser);
+            }).catch((error: any) => {
+                snackbarShow(error.data.message, 'error');
+            });
+        }
     });
 }
 
