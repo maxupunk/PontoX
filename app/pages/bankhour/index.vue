@@ -25,6 +25,7 @@
                 </template>
             </v-data-table>
         </v-skeleton-loader>
+        <dialog-delete ref="dialogRef" />
     </v-container>
 </template>
 <script setup lang="ts">
@@ -33,6 +34,9 @@ import { useBankHourStore } from '~/stores/BankHourStore';
 import { snackbarShow } from '~/composables/useUi'
 import { useRouter } from 'vue-router';
 import minuteInHours from '~/utils/minuteInHours';
+import dialogDelete from '~/components/dialogDeleteConfirmation.vue';
+
+const dialogRef = ref();
 
 const router = useRouter();
 
@@ -46,13 +50,16 @@ const headers = ref([
     { title: 'Ações', value: 'action', sortable: false },
 ]);
 
-function deleteBankHour(id: number) {
+async function deleteBankHour(id: number) {
+  const confirmed = await dialogRef.value.open();
+  if (confirmed) {
     bankHourStore.delete(id).then(() => {
-        snackbarShow('Registro deletado com sucesso', 'success');
-        bankHourStore.fetchBankHaurs()
+      snackbarShow('Registro deletado com sucesso', 'success');
+      bankHourStore.fetchBankHaurs();
     }).catch((error: any) => {
-        snackbarShow(error, 'error');
+      snackbarShow(error.data.message, 'error');
     });
+  }
 }
 
 onMounted(() => {
