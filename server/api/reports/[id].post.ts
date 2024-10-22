@@ -5,8 +5,9 @@ export default defineEventHandler(async (event: any) => {
   const UserId: number = Number(event.context.params.id)
   const entryDateStart = body.entryDateStart ? body.entryDateStart : '';
   const entryDateEnd = body.entryDateEnd ? body.entryDateEnd : new Date().toString().split('T')[0];
-  const user = await prisma.point.findMany({
+  const userPoints = await prisma.point.findMany({
     select: {
+      id: true,
       entryDate: true,
       entryTime: true,
       departureDate: true,
@@ -24,14 +25,24 @@ export default defineEventHandler(async (event: any) => {
   const labels: string[] = [];
   const data: string[] = [];
 
-  user.forEach(({ entryDate, departureDate, departureTime, entryTime }) => {
+  userPoints.forEach(({ entryDate, departureDate, departureTime, entryTime }) => {
     const entryDateTime = new Date(`${entryDate}T${entryTime}`);
     const departureDateTime = new Date(`${departureDate}T${departureTime}`);
     const totalTimeMinutes = (departureDateTime.getTime() - entryDateTime.getTime()) / (1000 * 60); // Convert to minutes
-    const totalTime = `${Math.floor(totalTimeMinutes / 60)}.${totalTimeMinutes % 60}`
+    const hours = Math.floor(totalTimeMinutes / 60);
+    const minutes = totalTimeMinutes % 60;
+    const totalTime = `${hours}.${minutes.toFixed(0).padStart(2, '0')}`; // Ensure minutes are two digits
 
-    labels.push(entryDate);
-    data.push(totalTime);
+    const labelIndex = labels.indexOf(entryDate);
+    if (labelIndex !== -1) {
+      const existingTime = parseFloat(data[labelIndex]!);
+      const newTime = parseFloat(totalTime);
+      const sumTime = (existingTime + newTime).toFixed(2);
+      data[labelIndex] = sumTime;
+    } else {
+      labels.push(entryDate);
+      data.push(totalTime);
+    }
   });
 
   return {
