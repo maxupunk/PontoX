@@ -9,6 +9,7 @@ export const useBankHourStore = defineStore('bankhour', {
             rows: [] as any[],
             total: 0 as number,
         } as any,
+        hoursBalance: [] as any[],
     }),
 
     actions: {
@@ -50,6 +51,12 @@ export const useBankHourStore = defineStore('bankhour', {
                 method: 'POST',
                 body: { date: date }
             })
-        }
+        },
+        /// repoerts
+        async fetchHaursBalance() {
+            return await $fetch("/api/reports/hoursBalance").then((response: any) => {
+                this.hoursBalance = response
+            })
+        },
     },
 })

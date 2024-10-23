@@ -14,12 +14,14 @@
         <v-list-item link prepend-icon="mdi-account-group" title="Usuarios" to="/users"></v-list-item>
         <v-list-item link prepend-icon="mdi-store-clock" title="Banco de horas" to="/bankhour"></v-list-item>
         <v-list-subheader>Relatorios</v-list-subheader>
-        <v-list-item link prepend-icon="mdi-account-group" title="horas corridas"
+        <v-list-item link prepend-icon="mdi-account-group" title="Horas corridas"
           to="/reports/hourstotalmissing"></v-list-item>
         <v-list-item link prepend-icon="mdi-account-group" title="Horas total trabalhada"
           to="/reports/hourstotal"></v-list-item>
-        <v-list-item link prepend-icon="mdi-account-group" title="Resulmo dia a dia"
+        <v-list-item link prepend-icon="mdi-account-group" title="Resumo dia a dia"
           to="/reports/hoursdaytoday"></v-list-item>
+        <v-list-item link prepend-icon="mdi-account-group" title="Banco de horas"
+          to="/reports/hoursBalance"></v-list-item>
         <v-list-subheader>Outros</v-list-subheader>
         <v-list-item link prepend-icon="mdi-backup-restore" title="Backups" to="/backups"></v-list-item>
         <v-list-item link prepend-icon="mdi-information-outline" title="Sobre" to="/about"></v-list-item>
