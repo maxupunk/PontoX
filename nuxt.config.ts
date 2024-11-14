@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
   build: {
-    transpile: ['vuetify'],
+    transpile: ['vuetify', '@hapi', '@sideway'],
   },
   modules: [
     (_options: any, nuxt: any) => {
