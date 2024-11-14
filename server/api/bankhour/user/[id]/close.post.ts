@@ -5,6 +5,19 @@ export default defineEventHandler(async (event: any) => {
         const UserId: number = Number(event.context.params?.id);
         let { date } = await readBody(event);
 
+        const inputDateCompare = date ? new Date(date).setHours(0, 0, 0, 0) : new Date().setHours(0, 0, 0, 0);
+        const currentDateCompare = new Date().setHours(0, 0, 0, 0);
+
+        if (date && inputDateCompare > currentDateCompare) {
+            throw createError({
+                status: 400,
+                message: 'A data não pode ser maior que a data atual!',
+            });
+        }
+
+        const currentDate = new Date().toISOString().split('T')[0];
+        const inputDate = date ? new Date(date).toISOString().split('T')[0] : currentDate;
+
         const bankHour = await prisma.bankHour.findFirst({
             where: {
                 userId: UserId,
@@ -14,10 +27,10 @@ export default defineEventHandler(async (event: any) => {
             },
         });
 
-        if (bankHour?.date === new Date().toISOString().split('T')[0]) {
+        if (bankHour && bankHour?.date === currentDate) {
             throw createError({
                 status: 400,
-                message: 'Já foi fechado o banco de horas com a data de hoje!',
+                message: 'Já foi fechado o banco de horas com essa data!',
             });
         }
 
@@ -35,8 +48,8 @@ export default defineEventHandler(async (event: any) => {
             });
         }
 
-        const DateStart: any = bankHour?.date ? bankHour.date : new Date().toISOString().split('T')[0];
-        const DateEnd: any = date ? new Date(date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        const DateStart: any = bankHour?.date ? bankHour.date : currentDate;
+        const DateEnd: any = inputDate;
         const points = await prisma.point.findMany({
             where: {
                 userId: UserId,

@@ -9,6 +9,7 @@ export const useBankHourStore = defineStore('bankhour', {
             rows: [] as any[],
             total: 0 as number,
         } as any,
+        bankUsers: [] as any[],
         hoursBalance: [] as any[],
     }),
 
@@ -44,6 +45,11 @@ export const useBankHourStore = defineStore('bankhour', {
         async delete(id: number) {
             return await $fetch("/api/bankhour/" + id, {
                 method: 'DELETE',
+            })
+        },
+        async fetchUsers(date: any) {
+            return await $fetch(`/api/bankhour/user?date=${date}`).then((response: any) => {
+                this.bankUsers = response
             })
         },
         async closeMonth(idUser: number, date: any): Promise<any> {

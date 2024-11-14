@@ -4,9 +4,10 @@
             <v-data-table :items="bankHourStore.bankHours" :headers="headers">
                 <template v-slot:top>
                     <v-toolbar flat>
-                        <v-toolbar-title>Usuarios</v-toolbar-title>
+                        <v-toolbar-title>Banco de horas</v-toolbar-title>
                         <v-divider class="mx-4" inset vertical></v-divider>
                         <v-spacer></v-spacer>
+                        <v-btn icon="mdi-store-clock-outline" @click="router.push('/bankhour/closemonth')"></v-btn>
                         <v-btn icon="mdi-reload" @click="bankHourStore.fetchBankHaurs()"></v-btn>
                         <bank-hour-form @reload="bankHourStore.fetchBankHaurs()" />
                     </v-toolbar>
