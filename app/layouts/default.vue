@@ -20,7 +20,7 @@
           to="/reports/hourstotal"></v-list-item>
         <v-list-item link prepend-icon="mdi-account-group" title="Resumo dia a dia"
           to="/reports/hoursdaytoday"></v-list-item>
-        <v-list-item link prepend-icon="mdi-account-group" title="Banco de horas"
+        <v-list-item link prepend-icon="mdi-account-group" title="Resultado de horas"
           to="/reports/hoursBalance"></v-list-item>
         <v-list-subheader>Outros</v-list-subheader>
         <v-list-item link prepend-icon="mdi-backup-restore" title="Backups" to="/backups"></v-list-item>
