@@ -4,13 +4,13 @@
             <v-data-table-virtual :items="pointStore.points" :headers="headers" :loading="loading">
                 <template v-slot:top>
                     <v-toolbar flat>
-                        <v-toolbar-title>Gerenciamento de pontos</v-toolbar-title>
-                        <v-divider class="mx-4" inset vertical></v-divider>
+                        <v-toolbar-title>Pontos</v-toolbar-title>
+                        <v-text-field v-model="pointStore.search" label="Pesquisar" variant="underlined"
+                            hide-details></v-text-field>
                         <v-spacer></v-spacer>
                         <v-dialog v-model="dialog" persistent scrollable
                             :fullscreen="$vuetify.display.xs || fullscreen">
                             <template v-slot:activator="{ props }">
-                                <v-btn icon="mdi-reload" @click="pointStore.fetchPoints()"></v-btn>
                                 <v-btn icon="mdi-timer-plus" v-bind="props"></v-btn>
                             </template>
                             <template v-slot:default>
@@ -191,8 +191,23 @@ const headers = ref([
     { text: 'Ações', value: 'action', sortable: false },
 ])
 
+const debounce = (fn: Function, delay: number) => {
+  let timeoutId: NodeJS.Timeout
+  return (...args: any[]) => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => fn(...args), delay)
+  }
+}
+
+const debouncedFetch = debounce(() => {
+  pointStore.fetchPoints(true)
+}, 500)
+
+watch(() => pointStore.search, () => {
+    debouncedFetch()
+})
+
 onMounted(() => {
-    // pointStore.fetchPoints()
     userStore.fetchList()
 })
 

@@ -2,7 +2,7 @@ import prisma from "~~/server/prisma";
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
-
+  const search = query?.search as string;
   const page = Number(query?.page) || 1;
   const limit = Number(query?.limit) || 20;
   const skip = (page - 1) * limit;
@@ -22,6 +22,13 @@ export default defineEventHandler(async (event) => {
             },
           },
         },
+        where: search ? {
+          user: {
+            name: {
+              contains: search
+            }
+          }
+        } : undefined,
         orderBy: {
           id: 'desc',
         },

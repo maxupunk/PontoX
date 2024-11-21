@@ -6,15 +6,23 @@ export const usePointStore = defineStore('point', {
         point: {} as any,
         points: [] as any[],
         pagination: {} as any,
+        search: '',
     }),
 
     actions: {
-        async fetchPoints() {
+        async fetchPoints(reset?: boolean) {
             if (this.pagination.hasMore === false) return
+            
             if (this.pagination.page !== undefined) {
                 this.pagination.page++
-            } else {
+            }
+
+            if (this.pagination.page === 1 || reset) {
                 this.points = []
+            }
+
+            if (this.search) {
+                this.pagination.search = this.search
             }
             const queryString = buildQueryString(this.pagination)
             return await $fetch(`/api/points${queryString}`).then((response: any) => {
