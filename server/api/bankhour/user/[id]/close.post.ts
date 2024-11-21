@@ -16,7 +16,8 @@ export default defineEventHandler(async (event: any) => {
         }
 
         const currentDate = new Date().toISOString().split('T')[0];
-        const inputDate = date ? new Date(date).toISOString().split('T')[0] : currentDate;
+        // Update date handling to ensure string type
+        const inputDate = (date ?? currentDate).toString();
 
         const bankHour = await prisma.bankHour.findFirst({
             where: {
@@ -27,16 +28,19 @@ export default defineEventHandler(async (event: any) => {
             },
         });
 
-        if (bankHour && bankHour?.date === currentDate) {
+        if (bankHour && new Date(bankHour.date).setHours(0, 0, 0, 0) >= new Date(inputDate).setHours(0, 0, 0, 0)) {
             throw createError({
                 status: 400,
-                message: 'Já foi fechado o banco de horas com essa data!',
+                message: 'Já foi fechado o banco de horas até esse data!',
             });
         }
 
         const point = await prisma.point.findFirst({
             where: {
                 userId: UserId,
+                entryDate: {
+                    lte: inputDate,
+                },
                 departureDate: null,
             },
         });
