@@ -8,8 +8,8 @@
                 <v-form ref="form">
                     <v-row>
                         <v-col cols="5">
-                            <v-date-input v-model="closingDate" label="Data de fechamento" max-width="368"
-                                required :disabled="loading"></v-date-input>
+                            <v-date-input v-model="closingDate" label="Data de fechamento" max-width="368" required
+                                :disabled="loading"></v-date-input>
                         </v-col>
                         <v-col cols="4" class="align-center">
                             <v-btn size="x-large" @click="toggleSelectAll" color="primary" :disabled="loading">
@@ -17,20 +17,20 @@
                             </v-btn>
                         </v-col>
                         <v-col cols="3" class="align-center">
-                            <v-btn size="x-large" @click="closeMonth" color="success" :disabled="loading">Fechar mês</v-btn>
+                            <v-btn size="x-large" @click="closeMonth" color="success" :disabled="loading">Fechar
+                                mês</v-btn>
                         </v-col>
                     </v-row>
                     <v-row>
-                        <v-col cols="4" v-for="user in userStore.users" :key="user.id" style="border: 1px solid #ccc;">
+                        <v-col cols="4" v-for="user in userStore.usersList" :key="user.id" style="border: 1px solid #ccc;">
                             <v-checkbox v-model="selectedUsers" :value="user.id" color="primary"
-                                :messages="messages[user.id]?.message"
-                                :disabled="loading">
+                                :messages="messages[user.id]?.message" :disabled="loading">
                                 <template v-slot:label>
                                     {{ user.id }} - {{ user.name }}
                                 </template>
                                 <template v-slot:message>
                                     <v-alert v-if="messages[user.id]?.message" :color="messages[user.id]?.type"
-                                        :text="messages[user.id]?.message"/>
+                                        :text="messages[user.id]?.message" />
                                 </template>
                             </v-checkbox>
                         </v-col>
@@ -54,18 +54,23 @@ const closingDate = ref();
 const selectedUsers = ref<number[]>([]);
 
 const messages = ref<{ [key: number]: { message: string; type: 'success' | 'error' } }>({});
-const allSelected = computed(() => selectedUsers.value.length === userStore.users.length);
+const allSelected = computed(() => selectedUsers.value.length === userStore.usersList.length);
 
 function toggleSelectAll() {
     if (allSelected.value) {
         selectedUsers.value = [];
     } else {
-        selectedUsers.value = userStore.users.map(user => user.id);
+        selectedUsers.value = userStore.usersList.map(user => user.id);
     }
 }
 
 onMounted(() => {
-    userStore.fetchUsers();
+    userStore.fetchList().catch((error: any) => {
+        loading.value = true;
+        snackbarShow(error, 'error');
+    }).finally(() => {
+        loading.value = false;
+    });
 });
 
 async function closeMonth() {
