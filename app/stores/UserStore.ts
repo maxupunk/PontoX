@@ -1,15 +1,39 @@
 import { defineStore } from 'pinia'
+import buildQueryString from '~/utils/buildQueryString'
 
 export const useUserStore = defineStore('user', {
     state: () => ({
         user: {} as any,
         users: [] as any[],
+        usersList: [] as any[],
+        pagination: {} as any,
     }),
 
     actions: {
-        async fetchUsers() {
-            return await $fetch("/api/users/").then((response: any) => {
-                this.users = response.users
+        async fetchUsers(filter?: any) {
+            if (this.pagination.hasMore === false) return
+            if (this.pagination.page !== undefined) {
+                this.pagination.page++
+            } else {
+                this.users = []
+            }
+            if (filter) {
+                this.pagination = {
+                    ...this.pagination,
+                    ...filter
+                }
+            }
+            const queryString = buildQueryString(this.pagination)
+            return await $fetch(`/api/users${queryString}`).then((response: any) => {
+                this.users = [...this.users, ...response.users]
+                this.pagination = response.pagination
+                return response.pagination
+            })
+        },
+        async fetchList() {
+            return await $fetch(`/api/users/list`).then((response: any) => {
+                this.usersList = response.users
+                return response.users
             })
         },
         async fetchUser(id: number) {

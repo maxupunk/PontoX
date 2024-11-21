@@ -11,12 +11,22 @@ export const useBankHourStore = defineStore('bankhour', {
         } as any,
         bankUsers: [] as any[],
         hoursBalance: [] as any[],
+        pagination: {} as any,
     }),
 
     actions: {
         async fetchBankHaurs() {
-            return await $fetch("/api/bankhour").then((response: any) => {
-                this.bankHours = response
+            if (this.pagination.hasMore === false) return
+            if (this.pagination.page !== undefined) {
+                this.pagination.page++
+            } else {
+                this.bankHours = []
+            }
+            const queryString = buildQueryString(this.pagination)
+            return await $fetch(`/api/bankhour${queryString}`).then((response: any) => {
+                this.bankHours = [...this.bankHours, ...response.data]
+                this.pagination = response.pagination
+                return response.pagination
             })
         },
         async fetchBankHaur(id: number) {
@@ -47,8 +57,8 @@ export const useBankHourStore = defineStore('bankhour', {
                 method: 'DELETE',
             })
         },
-        async fetchUsers(date: any) {
-            return await $fetch(`/api/bankhour/user?date=${date}`).then((response: any) => {
+        async fetchUsers() {
+            return await $fetch(`/api/bankhour/user`).then((response: any) => {
                 this.bankUsers = response
             })
         },
