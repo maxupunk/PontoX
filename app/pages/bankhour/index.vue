@@ -1,7 +1,7 @@
 <template>
     <v-container>
-        <v-skeleton-loader :loading="loading" type="table-heading, table-thead, table-tbody, table-tfoot">
-            <v-data-table :items="bankHourStore.bankHours" :headers="headers">
+        <v-infinite-scroll :onLoad="load">
+            <v-data-table-virtual :items="bankHourStore.bankHours" :headers="headers" :loading="loading">
                 <template v-slot:top>
                     <v-toolbar flat>
                         <v-toolbar-title>Banco de horas</v-toolbar-title>
@@ -19,13 +19,17 @@
                     </v-chip>
                 </template>
 
+                <template v-slot:item.date="{ item }">
+                        {{ formatDate(item.date) }}
+                </template>
+
                 <template v-slot:item.action="{ item }">
                     <bank-hour-form :id="item.id" icon="mdi-pencil" @reload="bankHourStore.fetchBankHaurs()" />
                     <v-btn icon="mdi-account" flat @click="router.push(`/bankhour/user/${item.user.id}`)"></v-btn>
                     <v-btn icon="mdi-delete" flat @click="deleteBankHour(item.id)"></v-btn>
                 </template>
-            </v-data-table>
-        </v-skeleton-loader>
+            </v-data-table-virtual>
+        </v-infinite-scroll>
         <dialog-delete ref="dialogRef" />
     </v-container>
 </template>
@@ -36,6 +40,7 @@ import { snackbarShow } from '~/composables/useUi'
 import { useRouter } from 'vue-router';
 import minuteInHours from '~/utils/minuteInHours';
 import dialogDelete from '~/components/dialogDeleteConfirmation.vue';
+import { formatDate } from "~/utils/formatDateBr";
 
 const dialogRef = ref();
 
@@ -43,7 +48,7 @@ const router = useRouter();
 
 const bankHourStore = useBankHourStore();
 
-let loading = ref(true);
+let loading = ref(false);
 const headers = ref([
     { title: 'Usuario', value: 'user.name' },
     { title: 'Data', value: 'date' },
@@ -52,23 +57,30 @@ const headers = ref([
 ]);
 
 async function deleteBankHour(id: number) {
-  const confirmed = await dialogRef.value.open();
-  if (confirmed) {
-    bankHourStore.delete(id).then(() => {
-      snackbarShow('Registro deletado com sucesso', 'success');
-      bankHourStore.fetchBankHaurs();
-    }).catch((error: any) => {
-      snackbarShow(error.data.message, 'error');
-    });
-  }
+    const confirmed = await dialogRef.value.open();
+    if (confirmed) {
+        bankHourStore.delete(id).then(() => {
+            snackbarShow('Registro deletado com sucesso', 'success');
+            bankHourStore.fetchBankHaurs();
+        }).catch((error: any) => {
+            snackbarShow(error.data.message, 'error');
+        });
+    }
 }
 
-onMounted(() => {
-    bankHourStore.fetchBankHaurs().catch((error: any) => {
-        loading.value = true;
+function load({ done }: any) {
+    loading.value = true
+    bankHourStore.fetchBankHaurs().then((res: any) => {
+        if (res) {
+            done('ok')
+        } else {
+            done('empty')
+        }
+    }).catch((error: any) => {
         snackbarShow(error, 'error')
+        done('empty')
     }).finally(() => {
-        loading.value = false;
-    });
-});
+        loading.value = false
+    })
+}
 </script>

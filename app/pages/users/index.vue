@@ -1,7 +1,7 @@
 <template>
     <v-container>
-        <v-skeleton-loader :loading="loading" type="table-heading, table-thead, table-tbody, table-tfoot">
-            <v-data-table :items="userStore.users" :headers="headers" items-per-page="100">
+        <v-infinite-scroll :onLoad="load">
+            <v-data-table-virtual :items="userStore.users" :headers="headers" :loading="loading">
                 <template v-slot:top>
                     <v-toolbar flat>
                         <v-toolbar-title>Usuarios</v-toolbar-title>
@@ -24,8 +24,8 @@
                     <v-btn icon="mdi-calendar-account" flat @click="router.push(`/users/${item.id}/calendar`)"></v-btn>
                     <v-btn icon="mdi-camera-plus" flat @click="router.push(`/users/${item.id}`)"></v-btn>
                 </template>
-            </v-data-table>
-        </v-skeleton-loader>
+            </v-data-table-virtual>
+        </v-infinite-scroll>
     </v-container>
 </template>
 <script setup lang="ts">
@@ -37,7 +37,7 @@ import { useRouter } from 'vue-router';
 const userStore = useUserStore();
 const router = useRouter();
 
-let loading = ref(true);
+let loading = ref(false);
 const headers = ref([
     { title: 'ID', value: 'id' },
     { title: 'Nome', value: 'name' },
@@ -48,11 +48,19 @@ const headers = ref([
     { title: 'Ações', value: 'action', sortable: false },
 ]);
 
-onMounted(async () => {
-    await userStore.fetchUsers().catch((error: any) => {
+function load({ done }: any) {
+    loading.value = true
+    userStore.fetchUsers().then((res: any) => {
+        if (res) {
+            done('ok')
+        } else {
+            done('empty')
+        }
+    }).catch((error: any) => {
         snackbarShow(error, 'error')
+        done('empty')
     }).finally(() => {
-        loading.value = false;
-    });
-});
+        loading.value = false
+    })
+}
 </script>

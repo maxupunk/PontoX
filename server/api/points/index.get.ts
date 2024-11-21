@@ -1,32 +1,53 @@
 import prisma from "~~/server/prisma";
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event);
+
+  const page = Number(query?.page) || 1;
+  const limit = Number(query?.limit) || 20;
+  const skip = (page - 1) * limit;
+
   try {
-    const pointsResp = await prisma.point.findMany({
-      select: {
-        id: true,
-        entryDate: true,
-        entryTime: true,
-        departureDate: true,
-        departureTime: true,
-        user: {
-          select: {
-            name: true,
+    const [pointsResp, total] = await Promise.all([
+      prisma.point.findMany({
+        select: {
+          id: true,
+          entryDate: true,
+          entryTime: true,
+          departureDate: true,
+          departureTime: true,
+          user: {
+            select: {
+              name: true,
+            },
           },
         },
+        orderBy: {
+          id: 'desc',
+        },
+        skip,
+        take: limit,
+      }),
+      // total count
+      prisma.point.count(),
+    ]);
+
+    return {
+      data: pointsResp.map(point => ({
+        id: point.id,
+        name: point.user?.name,
+        entryDate: point.entryDate,
+        entryTime: point.entryTime,
+        departureDate: point.departureDate,
+        departureTime: point.departureTime,
+      })),
+      pagination: {
+        total,
+        page,
+        limit,
+        hasMore: skip + limit < total,
       },
-      orderBy: {
-        id: 'desc',
-      },
-    });
-    return { points: pointsResp.map(point => ({
-      id: point.id,
-      name: point.user?.name,
-      entryDate: point.entryDate,
-      entryTime: point.entryTime,
-      departureDate: point.departureDate,
-      departureTime: point.departureTime,
-    })) }
+    }
   } catch (e: any) {
     throw createError({
       status: 400,
