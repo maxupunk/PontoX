@@ -23,7 +23,7 @@
                     <v-container>
                         <v-row>
                             <v-col cols="12" sm="12" md="12">
-                                <v-select :items="userStore.users" item-value="id" item-title="name"
+                                <v-select :items="userStore.usersList" item-value="id" item-title="name"
                                     v-model="bankHourStore.bankHour.userId" label="Usuario" required></v-select>
                             </v-col>
                             <v-col cols="12" sm="5" md="5">
@@ -96,16 +96,13 @@ const TotalHours = computed({
 
 watch(dialog, (val) => {
     if (val) {
+        userStore.fetchList()
         if (props.id) {
             bankHourStore.fetchBankHaur(props.id)
         } else {
             bankHourStore.bankHour = {}
         }
     }
-})
-
-onMounted(() => {
-    userStore.fetchUsers()
 })
 
 async function save() {
