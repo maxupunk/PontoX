@@ -17,8 +17,7 @@
                             </v-btn>
                         </v-col>
                         <v-col cols="3" class="align-center">
-                            <v-btn size="x-large" @click="closeMonth" color="success" :disabled="loading">Fechar
-                                mês</v-btn>
+                            <v-btn size="x-large" @click="closeMonth" color="success" :disabled="loading">Fechar período</v-btn>
                         </v-col>
                     </v-row>
                     <v-row>
