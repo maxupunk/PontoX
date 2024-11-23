@@ -8,7 +8,7 @@ const regexWhitelist = pathWhitelist.map(path => pathToRegexp(path));
 // verifica se o path é da API ou se está na whitelist
 function isPathWhiteList(path: string, event: any): boolean {
   const pathAPI = event.path.startsWith("/api/");
-  const whiteList = regexWhitelist.some(re => re.test(path));
+  const whiteList = regexWhitelist.some(re => re.regexp.test(path));
   if (!pathAPI || whiteList) {
     return true;
   }
