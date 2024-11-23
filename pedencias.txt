@@ -1,3 +1,6 @@
+em treinamento
+ -> não treinar usuarios que tiver desabilitado
+
 em ususario > calendario
     -> opção de fazer uma replicação de calendario para outros usuario
 
