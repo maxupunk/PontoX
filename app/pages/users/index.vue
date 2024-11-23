@@ -7,7 +7,6 @@
                         <v-toolbar-title>Usuarios</v-toolbar-title>
                         <v-divider class="mx-4" inset vertical></v-divider>
                         <v-spacer></v-spacer>
-                        <v-btn icon="mdi-reload" @click="userStore.fetchUsers()"></v-btn>
                         <user-form @reload="userStore.fetchUsers()" />
                     </v-toolbar>
                 </template>

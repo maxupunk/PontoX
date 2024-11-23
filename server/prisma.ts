@@ -1,15 +1,14 @@
 import { PrismaClient } from '@prisma/client'
-const config = useRuntimeConfig();
+import { config } from 'dotenv'
+config() // Load .env file
 
-console.log('DB', config.bdUrl)
+let databaseUrl: string = process.env.DATABASE_URL?.toString() ?? ''
+
+console.log('DB', `${databaseUrl}`)
 
 const prismaClientSingleton = () => {
   return new PrismaClient({
-    datasources: {
-      db: {
-        url: config.bdUrl
-      }
-    }
+    datasourceUrl: databaseUrl,
   });
 }
 

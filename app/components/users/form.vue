@@ -65,7 +65,7 @@ const dialog = ref(false)
 const fullscreen = ref(false)
 const loading = ref(false)
 
-const formTitle = ref(userStore.user.id ? 'Editar Usuário' : 'Novo Usuário')
+const formTitle = computed(() => userStore.user.id ? 'Editar Usuário' : 'Novo Usuário')
 
 watch(dialog, (val) => {
     if (val) {
