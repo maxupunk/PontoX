@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import prisma from "../prisma";
 import { folderpathImagens } from '~~/server/utils/image';
 
 export default defineEventHandler(() => {
@@ -14,32 +15,48 @@ export default defineEventHandler(() => {
 });
 
 
-function imagesUrl(dirPath: string = folderpathImagens): { label: string, files: string[] }[] {
+async function imagesUrl(dirPath: string = folderpathImagens): Promise<{ label: string, files: string[] }[]> {
   let data: { label: string, files: string[] }[] = [];
 
-  const items = fs.readdirSync(dirPath);
+  try {
+    const items = fs.readdirSync(dirPath);
 
-  items.forEach(async item => {
-    const fullPath = path.join(dirPath, item);
+    for (const item of items) {
+      const fullPath = path.join(dirPath, item);
+      const stats = fs.statSync(fullPath);
 
-    if (fs.statSync(fullPath).isDirectory()) {
-      data = data.concat(imagesUrl(fullPath));
-    } else {
-      const label = path.basename(dirPath);
-      const existingLabelIndex = data.findIndex(d => d.label === label);
+      if (stats.isDirectory()) {
+        const label = Number(path.basename(fullPath));
+        const userQuery = await prisma.user.findUnique({
+          select: {
+            status: true,
+          },
+          where: { id: label },
+        });
 
-      if (existingLabelIndex > -1) {
-        const existingData = data[existingLabelIndex];
-        if (existingData) {
-          existingData.files.push(item);
-          // Limit to the last 6 images
-          //existingData.files = existingData.files.slice(-6);
+        if (userQuery?.status) {
+          const subDirResults = await imagesUrl(fullPath);
+          data = data.concat(subDirResults);
         }
       } else {
-        data.push({ label: label, files: [item] });
+        const label = path.basename(dirPath);
+        const existingLabelIndex = data.findIndex(d => d.label === label);
+
+        if (existingLabelIndex > -1) {
+          const existingData = data[existingLabelIndex];
+          if (existingData) {
+            existingData.files.push(item);
+            // Limit to the last 30 images (limited to 5 in front)
+            existingData.files = existingData.files.slice(-30);
+          }
+        } else {
+          data.push({ label: label, files: [item] });
+        }
       }
     }
-  });
 
-  return data;
+    return data;
+  } catch (error: any) {
+    throw new Error(`Error reading directory: ${error.message}`);
+  }
 }
