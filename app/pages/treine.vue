@@ -100,7 +100,7 @@ export default {
   async mounted() {
     this.load.loading = true;
     await this.loadModels().then(async () => {
-      this.allUsers = await $fetch('/api/users')
+      this.allUsers = await $fetch('/api/users/list')
       this.loadTreine()
       this.load.mensage = 'buscanco usuarios...'
     })
