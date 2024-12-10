@@ -90,6 +90,7 @@
 <script>
 import * as faceapi from 'face-api.js';
 import { snackbarShow } from "~/composables/useUi"
+import { getCutImage } from '~/utils/getCutImage'
 
 export default {
   data() {
@@ -98,7 +99,6 @@ export default {
       canvas: null,
       canvasface: null,
       dataUser: [],
-      imageMarge: 70,
       observation: null,
       pointLocal: {
         capturedImage: null,
@@ -269,17 +269,6 @@ export default {
       return date;
     },
 
-    getCutImage(box) {
-      const { x, y, width, height } = box;
-      const offset = 20;
-      return {
-        x: x - this.imageMarge,
-        y: y - (this.imageMarge + offset),
-        width: width + (2 * this.imageMarge),
-        height: height + (2 * (this.imageMarge))
-      }
-    },
-
     async processVideo() {
       this.load.loading = true;
       this.load.mensage = 'buscando rosto na camera...'
@@ -306,7 +295,7 @@ export default {
 
           // Create a new canvas element
           const faceCtx = this.canvasface.getContext('2d');
-          const cut = this.getCutImage(singleResult.detection.box);
+          const cut = getCutImage(singleResult.detection.box);
           this.canvasface.width = cut.width;
           this.canvasface.height = cut.height;
           // Draw the face on the canvas
