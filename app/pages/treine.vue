@@ -195,7 +195,7 @@ export default {
           } else {
             console.log('Sem detecção para ' + label.label + ' - ' + file)
           }
-          if (countFace >= 5) break;
+          if (countFace >= 2) break;
         }
         this.load.current++
         return new faceapi.LabeledFaceDescriptors(label.label, LabeledFaceDescriptors);
