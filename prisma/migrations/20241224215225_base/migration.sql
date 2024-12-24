@@ -52,9 +52,9 @@ CREATE TABLE "points" (
     "departureImage" TEXT,
     "observation" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "points_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "points_workHourId_fkey" FOREIGN KEY ("workHourId") REFERENCES "WorkHours" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    "updatedAt" DATETIME,
+    CONSTRAINT "points_workHourId_fkey" FOREIGN KEY ("workHourId") REFERENCES "WorkHours" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "points_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateIndex
