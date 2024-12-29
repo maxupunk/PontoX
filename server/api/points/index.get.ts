@@ -7,6 +7,14 @@ export default defineEventHandler(async (event) => {
   const limit = Number(query?.limit) || 20;
   const skip = (page - 1) * limit;
 
+  const whereCondition = search ? {
+    user: {
+      name: {
+        contains: search
+      }
+    }
+  } : undefined;
+
   try {
     const [pointsResp, total] = await Promise.all([
       prisma.point.findMany({
@@ -22,13 +30,7 @@ export default defineEventHandler(async (event) => {
             },
           },
         },
-        where: search ? {
-          user: {
-            name: {
-              contains: search
-            }
-          }
-        } : undefined,
+        where: whereCondition,
         orderBy: {
           id: 'desc',
         },
@@ -36,7 +38,9 @@ export default defineEventHandler(async (event) => {
         take: limit,
       }),
       // total count
-      prisma.point.count(),
+      prisma.point.count({
+        where: whereCondition,
+      }),
     ]);
 
     return {

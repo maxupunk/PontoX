@@ -11,13 +11,16 @@ export const usePointStore = defineStore('point', {
 
     actions: {
         async fetchPoints(reset?: boolean) {
-            if (this.pagination.hasMore === false) return
-            
             if (this.pagination.page !== undefined) {
                 this.pagination.page++
             }
 
-            if (this.pagination.page === 1 || reset) {
+            if (this.pagination.page === 1) {
+                this.points = []
+            }
+
+            if (reset) {
+                this.pagination.page = 1
                 this.points = []
             }
 

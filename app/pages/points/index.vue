@@ -6,7 +6,7 @@
                     <v-toolbar flat>
                         <v-toolbar-title>Pontos</v-toolbar-title>
                         <v-text-field v-model="pointStore.search" label="Pesquisar" variant="underlined"
-                            hide-details></v-text-field>
+                            hide-details clearable></v-text-field>
                         <v-spacer></v-spacer>
                         <v-dialog v-model="dialog" persistent scrollable
                             :fullscreen="$vuetify.display.xs || fullscreen">
@@ -212,16 +212,18 @@ onMounted(() => {
 })
 
 function load({ done }: any) {
+    console.log("loading")
     loading.value = true
     pointStore.fetchPoints().then((res: any) => {
-        if (res) {
+        console.log("retorno do fetch", res)
+        if (res.hasMore) {
             done('ok')
         } else {
             done('empty')
         }
     }).catch((error: any) => {
         snackbarShow(error, 'error')
-        done('empty')
+        done('error')
     }).finally(() => {
         loading.value = false
     })
