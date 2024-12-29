@@ -11,7 +11,7 @@ export default defineEventHandler(async (event: any) => {
 
     if (!userQuery) {
       throw createError({
-        status: 400,
+        status: 401,
         message: 'Usuário e senha inválidos',
       });
     }

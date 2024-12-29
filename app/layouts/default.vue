@@ -103,8 +103,11 @@ export default {
       const login = await $fetch('/api/login', {
         method: 'POST',
         body: JSON.stringify(this.user)
+      }).catch((error) => {
+        snackbarShow(error.data.message, 'error')
       })
-      if (!login) {
+
+      if (login.statusCode == 400) {
         snackbarShow('login ou senha inválidos!', 'error')
         return
       }
