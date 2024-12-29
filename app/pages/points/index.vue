@@ -1,6 +1,6 @@
 <template>
     <v-container>
-        <v-infinite-scroll :onLoad="load">
+        <v-infinite-scroll @load="load">
             <v-data-table-virtual :items="pointStore.points" :headers="headers" :loading="loading">
                 <template v-slot:top>
                     <v-toolbar flat>
@@ -180,6 +180,7 @@ const confirmDelete = ref({
 
 const fullscreen = ref(false)
 const loading = ref(false)
+let infiniteScroll:any = null
 
 const headers = ref([
     { text: 'ID', value: 'id' },
@@ -201,6 +202,7 @@ const debounce = (fn: Function, delay: number) => {
 
 const debouncedFetch = debounce(() => {
   pointStore.fetchPoints(true)
+  infiniteScroll('ok')
 }, 500)
 
 watch(() => pointStore.search, () => {
@@ -212,7 +214,9 @@ onMounted(() => {
 })
 
 function load({ done }: any) {
-    console.log("loading")
+    // copy the done function to call it later
+    infiniteScroll = done
+    //
     loading.value = true
     pointStore.fetchPoints().then((res: any) => {
         console.log("retorno do fetch", res)
