@@ -219,7 +219,6 @@ function load({ done }: any) {
     //
     loading.value = true
     pointStore.fetchPoints().then((res: any) => {
-        console.log("retorno do fetch", res)
         if (res.hasMore) {
             done('ok')
         } else {

@@ -14,13 +14,12 @@ export const usePointStore = defineStore('point', {
             if (this.pagination.page !== undefined) {
                 this.pagination.page++
             }
-
-            if (this.pagination.page === 1) {
-                this.points = []
-            }
-
+            
             if (reset) {
                 this.pagination.page = 1
+            }
+
+            if (this.pagination.page === 1) {
                 this.points = []
             }
 
