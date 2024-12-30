@@ -9,7 +9,7 @@
         <v-list-subheader>Pontos</v-list-subheader>
         <v-list-item link prepend-icon="mdi-eye-check" title="Ponto" to="/"></v-list-item>
         <v-list-subheader>Gerencia</v-list-subheader>
-        <v-list-item link prepend-icon="mdi-timer-check-outline" title="gerenciar pontos" to="/points"></v-list-item>
+        <v-list-item link prepend-icon="mdi-timer-check-outline" title="Gerenciar pontos" to="/points"></v-list-item>
         <v-list-item link prepend-icon="mdi-school" title="Treinamento" to="/treine"></v-list-item>
         <v-list-item link prepend-icon="mdi-account-group" title="Usuarios" to="/users"></v-list-item>
         <v-list-item link prepend-icon="mdi-store-clock" title="Banco de horas" to="/bankhour"></v-list-item>
