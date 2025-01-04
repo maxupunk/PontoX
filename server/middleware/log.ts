@@ -3,6 +3,10 @@ import path from 'path'
 import prisma from "../prisma";
 
 export default defineEventHandler(async (event: any) => {
+  if (event.path == '/' && event.method == 'GET') {
+    return
+  }
+
   if (event.method !== 'GET') {
     const authorization = event.headers.get('authorization');
     const userQuery = await prisma.user.findFirst({
@@ -59,8 +63,6 @@ export default defineEventHandler(async (event: any) => {
     const filename = path.resolve(dir, `${dateString}.log`);
     // Write the data to a file
     fs.appendFileSync(filename, dataString);
-  } else {
-    console.log(event.path)
   }
 })
 
