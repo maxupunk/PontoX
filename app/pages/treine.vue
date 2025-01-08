@@ -93,7 +93,7 @@ export default {
         current: 0,
       },
       modelsServer: [],
-      options: null,
+      // options: {},
       distanceThreshold: 0.6,
     };
   },
@@ -131,7 +131,7 @@ export default {
       this.load.mensage = 'buscanco dados treinados...'
       $fetch('/api/treine').then((treine) => {
         this.treineServeData = treine
-        this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
+        // this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
         this.distanceThreshold = this.treineServeData.distanceThreshold
 
         if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
@@ -186,7 +186,7 @@ export default {
           this.load.mensage = 'Processando...'
           const img = await faceapi.fetchImage(`/api/imagens/${label.label}/${file}`);
           this.load.image = img.src
-          const detections = await faceapi.detectSingleFace(img, this.options).withFaceLandmarks().withFaceDescriptor();
+          const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
           if (detections) {
             LabeledFaceDescriptors.push(detections.descriptor);
             countFace++;

@@ -1,28 +1,32 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col cols="12" class="mx-auto text-center" v-if="videoDevices.length > 1">
-        <select v-model="selectedDevice" @change="startVideo">
-          <option v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId">
-            {{ device.label }}
-          </option>
-        </select>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" class="mx-auto text-center">
-        <video autoplay id="cam" muted></video>
+    <v-card flat>
+      <v-card-title>
+        <v-row>
+          <v-col cols="12" class="text-center" v-if="deviceList && deviceList.length > 1">
+            <v-select v-model="selectedDevice" @update:modelValue="startVideo" :items="deviceList" item-title="label"
+              item-value="deviceId" />
+          </v-col>
+        </v-row>
+      </v-card-title>
+      <v-card-text class="camera-container text-center">
+        <video autoplay id="camera" muted></video>
         <canvas id="canvas"></canvas>
-        <canvas id="canvasFace"></canvas>
-      </v-col>
-    </v-row>
-    <v-row v-if="hasCamera">
-      <v-col cols="12" class="mx-auto text-center">
-        <v-btn :loading="load.loading" :disabled="startDesable" size="x-large" @click="processVideo">
-          Registrar ponto
-        </v-btn>
-      </v-col>
-    </v-row>
+      </v-card-text>
+      <v-card-actions v-if="deviceList && deviceList.length > 0">
+        <v-row>
+          <v-col cols="2"></v-col>
+          <v-col cols="8" class="text-center">
+            <v-btn :loading="loading" size="x-large" @click="processVideo" block color="primary" variant="outlined">
+              Registrar ponto
+            </v-btn>
+          </v-col>
+          <v-col cols="2" class="text-left">
+            <v-btn @click="markFacePlay" size="large" color="primary" icon="mdi-face-recognition"></v-btn>
+          </v-col>
+        </v-row>
+      </v-card-actions>
+    </v-card>
 
     <v-dialog v-model="dialog" persistent max-width="600px" :fullscreen="$vuetify.display.xs">
       <v-card>
@@ -57,16 +61,16 @@
                 <v-text-field label="Observação" v-model="observation"></v-text-field>
               </v-col>
             </v-row>
-            <v-alert v-if="pointOutHour" type="warning" :border="'start'" variant="outlined">
-              <strong>Atenção!</strong> Você está fora do horário de ponto!
-            </v-alert>
-            <v-list density="compact" variant="elevated">
+            <v-list density="compact" variant="elevated" v-if="dataUser.workHour.length">
               <v-list-subheader>Seu(s) horarios para hoje</v-list-subheader>
               <v-list-item v-for="(hour, index) in dataUser.workHour" :key="index" :active="hour.check">
                 <v-checkbox v-model="pointCheck" :label="`Entrada ${hour.entryTime} - Saida: ${hour.departureTime}`"
                   :value="hour.id" hide-details></v-checkbox>
               </v-list-item>
             </v-list>
+            <v-alert v-else type="warning">
+              Não existe horario registrado para hoje!
+            </v-alert>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -77,263 +81,173 @@
       </v-card>
     </v-dialog>
   </v-container>
-  <v-overlay v-model="load.loading" class="align-center justify-center">
+  <v-overlay v-model="loading" class="align-center justify-center">
     <div class="text-center">
       <v-progress-circular color="primary" indeterminate></v-progress-circular>
-    </div>
-    <div class="text-center" style="color: white;">
-      {{ load.mensage }}
     </div>
   </v-overlay>
 </template>
 
-<script>
-import * as faceapi from 'face-api.js';
-import { snackbarShow } from "~/composables/useUi"
-import { getCutImage } from '~/utils/getCutImage'
+<script setup>
+import { ref, reactive } from 'vue'
+const {
+  video,
+  canvas,
+  loading,
+  deviceList,
+  selectedDevice,
+  getVideoDevices,
+  startVideo,
+  loadFaceLabelJSON,
+  markFacePlay,
+  processImage,
+  closeVideo
+} = useFaceDetection();
 
-export default {
-  data() {
-    return {
-      video: null,
-      canvas: null,
-      canvasface: null,
-      dataUser: [],
-      observation: null,
-      pointLocal: {
-        capturedImage: null,
-        expressioUser: null,
-      },
-      faceMatcherJson: [],
-      treineServeData: [],
-      dialog: false,
-      load: {
-        loading: false,
-        mensage: null
-      },
-      videoDevices: [],
-      resolutionDevice: {
-        width: 0,
-        height: 0
-      },
-      selectedDevice: null,
-      modelsServer: [],
-      options: null,
-      faceMatcher: null,
-      startDesable: false,
-      pointOutHour: true,
-      pointCheck: 0,
-    };
-  },
-  computed: {
-    titulo() {
-      return this.dataUser.point ? 'Confirmação de saída' : 'Confirmação de entrada'
-    },
-    hasCamera() {
-      return this.videoDevices.length > 0
-    },
-    selecthour() {
-      return this.dataUser.workHour.filter(hour => hour.id === this.pointCheck)
-    },
-    getClosestWorkHour() {
-      if (!this.dataUser.workHour.length) return
+// State
+const dialog = ref(false)
+const observation = ref(null)
+const dataUser = ref(null)
+const pointCheck = ref()
+const pointLocal = reactive({
+  expressioUser: null,
+  capturedImage: null
+})
 
-      const currentTime = new Date();
-      let closestWorkHour = null;
-      let smallestDifference = Infinity;
+// Computed Properties
+const titulo = computed(() => {
+  return dataUser.value.point ? 'Confirmação de saída' : 'Confirmação de entrada'
+})
 
-      this.dataUser.workHour.forEach((workHour) => {
-        const entryTime = this.parseTime(workHour.entryTime);
-        const departureTime = this.parseTime(workHour.departureTime);
+const getClosestWorkHour = computed(() => {
+  if (!dataUser.value.workHour.length) return null
 
-        const entryDiff = Math.abs(currentTime.getTime() - entryTime.getTime());
-        const departureDiff = Math.abs(currentTime.getTime() - departureTime.getTime());
+  const currentTime = new Date()
+  let closestWorkHour = null
+  let smallestDifference = Infinity
 
-        const minDiff = Math.min(entryDiff, departureDiff);
+  dataUser.value.workHour.forEach((workHour) => {
+    const entryTime = parseTime(workHour.entryTime)
+    const departureTime = parseTime(workHour.departureTime)
 
-        if (minDiff < smallestDifference) {
-          smallestDifference = minDiff;
-          closestWorkHour = workHour;
-        }
-      });
+    const entryDiff = Math.abs(currentTime.getTime() - entryTime.getTime())
+    const departureDiff = Math.abs(currentTime.getTime() - departureTime.getTime())
 
-      return closestWorkHour.id;
-    },
-  },
-  async mounted() {
-    this.video = document.getElementById('cam')
-    this.canvas = document.getElementById('canvas')
-    this.canvasface = document.getElementById('canvasFace');
+    const minDiff = Math.min(entryDiff, departureDiff)
 
-    this.load.loading = true
-    await this.getVideoDevices()
+    if (minDiff < smallestDifference) {
+      smallestDifference = minDiff
+      closestWorkHour = workHour
+    }
+  })
 
-    if (this.videoDevices.length > 0) {
-      await this.startVideo()
-      await this.loadModels().then(async () => {
-        this.load.mensage = 'buscanco dados treinados...'
-        this.treineServeData = await $fetch('/api/treine')
+  return closestWorkHour.id
+})
 
-        this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
+onMounted(async () => {
 
-        if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
-          this.faceMatcherJson = this.treineServeData.faceMatcherJson
-          this.faceMatcher = faceapi.FaceMatcher.fromJSON(this.faceMatcherJson)
-          // carrega logo o treinamento antecipado
-          this.load.mensage = 'Carregando o treinamento na memoria...'
-          await faceapi.detectSingleFace(this.video, this.options)
-        } else {
-          snackbarShow('Não existe nem um dado treinado!', 'warning')
-          this.startDesable = true
-        }
-      })
+  video.value = document.getElementById('camera');
+  canvas.value = document.getElementById('canvas');
+  const videoDevices = await getVideoDevices()
+  if (videoDevices.length > 0) {
+    await startVideo()
+    const treineServeData = await $fetch('/api/treine')
+
+    if (treineServeData.hasOwnProperty('faceMatcherJson')) {
+      loadFaceLabelJSON(treineServeData.faceMatcherJson)
     } else {
-      snackbarShow('Nem uma camera foi encontrada!', 'warning')
+      snackbarShow('Não existe nem um dado treinado!', 'warning')
     }
-    this.load.loading = false
-  },
-  unmounted() {
-    if (this.video.srcObject) {
-      this.video.srcObject.getTracks().forEach(function (track) {
-        track.stop();
-      });
-    }
-  },
-  methods: {
-    async getVideoDevices() {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      this.videoDevices = devices.filter(device => device.kind === 'videoinput');
-      this.selectedDevice = localStorage.getItem('selectedDevice') || (this.videoDevices.length > 0 ? this.videoDevices[0].deviceId : null)
-    },
-    async startVideo() {
-      this.load.mensage = 'Carregando câmera...'
-      const device = this.selectedDevice !== null ? { deviceId: this.selectedDevice } : true;
-      const self = this;
-      await navigator.mediaDevices.getUserMedia({ video: device })
-        .then(function (stream) {
-          let stream_settings = stream.getVideoTracks()[0].getSettings();
-          self.resolutionDevice.width = stream_settings.width;
-          self.resolutionDevice.height = stream_settings.height;
-          self.video.srcObject = stream;
-          localStorage.setItem('selectedDevice', self.selectedDevice);
-        })
-        .catch(function (err) {
-          alert('Ouve um erro ao carregar a camera! \n' + err)
-        });
-    },
-
-    loadModels() {
-      this.load.mensage = 'Carregando modelos...'
-      return Promise.all([
-        faceapi.nets.faceLandmark68Net.loadFromUri('/weights'),
-        faceapi.nets.faceRecognitionNet.loadFromUri('/weights'),
-        faceapi.nets.faceExpressionNet.loadFromUri('/weights'),
-        faceapi.nets.ssdMobilenetv1.loadFromUri('/weights'),
-      ]);
-    },
-
-    async getDateUser(id) {
-      const response = await $fetch(`/api/users/${id}`)
-      if (response.hasOwnProperty('user')) {
-        this.observation = response.point ? response.point.observation : null;
-        this.dataUser = response;
-        this.dialog = true
-        this.pointCheck = this.getClosestWorkHour
-      } else {
-        snackbarShow('Não encontrei esse usuario no banco, talvez você tenha que retreinar!', 'warning')
-      }
-    },
-
-    async confirmPonto() {
-      const data = {
-        "userId": this.dataUser.user.id,
-        "expressio": this.pointLocal.expressioUser,
-        "capturedImage": this.pointLocal.capturedImage,
-        "observation": this.observation,
-        "workHourId": this.pointCheck
-      }
-      const PointSave = await $fetch(`/api/points`, {
-        method: 'PATCH',
-        body: data
-      })
-      if (PointSave) {
-        snackbarShow('Ponto registrado com sucesso!', 'success')
-        this.dialog = false
-      }
-    },
-
-    parseTime(time) {
-      const [hours, minutes] = time.split(':').map(Number);
-      const date = new Date();
-      date.setHours(hours, minutes, 0, 0);
-      return date;
-    },
-
-    async processVideo() {
-      this.load.loading = true;
-      this.load.mensage = 'buscando rosto na camera...'
-      this.canvas.width = this.video.videoWidth;
-      this.canvas.height = this.video.videoHeight;
-
-      const singleResult = await faceapi
-        .detectSingleFace(this.video, this.options)
-        .withFaceLandmarks()
-        .withFaceExpressions()
-        .withFaceDescriptor()
-
-      if (singleResult) {
-        this.load.mensage = 'Tentado reconhecer!'
-        const bestMatch = this.faceMatcher.findBestMatch(singleResult.descriptor)
-        if (bestMatch.label !== 'unknown') {
-          const expressions = singleResult.expressions
-          this.pointLocal.expressioUser = Object.keys(expressions).reduce((a, b) => expressions[a] > expressions[b] ? a : b);
-
-          // Capture the current frame from the video
-          const ctx = this.canvas.getContext('2d');
-          // Desenhe o frame atual do vídeo no canvas
-          ctx.drawImage(this.video, 0, 0, this.resolutionDevice.width, this.resolutionDevice.height);
-
-          // Create a new canvas element
-          const faceCtx = this.canvasface.getContext('2d');
-          const cut = getCutImage(singleResult.detection.box);
-          this.canvasface.width = cut.width;
-          this.canvasface.height = cut.height;
-          // Draw the face on the canvas
-          faceCtx.drawImage(this.canvas, cut.x, cut.y, cut.width, cut.height, 0, 0, cut.width, cut.height);
-
-          // Convert the canvas image to a data URL
-          this.pointLocal.capturedImage = this.canvasface.toDataURL('image/png');
-          // pega os dados do usuario
-          await this.getDateUser(bestMatch.label)
-        } else {
-          snackbarShow('Não estou reconhecendo... Chegue mais perto e fique de frente para camera!', 'warning')
-        }
-      } else {
-        snackbarShow('Não foi encontrado rosto da imagem!', 'warning')
-      }
-      this.load.loading = false;
-    },
+  } else {
+    snackbarShow('Nem uma camera foi encontrada!', 'warning')
   }
+})
+
+onUnmounted(() => {
+  closeVideo()
+})
+
+// Methods
+const processVideo = async () => {
+  const resultImage = await processImage()
+  if (resultImage.success == false) {
+    snackbarShow(resultImage.message, 'error')
+    return
+  } else {
+    pointLocal.expressioUser = resultImage.expressioUser
+    pointLocal.capturedImage = resultImage.imageFace
+    getDateUser(resultImage.bestMatch.label)
+  }
+}
+
+
+const getDateUser = async (id) => {
+  const response = await $fetch(`/api/users/${id}`)
+  if ('user' in response) {
+    observation.value = response.point ? response.point.observation : null
+    dataUser.value = response
+    dialog.value = true
+    pointCheck.value = getClosestWorkHour.value
+  } else {
+    snackbarShow('Não encontrei esse usuario no banco, talvez você tenha que retreinar!', 'warning')
+  }
+}
+
+const confirmPonto = async () => {
+  let data = {
+    userId: dataUser.value.user.id,
+    expressio: pointLocal.expressioUser,
+    capturedImage: pointLocal.capturedImage,
+    observation: observation.value,
+  }
+
+  if (pointCheck.value == null) {
+    data.workHourId = getClosestWorkHour.value
+  }
+
+  const PointSave = await $fetch(`/api/points`, {
+    method: 'PATCH',
+    body: data
+  })
+
+  if (PointSave.message) {
+    snackbarShow(PointSave.message, 'success')
+    dialog.value = false
+  }
+}
+
+const parseTime = (time) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date;
 }
 </script>
 <style scoped>
-#cam {
-  /* position: absolute; */
-  margin: auto;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  border-color: black;
-  max-width: 100%;
+.camera-container {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  /* or your desired width */
+  margin: 0 auto;
+  padding: 0;
+}
+
+#camera {
+  position: relative;
+  width: 100%;
+  height: auto;
+  border: 2px solid #9c9c9c;
+  display: block;
 }
 
 #canvas {
-  display: none;
-}
-
-#canvasFace {
-  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid #9c9c9c;
 }
 
 .image {
