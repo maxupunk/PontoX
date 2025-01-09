@@ -22,8 +22,8 @@ export default function useFaceDetection() {
 
     const faceMarkInterval = ref()
 
-    const imageMarge = 100;
-    const offset = 30;
+    const imageMarge = 125;
+    const offset = 25;
 
     onMounted(async () => {
         console.log('start composable...')
