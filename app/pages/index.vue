@@ -13,7 +13,7 @@
         <video autoplay id="camera" muted></video>
         <canvas id="canvas"></canvas>
       </v-card-text>
-      <v-card-actions v-if="deviceList && deviceList.length > 0">
+      <v-card-actions v-if="treineServe && deviceList && deviceList.length > 0">
         <v-row>
           <v-col cols="2"></v-col>
           <v-col cols="8" class="text-center">
@@ -26,7 +26,12 @@
           </v-col>
         </v-row>
       </v-card-actions>
-      <v-card-actions v-else>
+      <v-card-actions v-else-if="!treineServe">
+        <v-alert type="warning">
+          Não existe nem um dado treinado! <v-btn to="/treine">ir para trinamento</v-btn>
+        </v-alert>
+      </v-card-actions>
+      <v-card-actions v-else-if="!deviceList || deviceList.length == 0">
         <v-alert type="warning">
           Não existe nem uma camera conectada!
         </v-alert>
@@ -104,7 +109,7 @@ const {
   startVideo,
   loadFaceLabelJSON,
   markFacePlay,
-  processImage,
+  facialIdentification,
 } = useFaceDetection();
 
 // State
@@ -116,6 +121,7 @@ const pointLocal = reactive({
   expressioUser: null,
   capturedImage: null
 })
+const treineServe = ref(false)
 
 // Computed Properties
 const titulo = computed(() => {
@@ -154,14 +160,16 @@ onMounted(async () => {
   const treineServeData = await $fetch('/api/treine')
   if (treineServeData.hasOwnProperty('faceMatcherJson')) {
     loadFaceLabelJSON(treineServeData.faceMatcherJson)
+    treineServe.value = true
   } else {
     snackbarShow('Não existe nem um dado treinado!', 'warning')
+    treineServe.value = false
   }
 })
 
 // Methods
 const processVideo = async () => {
-  const resultImage = await processImage()
+  const resultImage = await facialIdentification()
   if (resultImage.success) {
     pointLocal.expressioUser = resultImage.expressioUser
     pointLocal.capturedImage = resultImage.imageFace

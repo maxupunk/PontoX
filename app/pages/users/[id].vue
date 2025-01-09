@@ -58,7 +58,7 @@ const {
   selectedDevice,
   startVideo,
   markFacePlay,
-  processImage,
+  getImageFace
 } = useFaceDetection();
 const router = useRouter()
 const route = useRoute()
@@ -75,7 +75,7 @@ onMounted(async () => {
 
 // Methods
 const processVideo = async () => {
-  const resultImage = await processImage()
+  const resultImage = await getImageFace()
   if (resultImage.success) {
     sendImage(resultImage.imageFace)
   } else {
