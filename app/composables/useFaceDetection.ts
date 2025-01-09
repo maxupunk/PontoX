@@ -13,10 +13,9 @@ export default function useFaceDetection() {
     const canvas = ref()
     let canvasContext: CanvasRenderingContext2D
 
-    const deviceList:any = ref()
+    const deviceList: any = ref()
     const selectedDevice = ref()
     const stream = ref()
-    const modelsLoaded = ref(false)
     const faceMatcher = ref()
 
     const loading = ref(false)
@@ -25,6 +24,23 @@ export default function useFaceDetection() {
 
     const imageMarge = 100;
     const offset = 30;
+
+    onMounted(async () => {
+        console.log('start composable...')
+        loading.value = true
+        //
+        await getVideoDevices()
+        await startVideo()
+        await loadModels()
+        // carrega o modelo de reconhecimento facial
+        await faceapi.detectSingleFace(video.value)
+        //
+        loading.value = false
+    })
+
+    onUnmounted(() => {
+        closeVideo()
+    })
 
     const getCutImage = (box: Box) => {
         const { x, y, width, height } = box;
@@ -37,6 +53,7 @@ export default function useFaceDetection() {
     }
 
     const getVideoDevices = async () => {
+        console.log('Getting video devices...')
         try {
             const devices = await navigator.mediaDevices.enumerateDevices()
             deviceList.value = devices.filter(device => device.kind === 'videoinput')
@@ -48,6 +65,7 @@ export default function useFaceDetection() {
     }
 
     const startVideo = async (deviceId = null) => {
+        console.log('Starting video...')
         try {
             if (deviceList.value.length === 0) {
                 console.error('No video devices found')
@@ -87,27 +105,24 @@ export default function useFaceDetection() {
     }
 
     const loadModels = async () => {
+        console.log('Loading models...')
         try {
-            if (modelsLoaded.value) return
             await Promise.all([
                 faceapi.nets.faceLandmark68Net.loadFromUri('/weights'),
                 faceapi.nets.faceRecognitionNet.loadFromUri('/weights'),
                 faceapi.nets.faceExpressionNet.loadFromUri('/weights'),
                 faceapi.nets.ssdMobilenetv1.loadFromUri('/weights'),
-                modelsLoaded.value = true
             ])
+            console.log('Models loaded')
         } catch (error) {
             console.error('Error loading models:', error)
         }
     }
 
     const loadFaceLabelJSON = async (labels: any) => {
+        console.log('Loading face label JSON...')
         try {
-            loading.value = true
-            await loadModels()
             faceMatcher.value = faceapi.FaceMatcher.fromJSON(labels)
-            await faceapi.detectSingleFace(video.value)
-            loading.value = false
         } catch (error) {
             console.error('Error loading face matcher:', error)
         }
@@ -116,10 +131,12 @@ export default function useFaceDetection() {
     const markFacePlay = () => {
         const timeRefresh = 200
         if (!faceMarkInterval.value) {
+            console.log('Marking face...')
             faceMarkInterval.value = setInterval(() => {
                 markFace()
             }, timeRefresh)
         } else {
+            console.log('Stop marking face...')
             clearInterval(faceMarkInterval.value);
             faceMarkInterval.value = '';
             setTimeout(() => {
@@ -138,17 +155,11 @@ export default function useFaceDetection() {
             // mark face
             const resizedDetections = faceapi.resizeResults(detection, { width: canvas.value.width, height: canvas.value.height })
             faceapi.draw.drawDetections(canvas.value, resizedDetections)
-            /*
-            faceapi.draw.drawFaceLandmarks(canvas.value, resizedDetections)
-            const box = detection.detection.box;
-            canvasContext.value.strokeStyle = '#ccc'; // Green color
-            canvasContext.value.lineWidth = 2;
-            canvasContext.value.strokeRect(box.x, box.y, box.width, box.height);
-            */
         }
     }
 
     const getFaceImage = (box: any) => {
+        console.log('Cut face of image...')
         const cut = getCutImage(box);
         const canvasFace = document.createElement('canvas');
         canvasFace.width = cut.width;
@@ -161,6 +172,8 @@ export default function useFaceDetection() {
     }
 
     const processImage = async () => {
+        console.log('Processing image...')
+        await loadModels()
         if (stream.value) {
             loading.value = true
             const singleResult = await faceapi
@@ -213,7 +226,6 @@ export default function useFaceDetection() {
         startVideo,
         loadFaceLabelJSON,
         markFacePlay,
-        processImage,
-        closeVideo
+        processImage
     }
 }
