@@ -171,9 +171,8 @@ export default function useFaceDetection() {
         return canvasFace.toDataURL('image/png');
     }
 
-    const processImage = async () => {
+    const facialIdentification = async () => {
         console.log('Processing image...')
-        await loadModels()
         if (stream.value) {
             loading.value = true
             const singleResult = await faceapi
@@ -205,6 +204,25 @@ export default function useFaceDetection() {
         }
     }
 
+    const getImageFace = async () => {
+        console.log('Processing image...')
+        if (stream.value) {
+            loading.value = true
+            const singleResult = await faceapi
+                .detectSingleFace(video.value)
+                .withFaceLandmarks()
+
+            if (singleResult) {
+                const imageFace = getFaceImage(singleResult.detection.box)
+                loading.value = false
+                return { imageFace, success: true }
+            } else {
+                loading.value = false
+                return { message: "Não foi encontrado rosto da imagem!", success: false }
+            }
+        }
+    }
+
     const closeVideo = () => {
         if (stream.value) {
             stream.value.getTracks().forEach((track: any) => {
@@ -226,6 +244,7 @@ export default function useFaceDetection() {
         startVideo,
         loadFaceLabelJSON,
         markFacePlay,
-        processImage
+        facialIdentification,
+        getImageFace
     }
 }
