@@ -26,6 +26,11 @@
           </v-col>
         </v-row>
       </v-card-actions>
+      <v-card-actions v-else>
+        <v-alert type="warning">
+          Não existe nem uma camera conectada!
+        </v-alert>
+      </v-card-actions>
     </v-card>
 
     <v-dialog v-model="dialog" persistent max-width="600px" :fullscreen="$vuetify.display.xs">
@@ -96,12 +101,10 @@ const {
   loading,
   deviceList,
   selectedDevice,
-  getVideoDevices,
   startVideo,
   loadFaceLabelJSON,
   markFacePlay,
   processImage,
-  closeVideo
 } = useFaceDetection();
 
 // State
@@ -148,35 +151,24 @@ onMounted(async () => {
 
   video.value = document.getElementById('camera');
   canvas.value = document.getElementById('canvas');
-  const videoDevices = await getVideoDevices()
-  if (videoDevices.length > 0) {
-    await startVideo()
-    const treineServeData = await $fetch('/api/treine')
-
-    if (treineServeData.hasOwnProperty('faceMatcherJson')) {
-      loadFaceLabelJSON(treineServeData.faceMatcherJson)
-    } else {
-      snackbarShow('Não existe nem um dado treinado!', 'warning')
-    }
+  const treineServeData = await $fetch('/api/treine')
+  if (treineServeData.hasOwnProperty('faceMatcherJson')) {
+    loadFaceLabelJSON(treineServeData.faceMatcherJson)
   } else {
-    snackbarShow('Nem uma camera foi encontrada!', 'warning')
+    snackbarShow('Não existe nem um dado treinado!', 'warning')
   }
-})
-
-onUnmounted(() => {
-  closeVideo()
 })
 
 // Methods
 const processVideo = async () => {
   const resultImage = await processImage()
-  if (resultImage.success == false) {
-    snackbarShow(resultImage.message, 'error')
-    return
-  } else {
+  if (resultImage.success) {
     pointLocal.expressioUser = resultImage.expressioUser
     pointLocal.capturedImage = resultImage.imageFace
     getDateUser(resultImage.bestMatch.label)
+  } else {
+    snackbarShow(resultImage.message, 'error')
+    return
   }
 }
 
