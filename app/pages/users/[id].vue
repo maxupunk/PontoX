@@ -20,7 +20,7 @@
         <video autoplay id="camera" muted></video>
         <canvas id="canvas"></canvas>
       </v-card-text>
-      <v-card-actions>
+      <v-card-actions v-if="deviceList && deviceList.length > 0">
         <v-row>
           <v-col cols="2"></v-col>
           <v-col cols="8" class="text-center">
@@ -32,6 +32,11 @@
             <v-btn @click="markFacePlay" size="large" color="primary" icon="mdi-face-recognition"></v-btn>
           </v-col>
         </v-row>
+      </v-card-actions>
+      <v-card-actions v-else>
+        <v-alert type="warning">
+          Não existe nem uma camera conectada!
+        </v-alert>
       </v-card-actions>
     </v-card>
 
@@ -51,12 +56,9 @@ const {
   loading,
   deviceList,
   selectedDevice,
-  getVideoDevices,
   startVideo,
-  loadFaceLabelJSON,
   markFacePlay,
   processImage,
-  closeVideo
 } = useFaceDetection();
 const router = useRouter()
 const route = useRoute()
@@ -69,33 +71,16 @@ onMounted(async () => {
   await getDateUser()
   video.value = document.getElementById('camera');
   canvas.value = document.getElementById('canvas');
-  const videoDevices = await getVideoDevices()
-  if (videoDevices.length > 0) {
-    await startVideo()
-    const treineServeData = await $fetch('/api/treine')
-
-    if ('faceMatcherJson' in treineServeData) {
-      loadFaceLabelJSON(treineServeData.faceMatcherJson)
-    } else {
-      snackbarShow('Não existe nem um dado treinado!', 'warning')
-    }
-  } else {
-    snackbarShow('Nem uma camera foi encontrada!', 'warning')
-  }
-})
-
-onUnmounted(() => {
-  closeVideo()
 })
 
 // Methods
 const processVideo = async () => {
   const resultImage = await processImage()
-  if (resultImage.success == false) {
+  if (resultImage.success) {
+    sendImage(resultImage.imageFace)
+  } else {
     snackbarShow(resultImage.message, 'error')
     return
-  } else {
-    sendImage(resultImage.imageFace)
   }
 }
 
