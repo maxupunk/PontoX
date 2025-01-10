@@ -104,10 +104,10 @@ const {
   video,
   canvas,
   loading,
+  treineServe,
   deviceList,
   selectedDevice,
   startVideo,
-  loadFaceLabelJSON,
   markFacePlay,
   facialIdentification,
 } = useFaceDetection();
@@ -121,7 +121,6 @@ const pointLocal = reactive({
   expressioUser: null,
   capturedImage: null
 })
-const treineServe = ref(false)
 
 // Computed Properties
 const titulo = computed(() => {
@@ -154,17 +153,8 @@ const getClosestWorkHour = computed(() => {
 })
 
 onMounted(async () => {
-
   video.value = document.getElementById('camera');
   canvas.value = document.getElementById('canvas');
-  const treineServeData = await $fetch('/api/treine')
-  if (treineServeData.hasOwnProperty('faceMatcherJson')) {
-    loadFaceLabelJSON(treineServeData.faceMatcherJson)
-    treineServe.value = true
-  } else {
-    snackbarShow('Não existe nem um dado treinado!', 'warning')
-    treineServe.value = false
-  }
 })
 
 // Methods

@@ -18,12 +18,17 @@ export default function useFaceDetection() {
     const stream = ref()
     const faceMatcher = ref()
 
+    const treineServe = ref(false)
+    const distanceThreshold = ref(0.6)
+
     const loading = ref(false)
 
     const faceMarkInterval = ref()
 
     const imageMarge = 125;
     const offset = 25;
+
+    const TinyFaceDetectorOptions = new faceapi.TinyFaceDetectorOptions()
 
     onMounted(async () => {
         console.log('start composable...')
@@ -32,8 +37,15 @@ export default function useFaceDetection() {
         await getVideoDevices()
         await startVideo()
         await loadModels()
+
+        const treineServeData = await $fetch('/api/treine')
+        distanceThreshold.value = treineServeData.distanceThreshold
+        if ('faceMatcherJson' in treineServeData) {
+            await loadFaceLabelJSON(treineServeData.faceMatcherJson)
+            treineServe.value = true
+        }
         // carrega o modelo de reconhecimento facial
-        await faceapi.detectSingleFace(video.value)
+        await faceapi.detectSingleFace(video.value, TinyFaceDetectorOptions)
         //
         loading.value = false
     })
@@ -149,7 +161,7 @@ export default function useFaceDetection() {
 
     const markFace = async () => {
         const detection = await faceapi
-            .detectSingleFace(video.value, new faceapi.TinyFaceDetectorOptions())
+            .detectSingleFace(video.value, TinyFaceDetectorOptions)
             .withFaceLandmarks();
         if (detection) {
             // Clear previous drawings
@@ -184,7 +196,7 @@ export default function useFaceDetection() {
                 .withFaceDescriptor()
 
             if (singleResult) {
-                const bestMatch = faceMatcher.value.findBestMatch(singleResult.descriptor)
+                const bestMatch = faceMatcher.value.findBestMatch(singleResult.descriptor, distanceThreshold.value)
                 if (bestMatch.label !== 'unknown') {
                     const expressions: any = singleResult.expressions
                     // get the expression with highest confidence
@@ -240,6 +252,7 @@ export default function useFaceDetection() {
         video,
         canvas,
         loading,
+        treineServe,
         deviceList,
         selectedDevice,
         getVideoDevices,
