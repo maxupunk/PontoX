@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import fetch from 'node-fetch';
 
@@ -6,10 +6,10 @@ export default defineEventHandler(async (event: any) => {
     try {
         const userId: number = event.context.params?.userid;
         const image: any = event.context.params?.image;
-        if (userId || image) {
+        if (userId && image) {
             const dirPath = path.join('storage', 'imagens', `${userId}`);
             const filePath = path.join(dirPath, image);
-            const imageData = fs.readFileSync(filePath);
+            const imageData = await fs.readFile(filePath);
             const blob = await fetch(`data:image/jpeg;base64,${imageData.toString('base64')}`).then((res: any) => res.blob());
             return blob;
         } else {
