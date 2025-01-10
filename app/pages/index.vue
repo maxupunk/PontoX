@@ -26,7 +26,7 @@
           </v-col>
         </v-row>
       </v-card-actions>
-      <v-card-actions v-else-if="!treineServe">
+      <v-card-actions v-else-if="!treineServe && !loading">
         <v-alert type="warning">
           Não existe nem um dado treinado! <v-btn to="/treine">ir para trinamento</v-btn>
         </v-alert>
