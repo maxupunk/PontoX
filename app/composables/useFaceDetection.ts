@@ -46,6 +46,7 @@ export default function useFaceDetection() {
         }
         // carrega o modelo de reconhecimento facial
         await faceapi.detectSingleFace(video.value, TinyFaceDetectorOptions)
+        await faceapi.detectSingleFace(video.value)
         //
         loading.value = false
     })
@@ -207,7 +208,6 @@ export default function useFaceDetection() {
                     loading.value = false
                     return { bestMatch, expressioUser, imageFace, success: true }
                 } else {
-
                     loading.value = false
                     return { message: "Não estou reconhecendo... Tente ficar parado.", success: false }
                 }
