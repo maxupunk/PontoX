@@ -43,7 +43,8 @@
                     </v-row>
                 </v-container>
                 <v-alert v-if="workHourChock.entryTime" type="warning" dense>
-                    Choque de horario na data {{ workHourChock.date }} horario {{ workHourChock.entryTime }} - {{ workHourChock.departureTime }}
+                    Choque de horario na data {{ workHourChock.date }} horario {{ workHourChock.entryTime }} - {{
+                        workHourChock.departureTime }}
                 </v-alert>
             </v-card-text>
         </v-card>
@@ -114,30 +115,28 @@ function save() {
     workHourChock.value = {}
     if (props.data.id) {
         hourStore.updateWorkHour(hourData).then((response) => {
-            if (response.message) {
-                snackbarShow(response.message, 'warning')
-                if (response.workHour) {
-                    workHourChock.value = response.workHour
-                }
-            } else {
-                snackbarShow('Horario atualizado com sucesso', 'success')
-                emit('update')
-                close()
+            snackbarShow('Horario atualizado com sucesso', 'success')
+            emit('update')
+            close()
+        }).catch((response) => {
+            snackbarShow(response.message, 'warning')
+            if (response.workHour) {
+                workHourChock.value = response.workHour
             }
+        }).finally(() => {
             loading.value = false
         })
     } else {
         hourStore.createWorkHour(hourData, props.userId).then((response) => {
-            if (response.message) {
-                snackbarShow(response.message, 'warning')
-                if (response.workHour) {
-                    workHourChock.value = response.workHour
-                }
-            } else {
-                snackbarShow('Horario criado com sucesso', 'success')
-                emit('update')
-                close()
+            snackbarShow('Horario criado com sucesso', 'success')
+            emit('update')
+            close()
+        }).catch((response) => {
+            snackbarShow(response.message, 'warning')
+            if (response.workHour) {
+                workHourChock.value = response.workHour
             }
+        }).finally(() => {
             loading.value = false
         })
     }

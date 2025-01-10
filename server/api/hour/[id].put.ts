@@ -33,9 +33,11 @@ export default defineEventHandler(async (event) => {
         if (workHours) {
             for (const workHour of workHours) {
                 if (workHour.entryTime === body.entryTime && workHour.departureTime === body.departureTime && workHour.id !== hourId) {
+                    setResponseStatus(event, 400)
                     return { workHour: workHour, message: "Já existe esse horario para esse funcionario" };
                 }
                 if ((body.entryTime < workHour.departureTime && body.departureTime > workHour.entryTime) && workHour.id !== hourId) {
+                    setResponseStatus(event, 400)
                     return { workHour: workHour, message: "Existe um choque de horário com esse horario." };
                 }
             }

@@ -16,16 +16,19 @@ export default defineEventHandler(async (event) => {
       },
     })
     if (workHour) {
-        if (workHour.entryTime === body.entryTime && workHour.departureTime === body.departureTime) {
-          return { workHour: workHour, message: "Já existe esse horario para esse funcionario" };
-        }
-        if ((body.entryTime < workHour.departureTime && body.departureTime > workHour.entryTime)) {
-          return { workHour: workHour, message: "Existe e há um choque de horário com esse dados digitado." };
-        }
+      if (workHour.entryTime === body.entryTime && workHour.departureTime === body.departureTime) {
+        setResponseStatus(event, 400)
+        return { workHour: workHour, message: "Já existe esse horario para esse funcionario" };
+      }
+      if ((body.entryTime < workHour.departureTime && body.departureTime > workHour.entryTime)) {
+        setResponseStatus(event, 400)
+        return { workHour: workHour, message: "Existe e há um choque de horário com esse dados digitado." };
+      }
     }
     // Create workHour
     const workHourCreted = await prisma.workHour.create({
       data: {
+        userId: body.userId,
         date: body.date,
         entryTime: body.entryTime,
         departureTime: body.departureTime,
@@ -33,7 +36,7 @@ export default defineEventHandler(async (event) => {
     });
     if (workHourCreted) {
       setResponseStatus(event, 201)
-      return { workHour: workHourCreted, message: "ok" };
+      return { workHour: workHourCreted };
     }
   } catch (e: any) {
     throw createError({
