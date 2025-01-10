@@ -172,6 +172,7 @@ export default {
         faceapi.nets.faceRecognitionNet.loadFromUri('/weights'),
         faceapi.nets.faceExpressionNet.loadFromUri('/weights'),
         faceapi.nets.ssdMobilenetv1.loadFromUri('/weights'),
+        faceapi.nets.mtcnn.loadFromUri('/weights')
       ]);
     },
 
@@ -186,7 +187,7 @@ export default {
           this.load.mensage = 'Processando...'
           const img = await faceapi.fetchImage(`/api/imagens/${label.label}/${file}`);
           this.load.image = img.src
-          const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+          const detections = await faceapi.detectSingleFace(img, new faceapi.MtcnnOptions()).withFaceLandmarks().withFaceDescriptor();
           if (detections) {
             LabeledFaceDescriptors.push(detections.descriptor);
             countFace++;

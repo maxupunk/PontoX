@@ -112,6 +112,8 @@ export default function useFaceDetection() {
                 faceapi.nets.faceRecognitionNet.loadFromUri('/weights'),
                 faceapi.nets.faceExpressionNet.loadFromUri('/weights'),
                 faceapi.nets.ssdMobilenetv1.loadFromUri('/weights'),
+                faceapi.nets.tinyFaceDetector.loadFromUri('/weights'),
+                faceapi.nets.mtcnn.loadFromUri('/weights')
             ])
             console.log('Models loaded')
         } catch (error) {
@@ -147,7 +149,7 @@ export default function useFaceDetection() {
 
     const markFace = async () => {
         const detection = await faceapi
-            .detectSingleFace(video.value)
+            .detectSingleFace(video.value, new faceapi.TinyFaceDetectorOptions())
             .withFaceLandmarks();
         if (detection) {
             // Clear previous drawings
@@ -209,7 +211,7 @@ export default function useFaceDetection() {
         if (stream.value) {
             loading.value = true
             const singleResult = await faceapi
-                .detectSingleFace(video.value)
+                .detectSingleFace(video.value, new faceapi.MtcnnOptions())
                 .withFaceLandmarks()
 
             if (singleResult) {
