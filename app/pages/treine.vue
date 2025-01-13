@@ -76,6 +76,7 @@
 <script>
 import * as faceapi from 'face-api.js';
 import { snackbarShow } from '~/composables/useUi'
+import { useConfigStore } from '~/stores/config';
 
 export default {
   data() {
@@ -93,12 +94,15 @@ export default {
         current: 0,
       },
       modelsServer: [],
-      // options: {},
       distanceThreshold: 0.6,
     };
   },
   async mounted() {
     this.load.loading = true;
+
+    const configStore = useConfigStore();
+    this.distanceThreshold = configStore.distanceThreshold;
+
     await this.loadModels().then(async () => {
       this.allUsers = await $fetch('/api/users/list')
       this.loadTreine()
@@ -131,9 +135,6 @@ export default {
       this.load.mensage = 'buscanco dados treinados...'
       $fetch('/api/treine').then((treine) => {
         this.treineServeData = treine
-        // this.options = new faceapi.SsdMobilenetv1Options(this.treineServeData.Mobilenetv1Options)
-        this.distanceThreshold = this.treineServeData.distanceThreshold
-
         if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
           this.faceMatcherJson = this.treineServeData.faceMatcherJson
         }

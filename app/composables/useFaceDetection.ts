@@ -1,5 +1,5 @@
 import * as faceapi from 'face-api.js'
-import { ref } from 'vue'
+import { useConfigStore } from '~/stores/config';
 
 interface Box {
     x: number;
@@ -9,6 +9,22 @@ interface Box {
 }
 
 export default function useFaceDetection() {
+
+    const configStore = useConfigStore();
+
+    const options: any = {
+        TinyFaceDetector: new faceapi.TinyFaceDetectorOptions(),
+        SsdMobilenetv1: new faceapi.SsdMobilenetv1Options(),
+        Mtcnn: new faceapi.MtcnnOptions()
+    }
+    const optionsLabel: any = {
+        TinyFaceDetector: 'Tiny Face Detector',
+        SsdMobilenetv1: 'SSD Mobilenet v1',
+        Mtcnn: 'MTCNN'
+    }
+    const FaceDetectorOptions = options[configStore.faceDetectionMethod];
+    const faceDetectionMethodLabel = optionsLabel[configStore.faceDetectionMethod];
+
     const video = ref()
     const canvas = ref()
     let canvasContext: CanvasRenderingContext2D
@@ -16,19 +32,14 @@ export default function useFaceDetection() {
     const deviceList: any = ref()
     const selectedDevice = ref()
     const stream = ref()
+
     const faceMatcher = ref()
-
     const treineServe = ref(false)
-    const distanceThreshold = ref(0.6)
-
     const loading = ref(false)
-
     const faceMarkInterval = ref()
 
     const imageMarge = 125;
     const offset = 25;
-
-    const TinyFaceDetectorOptions = new faceapi.TinyFaceDetectorOptions()
 
     onMounted(async () => {
         console.log('start composable...')
@@ -38,15 +49,14 @@ export default function useFaceDetection() {
         await startVideo()
         await loadModels()
 
-        const treineServeData = await $fetch('/api/treine')
-        distanceThreshold.value = treineServeData.distanceThreshold
+        const treineServeData: any = await $fetch('/api/treine')
         if ('faceMatcherJson' in treineServeData) {
             await loadFaceLabelJSON(treineServeData.faceMatcherJson)
             treineServe.value = true
         }
         // carrega o modelo de reconhecimento facial
-        await faceapi.detectSingleFace(video.value, TinyFaceDetectorOptions)
-        await faceapi.detectSingleFace(video.value)
+        await faceapi.detectSingleFace(video.value, FaceDetectorOptions)
+        await faceapi.detectSingleFace(video.value, options['tinyFaceDetector'])
         //
         loading.value = false
     })
@@ -144,7 +154,7 @@ export default function useFaceDetection() {
     }
 
     const markFacePlay = () => {
-        const timeRefresh = 200
+        const timeRefresh = 100
         if (!faceMarkInterval.value) {
             console.log('Marking face...')
             faceMarkInterval.value = setInterval(() => {
@@ -162,7 +172,7 @@ export default function useFaceDetection() {
 
     const markFace = async () => {
         const detection = await faceapi
-            .detectSingleFace(video.value, TinyFaceDetectorOptions)
+            .detectSingleFace(video.value, options['TinyFaceDetector'])
             .withFaceLandmarks();
         if (detection) {
             // Clear previous drawings
@@ -170,6 +180,11 @@ export default function useFaceDetection() {
             // mark face
             const resizedDetections = faceapi.resizeResults(detection, { width: canvas.value.width, height: canvas.value.height })
             faceapi.draw.drawDetections(canvas.value, resizedDetections)
+            // write method used
+            canvasContext.font = '12px Arial';
+            canvasContext.fillStyle = 'white';
+            canvasContext.fillText(faceDetectionMethodLabel, 10, 20);
+            canvasContext.fillText(configStore.distanceThreshold, 10, 35);
         }
     }
 
@@ -191,13 +206,13 @@ export default function useFaceDetection() {
         if (stream.value) {
             loading.value = true
             const singleResult = await faceapi
-                .detectSingleFace(video.value)
+                .detectSingleFace(video.value, FaceDetectorOptions)
                 .withFaceLandmarks()
                 .withFaceExpressions()
                 .withFaceDescriptor()
 
             if (singleResult) {
-                const bestMatch = faceMatcher.value.findBestMatch(singleResult.descriptor, distanceThreshold.value)
+                const bestMatch = faceMatcher.value.findBestMatch(singleResult.descriptor, configStore.distanceThreshold)
                 if (bestMatch.label !== 'unknown') {
                     const expressions: any = singleResult.expressions
                     // get the expression with highest confidence

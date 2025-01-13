@@ -23,6 +23,7 @@
         <v-list-item link prepend-icon="mdi-account-group" title="Resultado de horas"
           to="/reports/hoursBalance"></v-list-item>
         <v-list-subheader>Outros</v-list-subheader>
+        <v-list-item link prepend-icon="mdi-cog" title="Configurações" to="/config"></v-list-item>
         <v-list-item link prepend-icon="mdi-backup-restore" title="Backups" to="/backups"></v-list-item>
         <v-list-item link prepend-icon="mdi-information-outline" title="Sobre" to="/about"></v-list-item>
       </v-list>
