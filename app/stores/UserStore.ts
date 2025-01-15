@@ -7,21 +7,25 @@ export const useUserStore = defineStore('user', {
         users: [] as any[],
         usersList: [] as any[],
         pagination: {} as any,
+        search: '',
     }),
 
     actions: {
-        async fetchUsers(filter?: any) {
-            if (this.pagination.hasMore === false) return
+        async fetchUsers(reset?: any) {
             if (this.pagination.page !== undefined) {
                 this.pagination.page++
-            } else {
+            }
+
+            if (reset) {
+                this.pagination.page = 1
+            }
+
+            if (this.pagination.page === 1) {
                 this.users = []
             }
-            if (filter) {
-                this.pagination = {
-                    ...this.pagination,
-                    ...filter
-                }
+
+            if (this.search) {
+                this.pagination.search = this.search
             }
             const queryString = buildQueryString(this.pagination)
             return await $fetch(`/api/users${queryString}`).then((response: any) => {

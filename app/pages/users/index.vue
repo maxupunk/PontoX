@@ -7,7 +7,7 @@
                         <v-toolbar-title>Usuarios</v-toolbar-title>
                         <v-divider class="mx-4" inset vertical></v-divider>
                         <v-spacer></v-spacer>
-                        <user-form @reload="userStore.fetchUsers()" />
+                        <user-form @reload="userStore.fetchUsers(true)" />
                     </v-toolbar>
                 </template>
 
@@ -50,7 +50,7 @@ const headers = ref([
 function load({ done }: any) {
     loading.value = true
     userStore.fetchUsers().then((res: any) => {
-        if (res) {
+        if (res.hasMore) {
             done('ok')
         } else {
             done('empty')
