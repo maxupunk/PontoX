@@ -1,7 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
-
-const sw = process.env.SW === 'true'
+import process from 'node:process'
 
 export default defineNuxtConfig({
   devtools: { enabled: false },
@@ -89,6 +88,6 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-08-15',
   runtimeConfig: {
-    bdUrl: process.env.DATABASE_URL
+    secretJwt: process.env.APP_SECRET_JWT,
   },
 })

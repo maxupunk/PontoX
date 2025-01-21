@@ -3,27 +3,125 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
+model Tenant {
+  id        Int        @id @default(autoincrement())
+  name      String
+  cnpj      String?
+  phone     String?
+  email     String?
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime?  @updatedAt
+  Payment   Payment[]
+  User      User[]
+  Point     Point[]
+  WorkHour  WorkHour[]
+  BankHour  BankHour[]
+  log       Log[]
+
+  @@map("tenants")
+}
+
+model Payment {
+  id              Int              @id @default(autoincrement())
+  amount          Float
+  date            DateTime         @default(now())
+  datePaid        DateTime
+  validateAt      DateTime         @default(now())
+  status          Int              @default(1)
+  affiliateID     Int
+  tenantId        Int
+  paidaffiliateds Paidaffiliated[]
+  affiliate       Affiliated       @relation(fields: [affiliateID], references: [id])
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+
+  @@map("payments")
+}
+
+model Paidaffiliated {
+  id           Int        @id @default(autoincrement())
+  amount       Float
+  dataPaid     DateTime
+  paid         Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime?
+  paymentId    Int
+  affiliatedId Int
+  affiliateds  Affiliated @relation(fields: [affiliatedId], references: [id], map: "paidAffiliateds_affiliatedId_fkey")
+  payments     Payment    @relation(fields: [paymentId], references: [id], map: "paidAffiliateds_paymentId_fkey")
+
+  @@map("paidaffiliateds")
+}
+
+model Affiliated {
+  id              Int              @id @default(autoincrement())
+  name            String
+  email           String
+  password        String
+  phone           String
+  role            String           @default("revenda")
+  active          Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  paidaffiliateds Paidaffiliated[]
+  Payment         Payment[]
+
+  @@map("affiliateds")
+}
+
+/// //////////////////////////////////
+/// tabelas do sistema             ///
+/// //////////////////////////////////
 model User {
   id        Int        @id @default(autoincrement())
   name      String
   email     String?
   login     String?    @unique @default(uuid())
   password  String?    @default(uuid())
-  token     String?
   daysWeek  String?
-  role      String     @default("funcionario")
+  rule      String     @default("funcionario")
   status    Boolean    @default(true)
   createdAt DateTime   @default(now())
   updatedAt DateTime?  @updatedAt
   WorkHours WorkHour[] @relation("UserWorkHour")
   BankHour  BankHour[] @relation("UserBankHour")
   points    Point[]    @relation("UserPoints")
+  tenantId  Int
+  Tenant    Tenant?    @relation(fields: [tenantId], references: [id])
+  log       Log[]
+  token     token[]
 
   @@map("users")
+}
+
+model token {
+  id        Int      @id @default(autoincrement())
+  token     String
+  userId    Int
+  userAgent String?
+  ip        String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("tokens")
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  action    String
+  data      Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  tenantId  Int
+  Tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+
+  @@map("logs")
 }
 
 model BankHour {
@@ -35,6 +133,8 @@ model BankHour {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime? @updatedAt
   user        User      @relation("UserBankHour", fields: [userId], references: [id])
+  tenantId    Int
+  Tenant      Tenant?   @relation(fields: [tenantId], references: [id])
 
   @@map("bankHours")
 }
@@ -49,6 +149,8 @@ model WorkHour {
   updatedAt     DateTime @updatedAt
   user          User     @relation("UserWorkHour", fields: [userId], references: [id])
   points        Point[]
+  tenantId      Int
+  Tenant        Tenant?  @relation(fields: [tenantId], references: [id])
 
   @@map("WorkHours")
 }
@@ -70,6 +172,8 @@ model Point {
   updatedAt          DateTime? @updatedAt
   WorkHours          WorkHour? @relation(fields: [workHourId], references: [id])
   user               User      @relation("UserPoints", fields: [userId], references: [id])
+  tenantId           Int
+  Tenant             Tenant?   @relation(fields: [tenantId], references: [id])
 
   @@map("points")
 }

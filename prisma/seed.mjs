@@ -7,31 +7,21 @@ async function main() {
   try {
     const hashedPassword = await bcrypt.hash('admin', 10);
 
-    await prisma.user.create({
+    await prisma.tenant.create({
       data: {
-        name: 'Admin User',
-        email: 'admin@admin.com',
-        login: 'admin',
-        password: hashedPassword,
-        token: '',
-        role: 'admin',
-        status: true,
-        points: {
-          create: [
-            {
-              entryDate: '2021-10-10',
-              entryTime: '09:00:00',
-              entryImage: 'Teste',
-              entryExpressio: 'Teste',
-              departureDate: '2021-10-10',
-              departureTime: '10:00:00',
-              departureExpressio: 'Teste',
-              departureImage: 'Teste',
-              observation: 'Teste',
-            }
-          ]
+        name: 'Admin Tenant',
+        active: true,
+        User: {
+          create: {
+            name: 'Admin User',
+            email: 'admin@admin.com',
+            login: 'admin',
+            password: hashedPassword,
+            rule: 'admin',
+            status: true,
+          }
         }
-      },
+      }
     });
   } catch (e) {
     console.error(e);

@@ -1,23 +1,38 @@
-import { PrismaClient } from '@prisma/client'
-import { config } from 'dotenv'
-config() // Load .env file
+import { PrismaClient, Prisma } from '@prisma/client'
 
-let databaseUrl: string = process.env.DATABASE_URL?.toString() ?? ''
+let tenantId: number | null = 1
 
-console.log('DB', `${databaseUrl}`)
-
-const prismaClientSingleton = () => {
-  return new PrismaClient({
-    datasourceUrl: databaseUrl,
-  });
+export const setTenent = (id: number) => {
+  tenantId = id
 }
 
-declare const globalThis: {
-  prismaGlobal: ReturnType<typeof prismaClientSingleton>;
-} & typeof global;
+const MultiTenantExtension = Prisma.defineExtension({
+  query: {
+    $allModels: {
+      async $allOperations({ model, operation, args, query }: any) {
+        if (tenantId && model !== 'Tenant') {
+          if ('where' in args) {
+            args.where = {
+              ...args.where,
+              tenantId: tenantId,
+            }
+          }
+          if (operation === 'create') {
+            args.data = {
+              ...args.data,
+              tenantId: tenantId,
+            }
+          }
+        }
+        console.log('operation', operation);
+        console.log('args', args);
+        return query(args)
+      }
+    }
+  }
+})
 
-const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
+export const prismaTenant = new PrismaClient()
 
+const prisma = new PrismaClient().$extends(MultiTenantExtension)
 export default prisma
-
-if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma

@@ -1,6 +1,12 @@
-import prisma from "../prisma";
+import { prismaTenant } from "../prisma";
+import { setTenent } from "../prisma";
 import { pathToRegexp } from 'path-to-regexp';
 import { H3Event, createError } from 'h3';
+
+import jwt from 'jsonwebtoken';
+const config = useRuntimeConfig();
+
+const SECRETJWT = config.secretJwt as string
 
 const pathWhitelist = ['/api/login', '/api/treine', '/api/imagens/:label/:file', '/api/reports/resumo', '/api/reports/:id'];
 const regexWhitelist = pathWhitelist.map(path => pathToRegexp(path));
@@ -23,33 +29,48 @@ async function validateAuthorization(token: string | null) {
     });
   }
 
-  const userQuery = await prisma.user.findFirst({
-    select: {
-      id: true,
-    },
-    where: {
-      token: token,
-    },
-  });
+  const jwtDecoded: any = jwt.verify(token, SECRETJWT);
 
-  if (!userQuery) {
+  if (!jwtDecoded) {
     throw createError({
       status: 401,
       message: 'Não autorizado',
     });
   }
+
+  const userQuery: any = await prismaTenant.user.findUnique({
+    select: {
+      id: true,
+      tenantId: true,
+      Tenant: {
+        select: {
+          id: true,
+          name: true,
+          active: true,
+        }
+      }
+    },
+    where: {
+      id: jwtDecoded.id,
+    },
+  });
+
+  // Set the global tenantId
+  setTenent(jwtDecoded.tenantId);
+
+  return {
+    userId: userQuery.id,
+    tenantId: userQuery.tenantId
+  };
 }
 
 export default defineEventHandler(async (event: H3Event) => {
+  // console.log('event', event);
   const isWhiteList = isPathWhiteList(event.path, event);
 
   if (!isWhiteList) {
-    const authorization = event.headers.get('authorization');
-    try {
-      await validateAuthorization(authorization);
-    } catch (error) {
-      event.node.res.statusCode = 401;
-      event.node.res.end('Unauthorized');
-    }
+    const token: any = getHeader(event, 'authorization');
+    const authInfo = await validateAuthorization(token);
+    event.context.auth = authInfo; // Store auth info in context
   }
 });

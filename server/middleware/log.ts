@@ -3,6 +3,7 @@ import path from 'path'
 import prisma from "../prisma";
 
 export default defineEventHandler(async (event: any) => {
+  return
   if (event.path == '/' && event.method == 'GET') {
     return
   }

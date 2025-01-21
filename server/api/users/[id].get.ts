@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
                 name: true,
                 email: true,
                 login: true,
-                role: true,
+                rule: true,
                 status: true,
             },
             where: { id: userId },
