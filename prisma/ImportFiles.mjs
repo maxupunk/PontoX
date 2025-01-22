@@ -25,7 +25,7 @@ async function main() {
     const usersFilePath = path.join('./', process.env.STORAGE_FOLDER, 'users.csv');
     const pointsFilePath = path.join('./', process.env.STORAGE_FOLDER, 'points.csv');
 
-    const userHeaders = ['id', 'name', 'email', 'login', 'password', 'token', 'role', 'status', 'createdAt', 'updatedAt'];
+    const userHeaders = ['id', 'name', 'email', 'login', 'password', 'token', 'rule', 'status', 'createdAt', 'updatedAt'];
     const pointHeaders = ['id', 'userId', 'entryDate', 'entryTime', 'entryExpressio', 'entryImage', 'departureDate', 'departureTime', 'departureExpressio', 'departureImage', 'observation', 'createdAt', 'updatedAt'];
 
     const users = await readCSV(usersFilePath, userHeaders);
@@ -41,7 +41,7 @@ async function main() {
           login: user.login ? user.login : null,
           password: user.password ? user.password : null,
           token: user.token ? user.token : null,
-          role: user.role,
+          rule: user.rule,
           status: user.status === '1',
           createdAt: user.createdAt ? new Date(user.createdAt) : new Date(),
           updatedAt: user.updatedAt ? new Date(user.updatedAt) : null,
@@ -52,7 +52,7 @@ async function main() {
           login: user.login ? user.login : null,
           password: user.password ? user.password : null,
           token: user.token ? user.token : null,
-          role: user.role,
+          rule: user.rule,
           status: user.status === '1',
           createdAt: user.createdAt ? new Date(user.createdAt) : new Date(),
           updatedAt: user.updatedAt ? new Date(user.updatedAt) : new Date(),

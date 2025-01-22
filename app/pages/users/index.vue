@@ -42,7 +42,7 @@ const headers = ref([
     { title: 'Nome', value: 'name' },
     { title: 'Email', value: 'email' },
     { title: 'Login', value: 'login' },
-    { title: 'Permisao', value: 'role' },
+    { title: 'Permisao', value: 'rule' },
     { title: 'Estatus', value: 'status' },
     { title: 'Ações', value: 'action', sortable: false },
 ]);
