@@ -14,10 +14,8 @@ export const useAuthStore = defineStore('auth', {
     },
   },
   actions: {
-    setToken(token: string, remember: boolean) {
-      if (remember) {
-        localStorage.setItem('pontox-token', token)
-      }
+    setToken(token: string) {
+      localStorage.setItem('pontox-token', token)
       this.token = token
     },
     logout() {
