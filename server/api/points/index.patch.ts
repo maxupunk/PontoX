@@ -16,7 +16,8 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    const nameImage = saveUserImage(body.userId, body.capturedImage);
+    const tenantId = event.context.auth.tenantId;
+    const nameImage = saveUserImage(tenantId, body.userId, body.capturedImage);
 
     let data: any = {
       userId: body.userId,

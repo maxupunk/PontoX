@@ -4,15 +4,16 @@ import { saveUserImage } from '~~/server/utils/image';
 export default defineEventHandler(async (event) => {
   try {
     let body = await readBody(event);
+    const tenantId = event.context.auth.tenantId;
 
     if (body.entryImage) {
       // save file in public/imagens/userId if it is a base64 image
-      body.entryImage = await saveUserImage(body.userId, body.entryImage);
+      body.entryImage = saveUserImage(tenantId, body.userId, body.entryImage);
     }
 
     if (body.departureImage) {
       // save file in public/imagens/userId if it is a base64 image
-      body.departureImage = await saveUserImage(body.userId, body.departureImage);
+      body.departureImage = saveUserImage(tenantId, body.userId, body.departureImage);
     }
 
     const data: any = {

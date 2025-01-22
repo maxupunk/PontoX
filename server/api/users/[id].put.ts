@@ -6,8 +6,10 @@ export default defineEventHandler(async (event) => {
     try {
         const userId = Number(event.context.params?.id);
         let body = await readBody(event);
+        const tenantId = event.context.auth.tenantId;
+
         if (body.capturedImage) {
-            return saveUserImage(userId, body.capturedImage);
+            return saveUserImage(tenantId, userId, body.capturedImage);
         } else {
             if (body.id) delete body.id;
 
