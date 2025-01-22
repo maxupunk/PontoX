@@ -48,7 +48,7 @@
             <v-text-field v-model="user.login" label="Login" type="text" autocomplete="login" required></v-text-field>
             <v-text-field v-model="user.password" label="Senha" type="password" autocomplete="new-password"
               required></v-text-field>
-            <v-checkbox label="permanecer logado?" v-model="user.remember"></v-checkbox>
+            <v-checkbox label="permanecer logado?" v-model="user.remenber"></v-checkbox>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -113,7 +113,7 @@ export default {
         return
       }
       this.token = login.token
-      this.authStore.setToken(login.token, this.user.remember)
+      this.authStore.setToken(login.token)
     },
     logout() {
       this.authStore.logout()
