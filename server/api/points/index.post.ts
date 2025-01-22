@@ -16,9 +16,9 @@ export default defineEventHandler(async (event) => {
       departureDate: joi.date().label("a data de saída"),
       departureTime: joi.string().label("a imagem de saída"),
       observation: joi.string(),
-    });
+    }).unknown(true)
 
-    const { error } = schema.validate(body, { messages });
+    const { error } = schema.validate(body, { messages })
 
     if (error) {
       throw createError({

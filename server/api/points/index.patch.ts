@@ -10,9 +10,9 @@ export default defineEventHandler(async (event) => {
     // validate body
     const schema = joi.object({
       userId: joi.required(),
-    });
+    }).unknown(true)
 
-    const { error } = schema.validate(body, { messages });
+    const { error } = schema.validate(body, { messages })
 
     if (error) {
       throw createError({
