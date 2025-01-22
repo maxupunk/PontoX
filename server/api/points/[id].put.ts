@@ -1,10 +1,12 @@
 import prisma from "~~/server/prisma";
+import { pointShowResource } from '~~/server/resources/point';
 
 export default defineEventHandler(async (event) => {
     try {
         const pointId = Number(event.context.params?.id);
         let body = await readBody(event);
-        await prisma.point.update({
+
+        const point = await prisma.point.update({
             where: { id: pointId },
             data: {
                 userId: body.userId,
@@ -16,8 +18,15 @@ export default defineEventHandler(async (event) => {
                 departureImage: body.departureImage,
                 observation: body.observation,
             },
+            include: {
+                user: true
+            },
         });
-        return { message: 'Ponto atualizado com sucesso' };
+
+        return {
+            data: pointShowResource(point),
+            message: 'Ponto atualizado com sucesso'
+        };
     } catch (e: any) {
         throw createError({
             status: 400,

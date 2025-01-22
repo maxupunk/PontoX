@@ -1,9 +1,26 @@
 import prisma from "~~/server/prisma";
 import { saveUserImage } from '~~/server/utils/image';
+import joi from 'joi';
+import { messages } from 'joi-translation-pt-br';
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
+
+    // validate body
+    const schema = joi.object({
+      userId: joi.required(),
+    });
+
+    const { error } = schema.validate(body, { messages });
+
+    if (error) {
+      throw createError({
+        status: 400,
+        message: error.message,
+      });
+    }
+    /////////////////////////////////////////////////
 
     const date = new Date();
     const formattedDate = `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${("0" + date.getDate()).slice(-2)}`;

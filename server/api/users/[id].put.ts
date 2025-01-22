@@ -21,12 +21,15 @@ export default defineEventHandler(async (event) => {
                 delete body.password;
             }
 
-            await prisma.user.update({
+            const userUpdate = await prisma.user.update({
                 where: { id: userId },
                 data: body,
             });
 
-            return { message: 'Usuário atualizado com sucesso!' };
+            return {
+                data: userUpdate,
+                message: 'Usuário atualizado com sucesso!'
+            };
         }
     } catch (e: any) {
         throw createError({

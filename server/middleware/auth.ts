@@ -2,10 +2,9 @@ import { prismaTenant } from "../prisma";
 import { setTenent } from "../prisma";
 import { pathToRegexp } from 'path-to-regexp';
 import { H3Event, createError } from 'h3';
-
 import jwt from 'jsonwebtoken';
-const config = useRuntimeConfig();
 
+const config = useRuntimeConfig();
 const SECRETJWT = config.secretJwt as string
 
 const pathWhitelist = ['/api/login', '/api/treine', '/api/imagens/:label/:file', '/api/reports/resumo', '/api/reports/:id'];
@@ -29,43 +28,63 @@ async function validateAuthorization(token: string | null) {
     });
   }
 
-  const jwtDecoded: any = jwt.verify(token, SECRETJWT);
+  try {
+    const jwtDecoded: any = jwt.verify(token, SECRETJWT)
 
-  if (!jwtDecoded) {
+    if (!jwtDecoded) {
+      throw createError({
+        status: 401,
+        message: 'Não autorizado',
+      });
+    }
+
+    const user: any = await prismaTenant.user.findUnique({
+      select: {
+        id: true,
+        tenantId: true,
+        Tenant: {
+          select: {
+            id: true,
+            name: true,
+            active: true,
+          }
+        }
+      },
+      where: {
+        id: jwtDecoded.id,
+      },
+    });
+
+    if (user.Tenant.active === false) {
+      throw createError({
+        status: 401,
+        message: 'Tenant inativo',
+      });
+    }
+
+    // Set the global tenantId
+    setTenent(jwtDecoded.tenantId);
+
+    return {
+      userId: user.id,
+      tenantId: user.tenantId
+    };
+
+  } catch (error: any) {
+    if (error.name === 'TokenExpiredError') {
+      throw createError({
+        status: 401,
+        message: 'Token expirado',
+      });
+    }
     throw createError({
       status: 401,
       message: 'Não autorizado',
     });
   }
-
-  const userQuery: any = await prismaTenant.user.findUnique({
-    select: {
-      id: true,
-      tenantId: true,
-      Tenant: {
-        select: {
-          id: true,
-          name: true,
-          active: true,
-        }
-      }
-    },
-    where: {
-      id: jwtDecoded.id,
-    },
-  });
-
-  // Set the global tenantId
-  setTenent(jwtDecoded.tenantId);
-
-  return {
-    userId: userQuery.id,
-    tenantId: userQuery.tenantId
-  };
 }
 
 export default defineEventHandler(async (event: H3Event) => {
-  // console.log('event', event);
   const isWhiteList = isPathWhiteList(event.path, event);
 
   if (!isWhiteList) {

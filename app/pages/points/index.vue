@@ -5,8 +5,8 @@
                 <template v-slot:top>
                     <v-toolbar flat>
                         <v-toolbar-title>Pontos</v-toolbar-title>
-                        <v-text-field v-model="pointStore.search" label="Pesquisar" variant="underlined"
-                            hide-details clearable></v-text-field>
+                        <v-text-field v-model="pointStore.search" label="Pesquisar" variant="underlined" hide-details
+                            clearable></v-text-field>
                         <v-spacer></v-spacer>
                         <v-dialog v-model="dialog" persistent scrollable
                             :fullscreen="$vuetify.display.xs || fullscreen">
@@ -180,7 +180,8 @@ const confirmDelete = ref({
 
 const fullscreen = ref(false)
 const loading = ref(false)
-let infiniteScroll:any = null
+// used to call the done after the done("ok") or done("empty") in the load function
+let infiniteScroll: any = null
 
 const headers = ref([
     { text: 'ID', value: 'id' },
@@ -193,16 +194,16 @@ const headers = ref([
 ])
 
 const debounce = (fn: Function, delay: number) => {
-  let timeoutId: NodeJS.Timeout
-  return (...args: any[]) => {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => fn(...args), delay)
-  }
+    let timeoutId: NodeJS.Timeout
+    return (...args: any[]) => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => fn(...args), delay)
+    }
 }
 
 const debouncedFetch = debounce(() => {
-  pointStore.fetchPoints(true)
-  infiniteScroll('ok')
+    pointStore.fetchPoints(true)
+    infiniteScroll('ok')
 }, 500)
 
 watch(() => pointStore.search, () => {
@@ -253,17 +254,20 @@ async function save() {
         return
     }
     if (pointStore.point.id) {
-        const UpdUser = await pointStore.updatePoint(pointStore.point)
-        if (UpdUser) {
-            snackbarShow('Usuário atualizado com sucesso!', 'success')
-        }
+        pointStore.updatePoint(pointStore.point).then((response: any) => {
+            snackbarShow(response.message, 'success')
+            dialog.value = false
+        }).catch((error: any) => {
+            snackbarShow(error.data.message, 'error')
+        })
     } else {
-        const NewUser = await pointStore.createPoint(pointStore.point)
-        if (NewUser) {
-            snackbarShow('Usuário cadastrado com sucesso!', 'success')
-        }
+        pointStore.createPoint(pointStore.point).then((response: any) => {
+            snackbarShow(response.message, 'success')
+            dialog.value = false
+        }).catch((error: any) => {
+            snackbarShow(error.data.message, 'error')
+        })
     }
-    close()
 }
 
 function deleteDialog(point: any) {
@@ -272,14 +276,16 @@ function deleteDialog(point: any) {
 }
 
 async function deleteItem() {
-    const response = await $fetch(`/api/points/${confirmDelete.value.id}`, {
-        method: 'DELETE',
-    })
-    if (response) {
-        snackbarShow('Usuário deletado com sucesso!', 'success')
+    if (!confirmDelete.value.id) {
+        snackbarShow('Selecione um ponto!', 'warning')
+        return
     }
+    pointStore.deletePoint(confirmDelete.value.id).then((response: any) => {
+        snackbarShow(response.message, 'success')
+    }).catch((error: any) => {
+        snackbarShow(error.data.message, 'error')
+    })
     confirmDelete.value.dialog = false
-    pointStore.fetchPoints()
 }
 
 function setDefaultImage(e: any) {

@@ -1,9 +1,33 @@
 import prisma from "~~/server/prisma";
 import { saveUserImage } from '~~/server/utils/image';
+import joi from 'joi';
+import { messages } from 'joi-translation-pt-br';
+import { pointShowResource } from '~~/server/resources/point';
 
 export default defineEventHandler(async (event) => {
   try {
     let body = await readBody(event);
+
+    // validate body
+    const schema = joi.object({
+      userId: joi.required().label("o nome do usuário"),
+      entryDate: joi.date().required().label("a data de entrada"),
+      entryTime: joi.string().required().label("a hora de entrada"),
+      departureDate: joi.date().label("a data de saída"),
+      departureTime: joi.string().label("a imagem de saída"),
+      observation: joi.string(),
+    });
+
+    const { error } = schema.validate(body, { messages });
+
+    if (error) {
+      throw createError({
+        status: 400,
+        message: error.message,
+      });
+    }
+    /////////////////////////////////////////////////
+
     const tenantId = event.context.auth.tenantId;
 
     if (body.entryImage) {
@@ -29,11 +53,17 @@ export default defineEventHandler(async (event) => {
       observation: body.observation,
     };
 
-    await prisma.point.create({
+    const newPoint = await prisma.point.create({
       data: data,
+      include: {
+        user: true
+      },
     });
 
-    return { message: 'Ponto registrado com sucesso' };
+    return {
+      data: pointShowResource(newPoint),
+      message: 'Ponto registrado com sucesso'
+    };
   } catch (e: any) {
     throw createError({
       status: 400,

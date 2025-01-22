@@ -42,16 +42,26 @@ export const useUserStore = defineStore('user', {
             })
         },
         async createUser(data: any) {
-            const response = await $fetch("/api/users/", {
+            return await $fetch("/api/users/", {
                 method: 'POST',
                 body: JSON.stringify(data)
+            }).then((response: any) => {
+                if (response.data) {
+                    this.users.push(response.data)
+                }
+                return response
             })
-            return response
         },
         async updateUser(id: string, data: any) {
             return await $fetch("/api/users/" + id, {
                 method: 'PUT',
                 body: JSON.stringify(data)
+            }).then((response: any) => {
+                if (response.data) {
+                    const index = this.users.findIndex((user: any) => user.id === response.data.id)
+                    this.users[index] = response.data
+                }
+                return response
             })
         },
     },
