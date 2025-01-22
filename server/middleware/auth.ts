@@ -6,8 +6,8 @@ import jwt from 'jsonwebtoken';
 
 const config = useRuntimeConfig();
 const SECRETJWT = config.secretJwt as string
-
-const pathWhitelist = ['/api/login', '/api/treine', '/api/imagens/:label/:file', '/api/reports/resumo', '/api/reports/:id'];
+// examplo whitelist with var: '/api/reports/resumo', '/api/reports/:id'
+const pathWhitelist = ['/api/login'];
 const regexWhitelist = pathWhitelist.map(path => pathToRegexp(path));
 
 // verifica se o path é da API ou se está na whitelist

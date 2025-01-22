@@ -77,6 +77,7 @@
 import * as faceapi from 'face-api.js';
 import { snackbarShow } from '~/composables/useUi'
 import { useConfigStore } from '~/stores/config';
+import { useAuthStore } from '@/stores/auth.ts'
 
 export default {
   data() {
@@ -95,6 +96,7 @@ export default {
       },
       modelsServer: [],
       distanceThreshold: 0.6,
+      authStore: useAuthStore()
     };
   },
   async mounted() {
@@ -186,7 +188,8 @@ export default {
         let LabeledFaceDescriptors = [];
         for (const file of label.files) {
           this.load.mensage = 'Processando...'
-          const img = await faceapi.fetchImage(`/api/imagens/${label.label}/${file}`);
+          const imgBlob = await $fetch(`/api/imagens/${label.label}/${file}`);
+          const img = await faceapi.bufferToImage(imgBlob)
           this.load.image = img.src
           const detections = await faceapi.detectSingleFace(img, new faceapi.MtcnnOptions()).withFaceLandmarks().withFaceDescriptor();
           if (detections) {

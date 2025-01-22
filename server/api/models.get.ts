@@ -23,7 +23,8 @@ async function imagesUrl(tenantId: Number, dirPath: string = folderpathImagens):
     const items = fs.readdirSync(dirPath);
 
     for (const item of items) {
-      const fullPath:string = path.join(dirPath, `${tenantId}`, item);
+      const fullPath:string = path.join(dirPath, item);
+      console.log("itens",  fullPath);
       const stats = fs.statSync(fullPath);
 
       if (stats.isDirectory()) {
