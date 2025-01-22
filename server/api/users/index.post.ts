@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     email: joi.string().email(),
     login: joi.string(),
     password: joi.string(),
-    role: joi.string(),
+    rule: joi.string(),
     status: joi.boolean(),
   });
 
@@ -50,11 +50,14 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: body,
     });
 
-    return { message: 'Usuário cadastrado com sucesso' };
+    return {
+      data: newUser,
+      message: 'Usuário cadastrado com sucesso'
+    };
   } catch (e: any) {
     throw createError({
       status: 400,
