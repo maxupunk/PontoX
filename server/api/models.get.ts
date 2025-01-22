@@ -3,9 +3,10 @@ import path from 'path';
 import prisma from "../prisma";
 import { folderpathImagens } from '~~/server/utils/image';
 
-export default defineEventHandler(() => {
+export default defineEventHandler((event: any) => {
   try {
-    return imagesUrl();
+    const tenantId = event.context.auth.tenantId;
+    return imagesUrl(tenantId);
   } catch (e: any) {
     throw createError({
       status: 400,
@@ -15,14 +16,14 @@ export default defineEventHandler(() => {
 });
 
 
-async function imagesUrl(dirPath: string = folderpathImagens): Promise<{ label: string, files: string[] }[]> {
+async function imagesUrl(tenantId: Number, dirPath: string = folderpathImagens): Promise<{ label: string, files: string[] }[]> {
   let data: { label: string, files: string[] }[] = [];
 
   try {
     const items = fs.readdirSync(dirPath);
 
     for (const item of items) {
-      const fullPath = path.join(dirPath, item);
+      const fullPath:string = path.join(dirPath, `${tenantId}`, item);
       const stats = fs.statSync(fullPath);
 
       if (stats.isDirectory()) {
@@ -35,7 +36,7 @@ async function imagesUrl(dirPath: string = folderpathImagens): Promise<{ label: 
         });
 
         if (userQuery?.status) {
-          const subDirResults = await imagesUrl(fullPath);
+          const subDirResults = await imagesUrl(tenantId, fullPath);
           data = data.concat(subDirResults);
         }
       } else {

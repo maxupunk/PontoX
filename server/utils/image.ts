@@ -9,10 +9,10 @@ export const folderpathImagens = path.join(storagePath, folderImagens)
 export const folderStorage = path.join(storagePath)
 export const folderBackup = path.join(process.env.BACKUP_FOLDER ? process.env.BACKUP_FOLDER : 'backups')
 
-export function saveUserImage(userId: Number, capturedImage: string): string {
+export function saveUserImage(tenantId: Number, userId: Number, capturedImage: string): string {
     // Create user's directory if it doesn't exist
     if (/^data:image\/[a-zA-Z]*;base64,/.test(capturedImage)) {
-        const dirPath = path.join(storagePath, folderImagens, `${userId}`)
+        const dirPath = path.join(storagePath, folderImagens, `${tenantId}`, `${userId}`)
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true })
             fs.chmodSync(dirPath, '664')
@@ -22,7 +22,7 @@ export function saveUserImage(userId: Number, capturedImage: string): string {
         let imageBase64Data = capturedImage.replace(/^data:image\/\w+;base64,/, "")
 
         // Convert data string into a buffer
-        let imageBase64:any = Buffer.from(imageBase64Data, 'base64')
+        let imageBase64: any = Buffer.from(imageBase64Data, 'base64')
 
         // Save the image
         const date = new Date()
