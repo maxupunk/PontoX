@@ -111,7 +111,6 @@ export default {
         snackbarShow('login ou senha inválidos!', 'error')
         return
       }
-      this.token = login.token
       this.authStore.setToken(login.token)
     },
     logout() {
