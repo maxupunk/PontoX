@@ -1,4 +1,5 @@
 <template>
+    <appBar title="Resumo total de Horas" />
     <v-container>
         <v-card>
             <v-card-actions>

@@ -1,4 +1,5 @@
 <template>
+    <appBar title="Sobre" />
     <v-container>
         <v-skeleton-loader :loading="loading" type="table-heading, table-thead, table-tbody, table-tfoot">
             <v-data-table :items="bankHourStore.bankUser.rows" :headers="headers">

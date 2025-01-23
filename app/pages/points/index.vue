@@ -1,141 +1,15 @@
 <template>
+    <appBar title="Pontos">
+        <v-text-field v-model="pointStore.search" label="Pesquisar" variant="underlined" hide-details
+            clearable></v-text-field>
+        <v-spacer></v-spacer>
+        <point-form @reload="pointStore.fetchPoints(true)" />
+    </appBar>
     <v-container>
         <v-infinite-scroll @load="load">
             <v-data-table-virtual :items="pointStore.points" :headers="headers" :loading="loading">
-                <template v-slot:top>
-                    <v-toolbar flat>
-                        <v-toolbar-title>Pontos</v-toolbar-title>
-                        <v-text-field v-model="pointStore.search" label="Pesquisar" variant="underlined" hide-details
-                            clearable></v-text-field>
-                        <v-spacer></v-spacer>
-                        <v-dialog v-model="dialog" persistent scrollable
-                            :fullscreen="$vuetify.display.xs || fullscreen">
-                            <template v-slot:activator="{ props }">
-                                <v-btn icon="mdi-timer-plus" v-bind="props"></v-btn>
-                            </template>
-                            <template v-slot:default>
-                                <v-card>
-                                    <v-toolbar :title="formTitle">
-                                        <v-spacer></v-spacer>
-                                        <v-btn icon @click="save">
-                                            <v-icon>mdi-content-save</v-icon>
-                                        </v-btn>
-                                        <v-btn icon @click="fullscreen = !fullscreen">
-                                            <v-icon v-if="!fullscreen">mdi-arrow-expand</v-icon>
-                                            <v-icon v-else>mdi-arrow-collapse</v-icon>
-                                        </v-btn>
-                                        <v-btn icon @click="close">
-                                            <v-icon>mdi-close</v-icon>
-                                        </v-btn>
-                                    </v-toolbar>
-                                    <v-card-text>
-                                        <v-container>
-                                            <v-row>
-                                                <v-select :items="userStore.usersList" item-value="id" item-title="name"
-                                                    v-model="pointStore.point.userId" label="Usuario"></v-select>
-                                            </v-row>
-                                            <v-row v-if="pointStore.point.WorkHours">
-                                                <v-col cols="12">
-                                                    <v-card variant="outlined">
-                                                        <v-card-text>
-                                                            <v-row>
-                                                                <v-col cols="4">
-                                                                    <h3>Data</h3>
-                                                                    {{ pointStore.point.WorkHours.date }}
-                                                                </v-col>
-                                                                <v-col cols="4">
-                                                                    <h3>Horario de entrada</h3>
-                                                                    {{ pointStore.point.WorkHours.entryTime }}
-                                                                </v-col>
-                                                                <v-col cols="4">
-                                                                    <h3>Horario de saida</h3>
-                                                                    {{ pointStore.point.WorkHours.departureTime }}
-                                                                </v-col>
-                                                            </v-row>
-                                                        </v-card-text>
-                                                    </v-card>
-                                                </v-col>
-                                            </v-row>
-                                            <v-row>
-                                                <v-col cols="12" sm="6" md="6">
-                                                    <span v-if="pointStore.point.entryImage">
-                                                        <img :src="`/api/imagens/${pointStore.point.userId}/${pointStore.point.entryImage}`"
-                                                            @error="setDefaultImage" width="100%">
-                                                    </span>
-                                                    <span v-else>
-                                                        <img src="/imageFailed.jpg" width="100%">
-                                                    </span>
-                                                </v-col>
-                                                <v-col cols="12" sm="6" md="6">
-                                                    <v-container>
-                                                        <v-row>
-                                                            <v-text-field type="date"
-                                                                v-model="pointStore.point.entryDate"
-                                                                label="Data entrada"></v-text-field>
-                                                            <v-spacer></v-spacer>
-                                                            <v-text-field type="time"
-                                                                v-model="pointStore.point.entryTime"
-                                                                label="Hora entrada"></v-text-field>
-                                                        </v-row>
-                                                        <v-row>
-                                                            <v-text-field v-model="pointStore.point.entryImage"
-                                                                label="Imagem de entrada" readonly></v-text-field>
-                                                        </v-row>
-                                                        <v-row>
-                                                            <v-text-field v-model="pointStore.point.entryExpressio"
-                                                                label="Expressão" readonly></v-text-field>
-                                                        </v-row>
-                                                    </v-container>
-                                                </v-col>
-                                            </v-row>
-                                            <v-row>
-                                                <v-col cols="12" sm="6" md="6">
-                                                    <span v-if="pointStore.point.departureImage">
-                                                        <img :src="`/api/imagens/${pointStore.point.userId}/${pointStore.point.departureImage}`"
-                                                            @error="setDefaultImage" width="100%">
-                                                    </span>
-                                                    <span v-else>
-                                                        <img src="/imageFailed.jpg" width="100%">
-                                                    </span>
-                                                </v-col>
-                                                <v-col cols="12" sm="6" md="6">
-                                                    <v-container>
-                                                        <v-row>
-                                                            <v-text-field type="date"
-                                                                v-model="pointStore.point.departureDate"
-                                                                label="Data saida"></v-text-field>
-                                                            <v-spacer></v-spacer>
-                                                            <v-text-field type="time"
-                                                                v-model="pointStore.point.departureTime"
-                                                                label="Hora saida"></v-text-field>
-                                                        </v-row>
-                                                        <v-row>
-                                                            <v-text-field v-model="pointStore.point.departureImage"
-                                                                label="Imagem de saida" readonly></v-text-field>
-                                                        </v-row>
-                                                        <v-row>
-                                                            <v-text-field v-model="pointStore.point.departureExpressio"
-                                                                label="Expressão" readonly></v-text-field>
-                                                        </v-row>
-                                                    </v-container>
-                                                </v-col>
-                                            </v-row>
-                                            <v-row>
-                                                <v-text-field v-model="pointStore.point.observation"
-                                                    label="Observação"></v-text-field>
-                                            </v-row>
-                                        </v-container>
-                                    </v-card-text>
-                                </v-card>
-                            </template>
-                        </v-dialog>
-                    </v-toolbar>
-                </template>
-
                 <template v-slot:item.action="{ item }">
-                    <v-icon class="me-2" @click="editItem(item)">
-                        mdi-pencil
-                    </v-icon>
+                    <point-form :id="item.id" icon="mdi-pencil" @reload="userStore.fetchUsers()" />
                     <v-icon @click="deleteDialog(item)">
                         mdi-delete
                     </v-icon>
@@ -172,13 +46,11 @@ import { useUserStore } from "~/stores/UserStore";
 const pointStore = usePointStore()
 const userStore = useUserStore()
 
-const dialog = ref(false)
 const confirmDelete = ref({
     id: null,
     dialog: false
 })
 
-const fullscreen = ref(false)
 const loading = ref(false)
 // used to call the done after the done("ok") or done("empty") in the load function
 let infiniteScroll: any = null
@@ -210,10 +82,6 @@ watch(() => pointStore.search, () => {
     debouncedFetch()
 })
 
-onMounted(() => {
-    userStore.fetchList()
-})
-
 function load({ done }: any) {
     // copy the done function to call it later
     infiniteScroll = done
@@ -233,43 +101,6 @@ function load({ done }: any) {
     })
 }
 
-watch(dialog, (val) => {
-    if (!val) {
-        close()
-    }
-})
-
-const formTitle = computed(() => {
-    return pointStore.point.id === null ? 'Cadastro' : 'Atualizar'
-})
-
-async function editItem(item: any) {
-    pointStore.fetchPoint(item.id)
-    dialog.value = true
-}
-
-async function save() {
-    if (!pointStore.point.userId) {
-        snackbarShow('Selecione um usuario!', 'warning')
-        return
-    }
-    if (pointStore.point.id) {
-        pointStore.updatePoint(pointStore.point).then((response: any) => {
-            snackbarShow(response.message, 'success')
-            dialog.value = false
-        }).catch((error: any) => {
-            snackbarShow(error.data.message, 'error')
-        })
-    } else {
-        pointStore.createPoint(pointStore.point).then((response: any) => {
-            snackbarShow(response.message, 'success')
-            dialog.value = false
-        }).catch((error: any) => {
-            snackbarShow(error.data.message, 'error')
-        })
-    }
-}
-
 function deleteDialog(point: any) {
     confirmDelete.value = point
     confirmDelete.value.dialog = true
@@ -287,15 +118,4 @@ async function deleteItem() {
     })
     confirmDelete.value.dialog = false
 }
-
-function setDefaultImage(e: any) {
-    e.target.src = '/imageFailed.jpg'
-}
-
-function close() {
-    dialog.value = false
-    pointStore.point = {}
-    pointStore.fetchPoints()
-}
-
 </script>

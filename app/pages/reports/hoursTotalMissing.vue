@@ -1,4 +1,5 @@
 <template>
+    <appBar title="Horas Corridas" />
     <v-container>
         <v-card>
             <v-card-actions>

@@ -18,6 +18,14 @@ export const useAuthStore = defineStore('auth', {
       localStorage.setItem('pontox-token', token)
       this.token = token
     },
+    async login(user: any) {
+      const login: any = await $fetch('/api/login', {
+        method: 'POST',
+        body: JSON.stringify(user)
+      })
+      this.setToken(login.token)
+      return login
+    },
     logout() {
       localStorage.removeItem('pontox-token')
       this.token = ''

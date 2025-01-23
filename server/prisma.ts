@@ -24,8 +24,6 @@ const MultiTenantExtension = Prisma.defineExtension({
             }
           }
         }
-        // console.log('operation', operation);
-        // console.log('args', args);
         return query(args)
       }
     }

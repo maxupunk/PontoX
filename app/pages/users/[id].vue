@@ -1,4 +1,5 @@
 <template>
+  <appBar title="Adiciona foto do usuario" />
   <v-container>
     <v-card flat>
       <v-card-title>

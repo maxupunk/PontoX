@@ -50,7 +50,10 @@ export default defineEventHandler(async (event: any) => {
         }
       });
 
-      return { token };
+      return {
+        message: 'Usuário autenticado com sucesso',
+        token: token,
+      };
     }
   } catch (e: any) {
     throw createError({

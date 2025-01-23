@@ -1,4 +1,5 @@
 <template>
+  <appBar title="Sobre" />
   <v-container fluid>
     <v-row justify="center" align="center" class="fill-height">
       <v-col class="text-center" cols="12" sm="8" md="6">
@@ -26,6 +27,6 @@
 </template>
 <script setup lang="ts">
 const technologies = ref<string[]>([
-  'Vue.js 3', 'Nuxt.js 3', 'Vuetify 3', 'Node.js', 'SQLite', 'Face-api.js', 'PrimaJs', 'Bcrypt', '...'
+  'Vue.js 3', 'Nuxt.js 3', 'Vuetify 3', 'Node.js', 'Mysql', 'Face-api.js', 'PrismaJs', 'Bcrypt', '...'
 ])
 </script>

@@ -1,4 +1,5 @@
 <template>
+    <appBar title="Calendario do usuario" />
     <v-container>
         <v-card>
             <v-toolbar dark prominent>
@@ -48,7 +49,6 @@ const userid = Number(params.userid)
 
 
 onMounted(async () => {
-    console.log(userid)
     await userStore.fetchUser(userid).catch((error: any) => {
         snackbarShow(error, 'error')
     });

@@ -1,4 +1,5 @@
 <template>
+    <appBar title="Resumo dia a dia" />
     <v-container>
         <v-card>
             <v-card-actions>

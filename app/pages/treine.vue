@@ -1,4 +1,5 @@
 <template>
+  <appBar title="Treinamento" />
   <v-container>
     <v-alert color="info" variant="outlined" v-if="isDifferent">Recomendado o retreinamento, existe algun(s) cadastro
       sem reconhecimento</v-alert>

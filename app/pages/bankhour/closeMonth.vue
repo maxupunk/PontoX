@@ -1,4 +1,5 @@
 <template>
+    <appBar title="Sobre" />
     <v-container>
         <v-card :loading="loading">
             <v-toolbar flat>

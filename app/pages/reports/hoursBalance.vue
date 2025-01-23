@@ -1,4 +1,5 @@
 <template>
+    <appBar title="Resumo de horas" />
     <v-container>
         <v-skeleton-loader :loading="loading" type="table-heading, table-thead, table-tbody, table-tfoot">
             <v-data-table :items="bankHourStore.hoursBalance" :headers="headers">

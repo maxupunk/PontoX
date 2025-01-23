@@ -1,4 +1,5 @@
 <template>
+    <appBar title="Configurações" />
     <v-container>
         <config-form />
     </v-container>

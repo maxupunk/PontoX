@@ -1,4 +1,5 @@
 <template>
+    <appBar title="Sobre" />
     <v-container>
         <v-infinite-scroll :onLoad="load">
             <v-data-table-virtual :items="bankHourStore.bankHours" :headers="headers" :loading="loading">

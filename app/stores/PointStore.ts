@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import buildQueryString from '~/utils/buildQueryString'
+import blobToBase64 from '~/utils/blobToBase64'
 
 export const usePointStore = defineStore('point', {
     state: () => ({
@@ -69,6 +70,17 @@ export const usePointStore = defineStore('point', {
                 this.points.splice(index, 1)
                 return response
             })
-        }
+        },
+        async fetchImage(userId: Number, image: any) {
+            if (!image) {
+                return "/noimage.jpg"
+            }
+            try {
+                const img = await $fetch(`/api/imagens/${userId}/${image}`)
+                return blobToBase64(img)
+            } catch (e: any) {
+                return "/noimage.jpg"
+            }
+        },
     },
 })

@@ -1,38 +1,5 @@
 <template>
   <v-app id="inspire">
-    <v-app-bar>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-    </v-app-bar>
-
-    <v-navigation-drawer v-model="drawer">
-      <v-list>
-        <v-list-subheader>Pontos</v-list-subheader>
-        <v-list-item link prepend-icon="mdi-eye-check" title="Ponto" to="/"></v-list-item>
-        <v-list-subheader>Gerencia</v-list-subheader>
-        <v-list-item link prepend-icon="mdi-timer-check-outline" title="Gerenciar pontos" to="/points"></v-list-item>
-        <v-list-item link prepend-icon="mdi-school" title="Treinamento" to="/treine"></v-list-item>
-        <v-list-item link prepend-icon="mdi-account-group" title="Usuarios" to="/users"></v-list-item>
-        <v-list-item link prepend-icon="mdi-store-clock" title="Banco de horas" to="/bankhour"></v-list-item>
-        <v-list-subheader>Relatorios</v-list-subheader>
-        <v-list-item link prepend-icon="mdi-account-group" title="Horas corridas"
-          to="/reports/hourstotalmissing"></v-list-item>
-        <v-list-item link prepend-icon="mdi-account-group" title="Horas total trabalhada"
-          to="/reports/hourstotal"></v-list-item>
-        <v-list-item link prepend-icon="mdi-account-group" title="Resumo dia a dia"
-          to="/reports/hoursdaytoday"></v-list-item>
-        <v-list-item link prepend-icon="mdi-account-group" title="Resultado de horas"
-          to="/reports/hoursBalance"></v-list-item>
-        <v-list-subheader>Outros</v-list-subheader>
-        <v-list-item link prepend-icon="mdi-cog" title="Configurações" to="/config"></v-list-item>
-        <v-list-item link prepend-icon="mdi-information-outline" title="Sobre" to="/about"></v-list-item>
-      </v-list>
-      <template v-slot:append v-if="isLoged">
-        <v-btn block color="warning" @click="logout()">
-          Logout
-        </v-btn>
-      </template>
-    </v-navigation-drawer>
-
     <v-main>
       <NuxtPage />
     </v-main>
@@ -57,8 +24,6 @@
         </v-card>
       </form>
     </v-dialog>
-
-
     <v-footer app>
       <v-row justify="center" no-gutters>
         <v-col class="text-center" cols="12">
@@ -69,53 +34,28 @@
     <snackbar />
   </v-app>
 </template>
-<script>
-import snackbar from '~/components/snackbar.vue';
-import { useAuthStore } from '@/stores/auth.ts'
+<script lang="ts" setup>
+import { reactive, computed } from 'vue'
+import snackbar from '~/components/snackbar.vue'
+import { useAuthStore } from '@/stores/auth'
 
-export default {
-  data() {
-    return {
-      drawer: false,
-      authStore: null,
-      user: {
-        login: '',
-        password: '',
-        permanente: false
-      },
-      authStore: useAuthStore()
-    }
-  },
-  components: {
-    snackbar
-  },
-  computed: {
-    isLoged() {
-      if (this.authStore && this.authStore.getToken) {
-        return true
-      } else {
-        return false
-      }
-    },
-  },
-  methods: {
-    async doLogin() {
-      const login = await $fetch('/api/login', {
-        method: 'POST',
-        body: JSON.stringify(this.user)
-      }).catch((error) => {
-        snackbarShow(error.data.message, 'error')
-      })
+const user = reactive({
+  login: '',
+  password: '',
+  remenber: false
+})
 
-      if (login.statusCode == 400) {
-        snackbarShow('login ou senha inválidos!', 'error')
-        return
-      }
-      this.authStore.setToken(login.token)
-    },
-    logout() {
-      this.authStore.logout()
-    }
-  }
+const authStore = useAuthStore()
+
+const isLoged = computed(() => {
+  return authStore && authStore.getToken
+})
+
+async function doLogin() {
+  authStore.login(user).then((response) => {
+    snackbarShow(response.message, 'success')
+  }).catch((error) => {
+    snackbarShow(error.data.message, 'error')
+  })
 }
 </script>

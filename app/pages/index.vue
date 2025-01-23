@@ -1,4 +1,5 @@
 <template>
+  <appBar title="Ponto" />
   <v-container>
     <v-card flat>
       <v-card-title>
@@ -90,12 +91,12 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-overlay v-model="loading" class="align-center justify-center">
+      <div class="text-center">
+        <v-progress-circular color="primary" indeterminate></v-progress-circular>
+      </div>
+    </v-overlay>
   </v-container>
-  <v-overlay v-model="loading" class="align-center justify-center">
-    <div class="text-center">
-      <v-progress-circular color="primary" indeterminate></v-progress-circular>
-    </div>
-  </v-overlay>
 </template>
 
 <script setup>
