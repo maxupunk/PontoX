@@ -10,7 +10,6 @@ export default defineEventHandler(async (event: any) => {
         if (userId && image) {
             const dirPath = path.join('storage', 'imagens', `${tenantId}`, `${userId}`);
             const filePath = path.join(dirPath, image);
-            console.log(filePath);
             const imageData = await fs.readFile(filePath).catch(() => {
                 throw new Error('Imagem não encontrada');
             });
