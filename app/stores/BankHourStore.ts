@@ -40,21 +40,35 @@ export const useBankHourStore = defineStore('bankhour', {
             })
         },
         async create(data: any) {
-            const response = await $fetch("/api/bankhour/", {
+            return await $fetch("/api/bankhour/", {
                 method: 'POST',
                 body: data
+            }).then((response: any) => {
+                if (response.data) {
+                    this.bankHours.push(response.data)
+                }
+                return response
             })
-            return response
         },
         async update(id: string, data: any) {
             return await $fetch("/api/bankhour/" + id, {
                 method: 'PUT',
                 body: data
+            }).then((response: any) => {
+                if (response.data) {
+                    const index = this.bankHours.findIndex((item: any) => item.id === response.data.id)
+                    this.bankHours[index] = response.data
+                }
+                return response
             })
         },
         async delete(id: number) {
             return await $fetch("/api/bankhour/" + id, {
                 method: 'DELETE',
+            }).then((response: any) => {
+                const index = this.bankHours.findIndex((item: any) => item.id === response.data.id)
+                this.bankHours.splice(index, 1)
+                return response
             })
         },
         async fetchUsers() {

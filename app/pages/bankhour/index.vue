@@ -1,19 +1,11 @@
 <template>
-    <appBar title="Sobre" />
+    <appBar title="Banco de horas">
+        <v-btn icon="mdi-store-clock-outline" @click="router.push('/bankhour/closemonth')"></v-btn>
+        <bank-hour-form @reload="bankHourStore.fetchBankHaurs()" />
+    </appBar>
     <v-container>
         <v-infinite-scroll :onLoad="load">
             <v-data-table-virtual :items="bankHourStore.bankHours" :headers="headers" :loading="loading">
-                <template v-slot:top>
-                    <v-toolbar flat>
-                        <v-toolbar-title>Banco de horas</v-toolbar-title>
-                        <v-divider class="mx-4" inset vertical></v-divider>
-                        <v-spacer></v-spacer>
-                        <v-btn icon="mdi-store-clock-outline" @click="router.push('/bankhour/closemonth')"></v-btn>
-                        <v-btn icon="mdi-reload" @click="bankHourStore.fetchBankHaurs()"></v-btn>
-                        <bank-hour-form @reload="bankHourStore.fetchBankHaurs()" />
-                    </v-toolbar>
-                </template>
-
                 <template v-slot:item.minute="{ item }">
                     <v-chip :color="item.minute > 0 ? 'success' : 'error'" dark>
                         {{ minuteInHours(item.minute) }}

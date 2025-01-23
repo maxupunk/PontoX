@@ -57,7 +57,7 @@ let infiniteScroll: any = null
 
 const headers = ref([
     { title: 'ID', value: 'id' },
-    { title: 'Usuario', value: 'name' },
+    { title: 'Usuario', value: 'user.name' },
     { title: 'Entrada data', value: 'entryDate' },
     { title: 'Entrada hora', value: 'entryTime' },
     { title: 'Saida data', value: 'departureDate' },

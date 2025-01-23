@@ -1,5 +1,8 @@
 <template>
-    <appBar title="Sobre" />
+    <appBar title="Banco de horas do usuário">
+        <v-btn icon="mdi-package-variant-closed-check" @click="closeMonth()"></v-btn>
+        <bank-hour-form @reload="bankHourStore.fetchBankHaursUser(idUser)" />
+    </appBar>
     <v-container>
         <v-skeleton-loader :loading="loading" type="table-heading, table-thead, table-tbody, table-tfoot">
             <v-data-table :items="bankHourStore.bankUser.rows" :headers="headers">
@@ -8,11 +11,7 @@
                         <v-toolbar-title><b>{{ bankHourStore.bankUser?.user.name }}</b></v-toolbar-title>
                         <v-divider class="mx-4" inset vertical></v-divider>
                         <v-spacer></v-spacer>
-                        <v-chip :color="bankHourStore.bankUser.total > 0 ? 'success' : 'error'" dark>{{
-                            minuteInHours(bankHourStore.bankUser.total) }}</v-chip>
-                        <v-btn icon="mdi-package-variant-closed-check" @click="closeMonth()"></v-btn>
-                        <v-btn icon="mdi-reload" @click="bankHourStore.fetchBankHaursUser(idUser)"></v-btn>
-                        <bank-hour-form @reload="bankHourStore.fetchBankHaursUser(idUser)" />
+                        <v-btn :color="bankHourStore.bankUser.total > 0 ? 'success' : 'error'">Total: {{ minuteInHours(bankHourStore.bankUser.total) }}</v-btn>
                     </v-toolbar>
                 </template>
 

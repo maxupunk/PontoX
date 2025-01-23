@@ -1,10 +1,8 @@
 <template>
-    <appBar title="Sobre" />
+    <appBar title="Fechamento do período" />
     <v-container>
         <v-card :loading="loading">
-            <v-toolbar flat>
-                <v-toolbar-title>Fechamento do mês</v-toolbar-title>
-            </v-toolbar>
+            <v-alert type="info" text="O dia de abertura do mês é o mesmo dia do último fechamento. Caso não exista um fechamento anterior, será considerado o primeiro dia do ponto." />
             <v-card-text>
                 <v-form ref="form">
                     <v-row>

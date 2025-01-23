@@ -1,5 +1,4 @@
 import prisma from "~~/server/prisma";
-import { pointIndexResource } from "~~/server/resources/point";
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
@@ -44,17 +43,8 @@ export default defineEventHandler(async (event) => {
       }),
     ]);
 
-    return pointIndexResource(pointsResp, { total, page, limit });
-
     return {
-      data: pointsResp.map(point => ({
-        id: point.id,
-        name: point.user?.name,
-        entryDate: point.entryDate,
-        entryTime: point.entryTime,
-        departureDate: point.departureDate,
-        departureTime: point.departureTime,
-      })),
+      data: pointsResp,
       pagination: {
         total,
         page,

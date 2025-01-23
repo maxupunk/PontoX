@@ -1,17 +1,8 @@
 <template>
-    <appBar title="Resumo de horas" />
+    <appBar title="Banco de horas de todos os usuarios" />
     <v-container>
         <v-skeleton-loader :loading="loading" type="table-heading, table-thead, table-tbody, table-tfoot">
             <v-data-table :items="bankHourStore.hoursBalance" :headers="headers">
-                <template v-slot:top>
-                    <v-toolbar flat>
-                        <v-toolbar-title>Banco de horas resumo</v-toolbar-title>
-                        <v-divider class="mx-4" inset vertical></v-divider>
-                        <v-spacer></v-spacer>
-                        <v-btn icon="mdi-reload" @click="bankHourStore.fetchHaursBalance()"></v-btn>
-                    </v-toolbar>
-                </template>
-
                 <template v-slot:item.minute="{ item }">
                     <v-chip :color="item.minute > 0 ? 'success' : 'error'" dark>
                         {{ minuteInHours(item.minute) }}

@@ -9,6 +9,7 @@
                 </v-btn>
             </v-toolbar>
             <v-card-text>
+                <v-alert type="info" text="O dia de abertura do mês é o mesmo dia do último fechamento. Caso não exista um fechamento anterior, será considerado o primeiro dia do ponto." />
                 <v-date-input v-model="date" variant="underlined" autofocus />
             </v-card-text>
             <v-card-actions>
