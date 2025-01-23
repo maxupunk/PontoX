@@ -56,13 +56,13 @@ const loading = ref(false)
 let infiniteScroll: any = null
 
 const headers = ref([
-    { text: 'ID', value: 'id' },
-    { text: 'Usuario', value: 'name' },
-    { text: 'Entrada data', value: 'entryDate' },
-    { text: 'Entrada hora', value: 'entryTime' },
-    { text: 'Saida data', value: 'departureDate' },
-    { text: 'Saida hora', value: 'departureTime' },
-    { text: 'Ações', value: 'action', sortable: false },
+    { title: 'ID', value: 'id' },
+    { title: 'Usuario', value: 'name' },
+    { title: 'Entrada data', value: 'entryDate' },
+    { title: 'Entrada hora', value: 'entryTime' },
+    { title: 'Saida data', value: 'departureDate' },
+    { title: 'Saida hora', value: 'departureTime' },
+    { title: 'Ações', value: 'action', sortable: false },
 ])
 
 const debounce = (fn: Function, delay: number) => {
