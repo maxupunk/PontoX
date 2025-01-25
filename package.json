@@ -9,6 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "seed": "node prisma/seed.mjs",
+    "add": "node prisma/seed-tenant.mjs",
     "studio": "npx prisma studio"
   },
   "devDependencies": {
