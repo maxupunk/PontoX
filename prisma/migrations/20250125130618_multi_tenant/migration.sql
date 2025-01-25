@@ -78,8 +78,8 @@ CREATE TABLE `tokens` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `token` VARCHAR(191) NOT NULL,
     `userId` INTEGER NOT NULL,
-    `userAgent` VARCHAR(191) NOT NULL,
-    `ip` VARCHAR(191) NOT NULL,
+    `userAgent` VARCHAR(191) NULL,
+    `ip` VARCHAR(191) NULL,
     `active` BOOLEAN NOT NULL DEFAULT true,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
