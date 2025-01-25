@@ -54,6 +54,7 @@ const isLoged = computed(() => {
 async function doLogin() {
   authStore.login(user).then((response) => {
     snackbarShow(response.message, 'success')
+    window.location.reload()
   }).catch((error) => {
     snackbarShow(error.data.message, 'error')
   })
