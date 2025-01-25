@@ -50,7 +50,7 @@ export default function useFaceDetection() {
         await loadModels()
 
         const treineServeData: any = await $fetch('/api/treine')
-        if ('faceMatcherJson' in treineServeData) {
+        if ('faceMatcherJson' in treineServeData && treineServeData.faceMatcherJson.length) {
             await loadFaceLabelJSON(treineServeData.faceMatcherJson)
             treineServe.value = true
         }
