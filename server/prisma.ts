@@ -11,12 +11,13 @@ const MultiTenantExtension = Prisma.defineExtension({
     $allModels: {
       async $allOperations({ model, operation, args, query }: any) {
         if (tenantId && model !== 'Tenant') {
-          if ('where' in args) {
+          if ('where' in args || operation === 'findMany') {
             args.where = {
               ...args.where,
               tenantId: tenantId,
             }
           }
+
           if (operation === 'create') {
             args.data = {
               ...args.data,
