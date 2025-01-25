@@ -31,8 +31,8 @@
 </template>
 <script setup lang="ts">
 import { defineComponent, ref } from 'vue'
-import weekManager from '~/components/users/weekManager.vue';
-import periodGenerator from '~/components/users/periodGenerator.vue';
+import weekManager from '~/components/user/weekManager.vue';
+import periodGenerator from '~/components/user/periodGenerator.vue';
 import { useUserStore } from '~/stores/UserStore';
 
 const userStore = useUserStore()
