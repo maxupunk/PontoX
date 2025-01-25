@@ -4,30 +4,17 @@
     <v-alert color="info" variant="outlined" v-if="isDifferent">Recomendado o retreinamento, existe algun(s) cadastro
       sem reconhecimento</v-alert>
     <v-card>
-      <v-card-title>
-        <span class="text-h4" v-if="treineFileInfo">Já existe um treinamento</span>
-        <span class="text-h4" v-else>Não existe treinamento</span>
-      </v-card-title>
-
       <v-card-text>
-        <v-container v-if="treineFileInfo">
+        <v-container>
           <v-row>
             <v-col cols="6">
               Data do ulitmo treino
             </v-col>
             <v-col cols="6">
-              {{ treineFileInfo.birthtime }}
+              {{ treineServeData.updatedAt ? formatDatetime(treineServeData.updatedAt) : 'Nunca' }}
             </v-col>
           </v-row>
-          <v-row>
-            <v-col cols="6">
-              Tamanho
-            </v-col>
-            <v-col cols="6">
-              {{ treineFileInfo.size }}
-            </v-col>
-          </v-row>
-          <v-row v-if="faceMatcherJson.hasOwnProperty('labeledDescriptors')">
+          <v-row v-if="'labeledDescriptors' in faceMatcherJson">
             <v-col cols="12">
               {{ faceMatcherJson.labeledDescriptors.length }} face(s) reconhecida(s) de {{ allUsers.users.length }}
               cadastrada(s) no banco de dados
@@ -79,13 +66,13 @@ import * as faceapi from 'face-api.js';
 import { snackbarShow } from '~/composables/useUi'
 import { useConfigStore } from '~/stores/config';
 import { useAuthStore } from '@/stores/auth.ts'
+import { formatDatetime } from '~/utils/formatDateBr'
 
 export default {
   data() {
     return {
       LabelTrained: [],
-      faceMatcherJson: [],
-      treineServeData: [],
+      treineServeData: {},
       allUsers: [],
       token: null,
       dialog: false,
@@ -117,15 +104,15 @@ export default {
     percent() {
       return Math.ceil(this.load.current / this.modelsServer.length * 100)
     },
-    treineFileInfo() {
-      if (this.treineServeData.hasOwnProperty('fileStats')) {
-        return this.treineServeData.fileStats
+    faceMatcherJson() {
+      if (this.treineServeData && this.treineServeData.hasOwnProperty('faceMatcherJson')) {
+        return this.treineServeData.faceMatcherJson
       } else {
-        return null
+        return {}
       }
     },
     isDifferent() {
-      if (this.faceMatcherJson.hasOwnProperty('labeledDescriptors')) {
+      if (this.faceMatcherJson.length && this.faceMatcherJson.hasOwnProperty('labeledDescriptors')) {
         return this.faceMatcherJson.labeledDescriptors.length < this.allUsers.users.length;
       } else {
         return true
@@ -133,20 +120,16 @@ export default {
     }
   },
   methods: {
-    loadTreine() {
+    async loadTreine() {
       this.load.loading = true;
       this.load.mensage = 'buscanco dados treinados...'
-      $fetch('/api/treine').then((treine) => {
-        this.treineServeData = treine
-        if (this.treineServeData.hasOwnProperty('faceMatcherJson')) {
-          this.faceMatcherJson = this.treineServeData.faceMatcherJson
-        }
+      this.treineServeData = await $fetch('/api/treine').finally(() => {
         this.load.loading = false;
       })
     },
 
     async saveFaceMatcher(faceMatcherJson) {
-      await $fetch(`/api/treine`, {
+      const savedFaceMatcher = await $fetch(`/api/treine`, {
         method: 'POST',
         headers: {
           Authorization: this.token
@@ -154,17 +137,20 @@ export default {
         body: faceMatcherJson
       }).then((response) => {
         snackbarShow(response.message, 'success')
+        return response.data
       }).catch((error) => {
-        snackbarShow(error, 'error')
+        snackbarShow(error.data.message, 'error')
       })
+      if (savedFaceMatcher) {
+        this.treineServeData = savedFaceMatcher
+      }
     },
 
     async createNewTreine() {
       this.LabelTrained = await this.loadLabels()
       const faceMatcher = new faceapi.FaceMatcher(this.LabelTrained, this.distanceThreshold)
-      this.faceMatcherJson = await faceMatcher.toJSON();
-      await this.saveFaceMatcher(this.faceMatcherJson)
-      this.loadTreine()
+      const faceMatcherJson = await faceMatcher.toJSON();
+      await this.saveFaceMatcher(faceMatcherJson)
       this.load.current = 0
       this.load.loading = false;
     },

@@ -63,7 +63,7 @@ CREATE TABLE `users` (
     `login` VARCHAR(191) NULL,
     `password` VARCHAR(191) NULL,
     `daysWeek` VARCHAR(191) NULL,
-    `rule` VARCHAR(191) NOT NULL DEFAULT 'funcionario',
+    `rule` VARCHAR(191) NOT NULL DEFAULT 'colaborador',
     `status` BOOLEAN NOT NULL DEFAULT true,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NULL,
@@ -147,6 +147,17 @@ CREATE TABLE `points` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `configs` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `key` VARCHAR(191) NOT NULL,
+    `value` JSON NOT NULL,
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `tenantId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `payments` ADD CONSTRAINT `payments_affiliateID_fkey` FOREIGN KEY (`affiliateID`) REFERENCES `affiliateds`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -191,3 +202,6 @@ ALTER TABLE `points` ADD CONSTRAINT `points_userId_fkey` FOREIGN KEY (`userId`) 
 
 -- AddForeignKey
 ALTER TABLE `points` ADD CONSTRAINT `points_tenantId_fkey` FOREIGN KEY (`tenantId`) REFERENCES `tenants`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `configs` ADD CONSTRAINT `configs_tenantId_fkey` FOREIGN KEY (`tenantId`) REFERENCES `tenants`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -1,22 +1,20 @@
-import fs from 'fs';
-import path from 'path';
+import prisma from "~~/server/prisma";
 
 export default defineEventHandler(async () => {
   try {
-    const filePath = path.join('storage', 'faceMatcher.json');
+    const faceMatcher = await prisma.config.findFirst({
+      where: { key: 'faceMatcher' },
+    });
 
-    // Check if file exists first
-    if (!fs.existsSync(filePath)) {
-      return {};
+    if (!faceMatcher || !faceMatcher.value) {
+      return {
+        faceMatcherJson: {},
+        updatedAt: null,
+      }
     }
-
-    // File exists, proceed with reading
-    const conteFile = JSON.parse(await fs.promises.readFile(filePath, 'utf8'));
-    const FileStats = await fs.promises.stat(filePath);
-
     return {
-      faceMatcherJson: conteFile,
-      fileStats: FileStats
+      faceMatcherJson: JSON.parse(faceMatcher.value as string),
+      updatedAt: faceMatcher.updatedAt,
     }
 
   } catch (e: any) {
